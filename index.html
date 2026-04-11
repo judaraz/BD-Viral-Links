@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>After Hours • Premium Access</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(145deg, #0a0a0f 0%, #1a0a1a 40%, #0f0a1a 100%);
+            min-height: 100vh;
+            scrollbar-width: none;
+        }
+        
+        body::-webkit-scrollbar {
+            display: none;
+        }
+        
+        @keyframes fadeIn { 
+            from { opacity: 0; } 
+            to { opacity: 1; } 
+        }
+        
+        @keyframes slideUp { 
+            from { opacity: 0; transform: translateY(30px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(236, 72, 153, 0.3), 0 0 40px rgba(139, 92, 246, 0.1); }
+            50% { box-shadow: 0 0 30px rgba(236, 72, 153, 0.5), 0 0 60px rgba(139, 92, 246, 0.2); }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        .fade-in { animation: fadeIn 1s ease-out forwards; }
+        .slide-up { animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+        .animation-delay-200 { animation-delay: 0.2s; }
+        .animation-delay-400 { animation-delay: 0.4s; }
+        .animation-delay-600 { animation-delay: 0.6s; }
+        
+        .slider-container { 
+            position: relative; 
+            overflow: hidden;
+            border-radius: 28px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        
+        .slider-wrapper { 
+            display: flex; 
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        
+        .slider-item { 
+            min-width: 100%; 
+            box-sizing: border-box; 
+        }
+        
+        .slider-dots { 
+            position: absolute; 
+            bottom: 20px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            display: flex; 
+            gap: 10px;
+            z-index: 10;
+        }
+        
+        .slider-dot { 
+            width: 8px; 
+            height: 8px; 
+            border-radius: 4px; 
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(4px);
+            cursor: pointer; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .slider-dot.active { 
+            width: 32px;
+            background: linear-gradient(90deg, #ec4899, #8b5cf6);
+            box-shadow: 0 0 20px rgba(236, 72, 153, 0.5);
+        }
+        
+        .glass-card {
+            background: rgba(20, 10, 25, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(236, 72, 153, 0.15);
+        }
+        
+        .glass-header {
+            background: rgba(15, 5, 20, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(236, 72, 153, 0.2);
+        }
+        
+        .premium-gradient {
+            background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #ec4899 100%);
+            background-size: 200% 200%;
+            animation: gradient-shift 3s ease infinite;
+        }
+        
+        @keyframes gradient-shift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 40px rgba(236, 72, 153, 0.2), 0 0 30px rgba(139, 92, 246, 0.1);
+            border-color: rgba(236, 72, 153, 0.3);
+        }
+        
+        .skeleton {
+            background: linear-gradient(90deg, #1a0a1a 25%, #2a0a2a 50%, #1a0a1a 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        
+        .access-btn {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .access-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .access-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .access-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .badge-premium {
+            background: linear-gradient(135deg, #ec4899, #8b5cf6);
+            clip-path: polygon(0 0, 100% 0, 90% 100%, 0 100%);
+        }
+        
+        .badge-hot {
+            background: linear-gradient(90deg, #ef4444, #ec4899);
+            animation: pulse-glow 2s infinite;
+        }
+        
+        .search-input {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(236, 72, 153, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        .search-input:focus {
+            border-color: #ec4899;
+            box-shadow: 0 0 30px rgba(236, 72, 153, 0.3);
+        }
+        
+        .toast-sexy {
+            background: linear-gradient(135deg, #1a0a1a, #0a0a0f);
+            border: 1px solid rgba(236, 72, 153, 0.3);
+            box-shadow: 0 10px 40px rgba(236, 72, 153, 0.2);
+        }
+        
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar {
+            width: 3px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #0a0a0f;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #ec4899, #8b5cf6);
+            border-radius: 10px;
+        }
+        
+        .glow-text {
+            text-shadow: 0 0 30px rgba(236, 72, 153, 0.5);
+        }
+        
+        .overlay-gradient {
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
+        }
+    </style>
+</head>
+<body class="text-gray-100">
+
+    <div id="app" class="container mx-auto p-4 md:p-6 max-w-7xl">
+        <!-- Sexy Premium Header -->
+        <header class="relative glass-header p-6 md:p-8 rounded-3xl shadow-2xl mb-8 fade-in border border-pink-500/20">
+            <div class="absolute top-0 right-0 p-4">
+                <div class="badge-hot px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider">
+                    <i class="fas fa-fire mr-2"></i>18+ PREMIUM
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4 mb-4">
+                <div class="w-12 h-12 md:w-16 md:h-16 rounded-2xl premium-gradient flex items-center justify-center animate-pulse">
+                    <i class="fas fa-crown text-white text-xl md:text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-4xl md:text-5xl font-black">
+                        <span class="bg-gradient-to-r from-pink-400 via-purple-400 to-pink-400 bg-clip-text text-transparent glow-text">
+                            After Hours
+                        </span>
+                    </h1>
+                    <p class="text-gray-400 text-sm md:text-base flex items-center gap-2">
+                        <i class="fas fa-lock text-pink-400 text-xs"></i>
+                        <span>Exclusive Content • VIP Access Only</span>
+                    </p>
+                </div>
+            </div>
+            
+            <p class="text-gray-300 text-base md:text-lg mb-6 max-w-2xl">
+                <i class="fas fa-play-circle text-pink-400 mr-2"></i>
+                Unlock premium content • Files open automatically after access
+            </p>
+            
+            <div class="max-w-2xl">
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <i class="fas fa-search text-pink-400"></i>
+                    </div>
+                    <input type="text" id="searchInput" 
+                           placeholder="Search exclusive content..." 
+                           class="search-input w-full p-4 pl-12 pr-20 rounded-2xl text-white placeholder-gray-500 focus:outline-none text-base">
+                    <div class="absolute inset-y-0 right-2 flex items-center">
+                        <span class="text-xs text-gray-500 px-3 py-1.5 bg-black/30 rounded-xl">
+                            <i class="fas fa-keyboard mr-1"></i>Search
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Sexy Slider Section -->
+        <div class="mb-10 slide-up animation-delay-200">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-1.5 h-6 bg-gradient-to-b from-pink-500 to-purple-600 rounded-full"></div>
+                <h2 class="text-xl font-bold text-white">
+                    <i class="fas fa-star text-pink-400 mr-2"></i>
+                    Featured Content
+                </h2>
+            </div>
+            
+            <div id="slider" class="slider-container w-full h-52 md:h-96">
+                <div id="slider-wrapper" class="slider-wrapper h-full">
+                    <div class="slider-item skeleton w-full h-full"></div>
+                </div>
+                <div id="slider-dots" class="slider-dots"></div>
+                <div class="absolute top-4 left-4 z-10">
+                    <span class="badge-premium px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-white">
+                        <i class="fas fa-crown mr-1"></i> HOT
+                    </span>
+                </div>
+                <div class="absolute inset-0 overlay-gradient pointer-events-none"></div>
+            </div>
+        </div>
+
+        <!-- Sexy Files Grid -->
+        <div class="slide-up animation-delay-400">
+            <div class="flex items-center justify-between mb-5">
+                <div class="flex items-center gap-3">
+                    <div class="w-1.5 h-6 bg-gradient-to-b from-pink-500 to-purple-600 rounded-full"></div>
+                    <h2 class="text-2xl font-black text-white">
+                        <i class="fas fa-gem text-pink-400 mr-2"></i>
+                        Premium Library
+                    </h2>
+                </div>
+                <span class="text-xs text-gray-500 px-3 py-1.5 glass-card rounded-full">
+                    <i class="fas fa-lock mr-1"></i>Unlock with access
+                </span>
+            </div>
+            
+            <div id="files-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+                <div class="skeleton rounded-2xl h-72"></div>
+                <div class="skeleton rounded-2xl h-72"></div>
+                <div class="skeleton rounded-2xl h-72"></div>
+                <div class="skeleton rounded-2xl h-72"></div>
+            </div>
+            
+            <div id="no-results" class="hidden text-center py-16">
+                <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl glass-card border border-pink-500/30 mb-4">
+                    <i class="fas fa-search text-3xl text-gray-500"></i>
+                </div>
+                <p class="text-xl text-gray-400 font-semibold">No exclusive content found</p>
+                <p class="text-sm text-gray-600 mt-2">Try searching for something else</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sexy Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 toast-sexy py-4 px-6 rounded-2xl opacity-0 transform translate-y-10 transition-all duration-500 z-50">
+        <div class="flex items-center gap-3">
+            <i class="fas fa-check-circle text-pink-400 text-lg"></i>
+            <p id="toast-message" class="text-sm font-medium"></p>
+        </div>
+    </div>
+
+    <!-- Sexy Footer -->
+    <footer class="mt-12 py-8 border-t border-pink-500/10">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-crown text-pink-400"></i>
+                    <span class="bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent font-bold">After Hours</span>
+                </div>
+                <p class="text-gray-500 text-xs">
+                    © 2025 After Hours Premium • 18+ Only • All Rights Reserved
+                </p>
+                <div class="flex gap-3">
+                    <i class="fas fa-shield-alt text-gray-600"></i>
+                    <i class="fas fa-lock text-gray-600"></i>
+                    <i class="fas fa-user-secret text-gray-600"></i>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts - EXACT SAME FUNCTIONALITY -->
+    <script async src="https://sad.adsgram.ai/js/sad.min.js"></script>
+
+    <script type="module">
+        // ===== EXACT SAME FUNCTIONALITY - ONLY UI CHANGED =====
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, collection, getDocs, doc, getDoc, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBtqQvDCgqy5Tp01yajerWRSMfW6MKx-Gc",
+            authDomain: "visit-1f400.firebaseapp.com",
+            projectId: "visit-1f400",
+            storageBucket: "visit-1f400.firebasestorage.app",
+            messagingSenderId: "226827389556",
+            appId: "1:226827389556:web:b5c04719721212bc79df21"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const sliderWrapper = document.getElementById('slider-wrapper');
+        const sliderDotsContainer = document.getElementById('slider-dots');
+        const filesGrid = document.getElementById('files-grid');
+        const searchInput = document.getElementById('searchInput');
+        const noResultsMessage = document.getElementById('no-results');
+
+        let sliderInterval;
+        let currentSlide = 0;
+        let AdController = null;
+        let allFiles = [];
+        let waitTime = 10;
+        let isAdInProgress = false;
+        
+        const fileCooldowns = new Map();
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').textContent = message;
+            toast.classList.remove('opacity-0', 'translate-y-10');
+            setTimeout(() => toast.classList.add('opacity-0', 'translate-y-10'), 2000);
+        }
+
+        // Initialize Adsgram
+        function initAdsgram() {
+            if (typeof window.Adsgram !== 'undefined') {
+                AdController = window.Adsgram.init({ blockId: "int-21144" });
+                console.log("✅ Adsgram ready");
+            } else {
+                setTimeout(initAdsgram, 500);
+            }
+        }
+
+        // 🔥 Reset button to original state
+        function resetButton(button, originalText) {
+            button.disabled = false;
+            button.innerHTML = originalText;
+            isAdInProgress = false;
+        }
+
+        // 🔥 Show interstitial ad
+        async function showInterstitialAd(fileId, url, button, card) {
+            if (!AdController) {
+                console.log('❌ Adsgram not ready, opening file directly');
+                window.open(url, '_blank');
+                startCooldown(fileId, button);
+                return;
+            }
+            
+            const originalText = button.innerHTML;
+            isAdInProgress = true;
+            
+            try {
+                console.log('📺 Showing Interstitial Ad...');
+                
+                // Show ad and wait for it to close (automatically or manually)
+                await AdController.show({ type: 'interstitial' });
+                
+                console.log('✅ Ad closed - opening file');
+                
+                // Ad closed successfully - open file
+                window.open(url, '_blank');
+                
+                // Start cooldown
+                startCooldown(fileId, button);
+                
+            } catch (error) {
+                console.log('⚠️ Ad skipped or error:', error);
+                
+                // Even if ad fails, open the file
+                window.open(url, '_blank');
+                
+                // Start cooldown
+                startCooldown(fileId, button);
+                
+            } finally {
+                // Reset ad in progress flag
+                isAdInProgress = false;
+            }
+        }
+
+        // Cooldown functions
+        function startCooldown(fileId, button) {
+            const cooldownKey = `cooldown_${fileId}`;
+            const endTime = Date.now() + (waitTime * 1000);
+            localStorage.setItem(cooldownKey, endTime);
+            
+            button.disabled = true;
+            const originalText = '<i class="fas fa-play-circle"></i><span>Access Now</span>';
+            
+            const updateTimer = () => {
+                const remaining = Math.ceil((endTime - Date.now()) / 1000);
+                if (remaining <= 0) {
+                    button.disabled = false;
+                    button.innerHTML = originalText;
+                    fileCooldowns.delete(fileId);
+                    localStorage.removeItem(cooldownKey);
+                } else {
+                    button.innerHTML = `<i class="fas fa-clock mr-2"></i>Wait ${remaining}s`;
+                    fileCooldowns.set(fileId, setTimeout(updateTimer, 100));
+                }
+            };
+            
+            updateTimer();
+        }
+
+        function isFileOnCooldown(fileId) {
+            const cooldownKey = `cooldown_${fileId}`;
+            const endTime = localStorage.getItem(cooldownKey);
+            return endTime && parseInt(endTime) > Date.now();
+        }
+
+        // 🔥 Handle access click
+        async function handleAccessClick(fileId, url, button, card) {
+            // Prevent if button disabled or ad in progress
+            if (button.disabled || isAdInProgress) {
+                console.log('⏳ Already processing or on cooldown');
+                return;
+            }
+            
+            // Check cooldown
+            if (isFileOnCooldown(fileId)) {
+                showToast('⏳ Please wait for cooldown to finish');
+                return;
+            }
+            
+            // Show ad and open file
+            await showInterstitialAd(fileId, url, button, card);
+        }
+
+        async function loadSettings() {
+            try {
+                const docSnap = await getDoc(doc(db, "settings", "general"));
+                if (docSnap.exists()) {
+                    waitTime = docSnap.data().timerDuration || 10;
+                }
+            } catch (error) {
+                console.error("Error loading settings:", error);
+            }
+        }
+
+        async function loadAllData() {
+            try {
+                await loadSettings();
+                
+                const [slidersSnap, filesSnap] = await Promise.all([
+                    getDocs(query(collection(db, "sliders"), orderBy("createdAt", "desc"), limit(10))),
+                    getDocs(query(collection(db, "files"), orderBy("createdAt", "desc"), limit(50)))
+                ]);
+                
+                renderSliders(slidersSnap);
+                renderFiles(filesSnap);
+            } catch (error) {
+                console.error("Error loading:", error);
+            }
+        }
+
+        function renderSliders(sliderSnapshot) {
+            sliderWrapper.innerHTML = '';
+            sliderDotsContainer.innerHTML = '';
+            const slides = [];
+            sliderSnapshot.forEach(doc => slides.push(doc.data()));
+            
+            if (slides.length > 0) {
+                slides.forEach((slide, index) => {
+                    const slideEl = document.createElement('div');
+                    slideEl.className = 'slider-item';
+                    slideEl.innerHTML = slide.linkUrl ? 
+                        `<a href="${slide.linkUrl}" target="_blank"><img src="${slide.imageUrl}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/1280x400/1a0a1a/ec4899?text=Premium+Content'"></a>` :
+                        `<img src="${slide.imageUrl}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/1280x400/1a0a1a/ec4899?text=Premium+Content'">`;
+                    sliderWrapper.appendChild(slideEl);
+                    
+                    const dotEl = document.createElement('div');
+                    dotEl.className = 'slider-dot';
+                    dotEl.dataset.index = index;
+                    sliderDotsContainer.appendChild(dotEl);
+                });
+                setupSlider(slides.length);
+            }
+        }
+
+        function renderFiles(filesSnapshot) {
+            filesGrid.innerHTML = '';
+            allFiles = [];
+            
+            if (filesSnapshot.empty) {
+                filesGrid.innerHTML = `<p class="col-span-full text-center text-gray-500 py-8">No exclusive content available.</p>`;
+                return;
+            }
+            
+            filesSnapshot.forEach(doc => allFiles.push({ id: doc.id, ...doc.data() }));
+            
+            allFiles.forEach(file => {
+                const card = document.createElement('div');
+                card.className = 'file-card glass-card rounded-2xl overflow-hidden card-hover border border-pink-500/20';
+                card.dataset.title = file.title.toLowerCase();
+                card.dataset.description = (file.description || '').toLowerCase();
+                card.id = `card-${file.id}`;
+                
+                const isOnCooldown = isFileOnCooldown(file.id);
+                
+                card.innerHTML = `
+                    <div class="relative aspect-video overflow-hidden">
+                        <img src="${file.thumbnailUrl}" alt="${file.title}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/400x225/1a0a1a/ec4899?text=Premium'">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                        <div class="absolute top-3 left-3">
+                            <span class="bg-gradient-to-r from-pink-500/90 to-purple-600/90 backdrop-blur-sm px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wide">
+                                <i class="fas fa-crown mr-1"></i>PREMIUM
+                            </span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-base font-bold text-white truncate mb-1">${file.title}</h3>
+                        <p class="text-gray-400 text-xs line-clamp-2 mb-4 h-8">${file.description || 'Exclusive premium content'}</p>
+                        <div class="mt-2">
+                            <button data-file-id="${file.id}" data-url="${file.downloadUrl}" 
+                                    class="access-btn w-full py-3 px-4 rounded-xl text-white text-sm font-bold premium-gradient flex items-center justify-center gap-2 shadow-lg" 
+                                    ${isOnCooldown ? 'disabled' : ''}>
+                                <i class="fas fa-play-circle"></i>
+                                <span>${isOnCooldown ? 'Wait...' : 'Access Now'}</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                filesGrid.appendChild(card);
+                
+                if (isOnCooldown) {
+                    const button = card.querySelector('.access-btn');
+                    startCooldown(file.id, button);
+                }
+            });
+        }
+
+        function setupSlider(slideCount) {
+            if (slideCount <= 1) {
+                if(slideCount === 1) document.querySelector('.slider-dot')?.classList.add('active');
+                return;
+            }
+            const dots = document.querySelectorAll('.slider-dot');
+            function goToSlide(index) {
+                currentSlide = (index + slideCount) % slideCount;
+                sliderWrapper.style.transform = `translateX(-${currentSlide * 100}%)`;
+                dots.forEach(dot => dot.classList.remove('active'));
+                if(dots[currentSlide]) dots[currentSlide].classList.add('active');
+            }
+            if (sliderInterval) clearInterval(sliderInterval);
+            sliderInterval = setInterval(() => goToSlide(currentSlide + 1), 3000);
+            dots.forEach(dot => dot.addEventListener('click', (e) => goToSlide(parseInt(e.target.dataset.index))));
+            goToSlide(0);
+        }
+
+        function handleSearch() {
+            const term = searchInput.value.toLowerCase();
+            let visible = 0;
+            
+            document.querySelectorAll('.file-card').forEach(card => {
+                const title = card.dataset.title;
+                const desc = card.dataset.description;
+                if (title.includes(term) || desc.includes(term)) {
+                    card.style.display = 'block';
+                    visible++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            noResultsMessage.classList.toggle('hidden', visible > 0);
+        }
+
+        filesGrid.addEventListener('click', (e) => {
+            const accessBtn = e.target.closest('.access-btn');
+            if (accessBtn && !accessBtn.disabled) {
+                e.preventDefault();
+                const fileId = accessBtn.dataset.fileId;
+                const url = accessBtn.dataset.url;
+                const card = accessBtn.closest('.file-card');
+                
+                handleAccessClick(fileId, url, accessBtn, card);
+            }
+        });
+
+        searchInput.addEventListener('input', handleSearch);
+
+        loadAllData();
+        initAdsgram();
+    </script>
+</body>
+</html>
