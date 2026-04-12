@@ -508,7 +508,7 @@
     <script async src="https://sad.adsgram.ai/js/sad.min.js"></script>
 
     <script type="module">
-        // ===== FIXED: BUTTON CLICK HANDLING =====
+        // ===== FIXED: PROPER LINK OPENING =====
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getFirestore, collection, getDocs, doc, getDoc, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -583,32 +583,57 @@
             navigator.clipboard.writeText(text).then(() => {
                 showToast('🔗 Link copied to clipboard');
             }).catch(() => {
-                showToast('❌ Failed to copy');
+                // Fallback
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showToast('🔗 Link copied to clipboard');
             });
         }
 
         function openLink(link) {
             if (!link) return;
             
+            console.log('Opening link:', link);
+            
+            // Ensure link has protocol
+            if (!link.startsWith('http://') && !link.startsWith('https://') && !link.startsWith('intent://')) {
+                link = 'https://' + link;
+            }
+            
             if (isTeraboxLink(link)) {
-                // Try to redirect to terabox app
+                // For Terabox links, try to open in app first
                 let intentUrl = link;
-                if (link.includes('terabox.com/s/')) {
-                    const shareCode = link.split('/s/')[1]?.split('?')[0];
-                    if (shareCode) {
-                        intentUrl = `intent://www.terabox.com/sharing/link?surl=${shareCode}#Intent;scheme=https;package=com.dubox.drive;end;`;
-                    }
-                } else if (link.includes('teraboxapp.com/s/')) {
-                    const shareCode = link.split('/s/')[1]?.split('?')[0];
-                    if (shareCode) {
-                        intentUrl = `intent://www.teraboxapp.com/sharing/link?surl=${shareCode}#Intent;scheme=https;package=com.dubox.drive;end;`;
-                    }
+                
+                // Extract share code if present
+                let shareCode = null;
+                if (link.includes('/s/')) {
+                    shareCode = link.split('/s/')[1]?.split('?')[0]?.split('#')[0];
                 }
-                window.location.href = intentUrl;
-                setTimeout(() => {
+                
+                if (shareCode) {
+                    // Try to open with Terabox app
+                    intentUrl = `intent://www.terabox.com/sharing/link?surl=${shareCode}#Intent;scheme=https;package=com.dubox.drive;end;`;
+                    
+                    // Create hidden iframe for intent
+                    const iframe = document.createElement('iframe');
+                    iframe.style.display = 'none';
+                    iframe.src = intentUrl;
+                    document.body.appendChild(iframe);
+                    
+                    // Fallback to browser after delay
+                    setTimeout(() => {
+                        document.body.removeChild(iframe);
+                        window.open(link, '_blank');
+                    }, 1500);
+                } else {
                     window.open(link, '_blank');
-                }, 800);
+                }
             } else {
+                // For non-Terabox links, open directly in browser
                 window.open(link, '_blank');
             }
         }
@@ -618,13 +643,20 @@
         popupOverlay.addEventListener('click', (e) => {
             if (e.target === popupOverlay) hidePopup();
         });
-        copyLinkBtn.addEventListener('click', () => {
+        
+        copyLinkBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             if (currentPopupLink) {
                 copyToClipboard(currentPopupLink);
                 hidePopup();
             }
         });
-        openLinkBtn.addEventListener('click', () => {
+        
+        openLinkBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Open button clicked, link:', currentPopupLink);
             if (currentPopupLink) {
                 openLink(currentPopupLink);
                 hidePopup();
@@ -650,7 +682,6 @@
                 return;
             }
             
-            const originalText = button.innerHTML;
             isAdInProgress = true;
             
             try {
@@ -700,7 +731,7 @@
             return endTime && parseInt(endTime) > Date.now();
         }
 
-        // FIXED: Direct button click handler
+        // Direct button click handler
         async function handleAccessClick(fileId, url, button) {
             if (button.disabled || isAdInProgress) {
                 console.log('⏳ Already processing or on cooldown');
