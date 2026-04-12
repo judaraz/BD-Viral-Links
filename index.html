@@ -142,6 +142,7 @@
             position: relative;
             overflow: hidden;
             transition: all 0.3s ease;
+            cursor: pointer;
         }
         
         .access-btn::before {
@@ -227,10 +228,12 @@
             z-index: 9999;
             padding: 16px;
             opacity: 0;
-            transition: opacity 0.2s ease;
+            visibility: hidden;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
         }
         .popup-overlay.active {
             opacity: 1;
+            visibility: visible;
         }
         .popup-card {
             background: rgba(20, 10, 25, 0.95);
@@ -505,7 +508,7 @@
     <script async src="https://sad.adsgram.ai/js/sad.min.js"></script>
 
     <script type="module">
-        // ===== FULL CODE WITH POPUP + TERABOX DETECTION =====
+        // ===== FIXED: BUTTON CLICK HANDLING =====
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getFirestore, collection, getDocs, doc, getDoc, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -555,7 +558,7 @@
 
         // ---------- POPUP LOGIC ----------
         function isTeraboxLink(url) {
-            return url && (url.includes('terabox') || url.includes('teraboxapp') || url.includes('1024terabox'));
+            return url && (url.includes('terabox') || url.includes('teraboxapp') || url.includes('1024terabox') || url.includes('dubox'));
         }
 
         function showLinkPopup(link) {
@@ -588,9 +591,8 @@
             if (!link) return;
             
             if (isTeraboxLink(link)) {
-                // Try to redirect to terabox app: intent scheme
+                // Try to redirect to terabox app
                 let intentUrl = link;
-                // If it's a standard terabox share link, convert to intent
                 if (link.includes('terabox.com/s/')) {
                     const shareCode = link.split('/s/')[1]?.split('?')[0];
                     if (shareCode) {
@@ -602,9 +604,7 @@
                         intentUrl = `intent://www.teraboxapp.com/sharing/link?surl=${shareCode}#Intent;scheme=https;package=com.dubox.drive;end;`;
                     }
                 }
-                // Fallback: just open link
                 window.location.href = intentUrl;
-                // If intent fails, after a short delay open normal link
                 setTimeout(() => {
                     window.open(link, '_blank');
                 }, 800);
@@ -613,7 +613,7 @@
             }
         }
 
-        // popup event listeners
+        // Popup event listeners
         closePopupBtn.addEventListener('click', hidePopup);
         popupOverlay.addEventListener('click', (e) => {
             if (e.target === popupOverlay) hidePopup();
@@ -641,14 +641,8 @@
             }
         }
 
-        function resetButton(button, originalText) {
-            button.disabled = false;
-            button.innerHTML = originalText;
-            isAdInProgress = false;
-        }
-
-        // 🔥 Show interstitial ad, then SHOW POPUP (instead of direct open)
-        async function showInterstitialAd(fileId, url, button, card) {
+        // Show ad then popup
+        async function showInterstitialAd(fileId, url, button) {
             if (!AdController) {
                 console.log('❌ Adsgram not ready, showing popup');
                 showLinkPopup(url);
@@ -664,14 +658,11 @@
                 await AdController.show({ type: 'interstitial' });
                 console.log('✅ Ad closed - showing popup');
                 
-                // SHOW CUSTOM POPUP instead of window.open
                 showLinkPopup(url);
-                
                 startCooldown(fileId, button);
                 
             } catch (error) {
                 console.log('⚠️ Ad skipped or error:', error);
-                // Show popup anyway
                 showLinkPopup(url);
                 startCooldown(fileId, button);
             } finally {
@@ -709,7 +700,8 @@
             return endTime && parseInt(endTime) > Date.now();
         }
 
-        async function handleAccessClick(fileId, url, button, card) {
+        // FIXED: Direct button click handler
+        async function handleAccessClick(fileId, url, button) {
             if (button.disabled || isAdInProgress) {
                 console.log('⏳ Already processing or on cooldown');
                 return;
@@ -718,7 +710,30 @@
                 showToast('⏳ Please wait for cooldown to finish');
                 return;
             }
-            await showInterstitialAd(fileId, url, button, card);
+            await showInterstitialAd(fileId, url, button);
+        }
+
+        // Attach click handlers to buttons
+        function attachButtonListeners() {
+            document.querySelectorAll('.access-btn').forEach(btn => {
+                // Remove existing listeners by cloning
+                const newBtn = btn.cloneNode(true);
+                btn.parentNode.replaceChild(newBtn, btn);
+                
+                newBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    if (this.disabled) return;
+                    
+                    const fileId = this.dataset.fileId;
+                    const url = this.dataset.url;
+                    
+                    if (fileId && url) {
+                        handleAccessClick(fileId, url, this);
+                    }
+                });
+            });
         }
 
         async function loadSettings() {
@@ -741,6 +756,8 @@
                 ]);
                 renderSliders(slidersSnap);
                 renderFiles(filesSnap);
+                // Attach listeners after rendering
+                setTimeout(attachButtonListeners, 100);
             } catch (error) {
                 console.error("Error loading:", error);
             }
@@ -848,19 +865,9 @@
             noResultsMessage.classList.toggle('hidden', visible > 0);
         }
 
-        filesGrid.addEventListener('click', (e) => {
-            const accessBtn = e.target.closest('.access-btn');
-            if (accessBtn && !accessBtn.disabled) {
-                e.preventDefault();
-                const fileId = accessBtn.dataset.fileId;
-                const url = accessBtn.dataset.url;
-                const card = accessBtn.closest('.file-card');
-                handleAccessClick(fileId, url, accessBtn, card);
-            }
-        });
-
         searchInput.addEventListener('input', handleSearch);
 
+        // Initialize everything
         loadAllData();
         initAdsgram();
     </script>
