@@ -1,0 +1,1519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>CashReward Premium - Earn Real Rewards</title>
+    
+    <!-- Telegram WebApp SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <!-- Ad Providers (Compliant Implementation) -->
+    <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
+    <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
+    <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+    <script src="https://ad.gigapub.tech/script?id=1817"></script>
+    
+    <!-- Giga OfferWall SDK -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!window.loadOfferWallSDK) {
+                const script = document.createElement('script');
+                script.src = 'https://cdn.giga.pub/script/offer/loader/loader.js';
+                script.async = true;
+                document.head.appendChild(script);
+            }
+        });
+
+        (window.loadGigaSDKCallbacks || (window.loadGigaSDKCallbacks = [])).push(() => {
+            window.loadOfferWallSDK({ projectId: '1817' })
+                .then(sdk => {
+                    window.gigaOfferWallSDK = sdk;
+                    sdk.on('rewardClaim', async (data) => {
+                        if (window.creditUserReward) await window.creditUserReward(data.userId, data.amount);
+                        sdk.confirmReward(data.rewardId, data.hash);
+                    });
+                })
+                .catch(console.error);
+        });
+    </script>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: linear-gradient(135deg, #0a0a1a 0%, #0f0f23 100%);
+            color: #ffffff; 
+            min-height: 100vh;
+        }
+        
+        /* Premium Gradient Backgrounds */
+        .bg-premium-dark { background: linear-gradient(135deg, #0a0a1a 0%, #0f0f23 100%); }
+        .bg-premium-card { background: linear-gradient(145deg, rgba(30, 30, 60, 0.9), rgba(20, 20, 40, 0.95)); backdrop-filter: blur(10px); }
+        .bg-premium-gold { background: linear-gradient(135deg, #FFD700, #FFA500, #FFD700); }
+        .bg-premium-purple { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .bg-premium-pink { background: linear-gradient(135deg, #f093fb, #f5576c); }
+        .bg-premium-cyan { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+        
+        /* Glassmorphism Cards */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            transition: all 0.3s ease;
+        }
+        
+        .glass-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255, 215, 0, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Gold Text */
+        .text-gold { background: linear-gradient(135deg, #FFD700, #FFA500); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        
+        /* Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #1a1a2e;
+            font-weight: 700;
+            border: none;
+            border-radius: 16px;
+            padding: 14px 24px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+        }
+        
+        .btn-primary:hover { transform: scale(1.02); box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4); }
+        .btn-primary:active { transform: scale(0.98); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            font-weight: 600;
+            border-radius: 16px;
+            padding: 12px 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .btn-secondary:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.02); }
+        
+        .btn-bonus {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-weight: 700;
+            border-radius: 16px;
+            padding: 12px 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-bonus:hover { transform: scale(1.02); box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4); }
+        
+        /* Navigation */
+        .bottom-nav {
+            background: rgba(15, 15, 35, 0.95);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 30px 30px 0 0;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: #6b7280;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .nav-item.active { color: #FFD700; }
+        .nav-item i { font-size: 22px; }
+        .nav-item span { font-size: 11px; font-weight: 500; }
+        
+        /* Game Cards */
+        .game-card {
+            background: linear-gradient(145deg, rgba(30, 30, 60, 0.8), rgba(20, 20, 40, 0.9));
+            border-radius: 28px;
+            padding: 20px;
+            border: 1px solid rgba(255, 215, 0, 0.15);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .game-card:hover { transform: translateY(-5px); border-color: rgba(255, 215, 0, 0.4); box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3); }
+        
+        .game-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+        
+        /* Reward Option Buttons */
+        .reward-option {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .reward-option:hover { background: rgba(255, 255, 255, 0.1); transform: translateX(5px); }
+        
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        
+        .modal-content {
+            background: linear-gradient(145deg, rgba(30, 30, 60, 0.98), rgba(20, 20, 40, 0.98));
+            border-radius: 32px;
+            max-width: 400px;
+            width: 100%;
+            padding: 30px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            text-align: center;
+        }
+        
+        /* Ludo Board */
+        .ludo-board {
+            width: 280px;
+            height: 280px;
+            background: white;
+            border-radius: 20px;
+            border: 8px solid #2c3e50;
+            position: relative;
+            transform: rotate(45deg);
+            margin: 20px auto;
+        }
+        
+        .ludo-quadrant {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+        }
+        .ludo-q1 { top: 0; left: 0; background: #ff6b6b; border-bottom-right-radius: 100%; }
+        .ludo-q2 { top: 0; right: 0; background: #4ecdc4; border-bottom-left-radius: 100%; }
+        .ludo-q3 { bottom: 0; left: 0; background: #ffd93d; border-top-right-radius: 100%; }
+        .ludo-q4 { bottom: 0; right: 0; background: #6c5ce7; border-top-left-radius: 100%; }
+        
+        .ludo-center {
+            position: absolute;
+            width: 35%;
+            height: 35%;
+            background: white;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 12px;
+            border: 3px solid #2c3e50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .dice {
+            width: 70px;
+            height: 70px;
+            background: white;
+            border-radius: 16px;
+            border: 4px solid #2c3e50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 900;
+            color: #2c3e50;
+            margin: 20px auto;
+            transform: rotate(-45deg);
+        }
+        
+        /* Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .float-animation { animation: float 3s ease-in-out infinite; }
+        .pulse-animation { animation: pulse 2s ease-in-out infinite; }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(135deg, #FFD700, #FFA500); border-radius: 10px; }
+        
+        /* Loading Spinner */
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 215, 0, 0.1);
+            border-top-color: #FFD700;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* Color Options */
+        .color-option {
+            aspect-ratio: 1;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .color-option:hover { transform: scale(1.05); box-shadow: 0 5px 20px rgba(0,0,0,0.3); }
+        .color-option:active { transform: scale(0.95); }
+        
+        /* Page Transitions */
+        .page { display: none; animation: fadeIn 0.3s ease; }
+        .page.active { display: block; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="max-w-md mx-auto relative">
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-95 flex items-center justify-center z-50 hidden">
+        <div class="text-center">
+            <div class="spinner mx-auto mb-4"></div>
+            <p class="text-gold font-semibold">Loading...</p>
+        </div>
+    </div>
+
+    <!-- Ad Loading Modal -->
+    <div id="adModal" class="modal">
+        <div class="modal-content">
+            <div class="spinner mx-auto mb-4"></div>
+            <h3 class="text-xl font-bold text-gold mb-2">Loading Ad</h3>
+            <p class="text-gray-300 text-sm" id="adModalMessage">Please wait while we load your ad...</p>
+            <button onclick="closeAdModal()" class="mt-4 text-gray-400 text-sm">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Reward Modal (After Game Win) -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <div class="w-20 h-20 mx-auto rounded-full bg-premium-gold flex items-center justify-center mb-4">
+                <i class="fas fa-trophy text-3xl text-black"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gold mb-2" id="rewardModalTitle">You Won!</h3>
+            <p class="text-3xl font-bold text-green-400 mb-4" id="rewardAmount">+100 Points</p>
+            <p class="text-gray-300 text-sm mb-6" id="rewardMessage">Choose how to claim your reward</p>
+            
+            <div class="space-y-3">
+                <button id="claimBaseBtn" class="btn-primary w-full">
+                    <i class="fas fa-check-circle mr-2"></i> Claim Base Reward
+                </button>
+                <button id="claimBonusBtn" class="btn-bonus w-full">
+                    <i class="fas fa-star mr-2"></i> Watch Ad for 2x Bonus!
+                </button>
+            </div>
+            
+            <button onclick="closeRewardModal()" class="btn-secondary w-full mt-3">Later</button>
+        </div>
+    </div>
+
+    <!-- Dice Result Modal (Ludo) -->
+    <div id="diceModal" class="modal">
+        <div class="modal-content">
+            <div class="dice mx-auto mb-4" id="diceFace">⚀</div>
+            <h3 class="text-2xl font-bold text-gold mb-2">Dice Result</h3>
+            <p class="text-4xl font-bold text-green-400 mb-2" id="diceWinAmount">0 Points</p>
+            <p class="text-gray-300 text-sm mb-6">Choose how to claim your winnings</p>
+            
+            <div class="space-y-3">
+                <button id="diceClaimBaseBtn" class="btn-primary w-full">
+                    <i class="fas fa-check-circle mr-2"></i> Claim Base Reward
+                </button>
+                <button id="diceClaimBonusBtn" class="btn-bonus w-full">
+                    <i class="fas fa-star mr-2"></i> Watch Ad for 2x Bonus!
+                </button>
+            </div>
+            
+            <button onclick="closeDiceModal()" class="btn-secondary w-full mt-3">Later</button>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="app" class="min-h-screen flex flex-col">
+        <!-- Header -->
+        <header class="px-5 pt-5 pb-3 bg-premium-dark sticky top-0 z-10">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <img id="profilePic" class="w-12 h-12 rounded-full border-2 border-yellow-400 object-cover" 
+                         src="https://placehold.co/100x100/1e1e1e/facc15?text=U" alt="Profile">
+                    <div>
+                        <h2 class="font-bold text-lg" id="userName">Welcome Back!</h2>
+                        <p class="text-xs text-gray-400">Premium Member</p>
+                    </div>
+                </div>
+                <div class="glass-card px-4 py-2 flex items-center gap-2">
+                    <i class="fas fa-coins text-yellow-400"></i>
+                    <span class="font-bold text-xl text-gold" id="balance">0</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-1 px-4 py-4 pb-24">
+            <!-- Home Page -->
+            <div id="homePage" class="page active">
+                <!-- Banner Slider -->
+                <div class="glass-card p-0 overflow-hidden mb-6 relative" style="height: 160px;">
+                    <div id="sliderTrack" class="flex transition-transform duration-500 h-full"></div>
+                    <div id="sliderDots" class="absolute bottom-3 left-0 right-0 flex justify-center gap-2"></div>
+                </div>
+
+                <!-- Stats Row -->
+                <div class="grid grid-cols-3 gap-3 mb-6">
+                    <div class="glass-card p-3 text-center">
+                        <i class="fas fa-fire text-orange-400 text-xl mb-1"></i>
+                        <p class="text-xs text-gray-400">Today's Earnings</p>
+                        <p class="font-bold text-gold" id="todayEarnings">0</p>
+                    </div>
+                    <div class="glass-card p-3 text-center">
+                        <i class="fas fa-tasks text-blue-400 text-xl mb-1"></i>
+                        <p class="text-xs text-gray-400">Tasks Done</p>
+                        <p class="font-bold text-gold" id="tasksDone">0</p>
+                    </div>
+                    <div class="glass-card p-3 text-center">
+                        <i class="fas fa-chart-line text-green-400 text-xl mb-1"></i>
+                        <p class="text-xs text-gray-400">Level</p>
+                        <p class="font-bold text-gold" id="userLevel">1</p>
+                    </div>
+                </div>
+
+                <!-- Games Grid -->
+                <h3 class="text-lg font-bold mb-3 text-gold">🎮 Play & Earn</h3>
+                <div class="grid grid-cols-2 gap-4 mb-6" id="gamesGrid">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+
+            <!-- Ludo Game Page -->
+            <div id="ludoPage" class="page">
+                <button onclick="showPage('homePage')" class="btn-secondary mb-4 text-sm">
+                    <i class="fas fa-arrow-left mr-2"></i> Back
+                </button>
+                
+                <div class="glass-card p-5 text-center mb-6">
+                    <h2 class="text-2xl font-bold text-gold mb-2">🎲 Ludo Dice</h2>
+                    <p class="text-gray-300 text-sm mb-4">Roll the dice and win points!</p>
+                    
+                    <div class="bg-premium-dark rounded-2xl p-4 mb-4">
+                        <p class="text-sm text-gray-400">Game Cost</p>
+                        <p class="text-2xl font-bold text-gold" id="ludoCost">10 Points</p>
+                        <p class="text-xs text-gray-500 mt-1" id="ludoDailyLimit"></p>
+                    </div>
+                    
+                    <div class="ludo-board mx-auto">
+                        <div class="ludo-quadrant ludo-q1"></div>
+                        <div class="ludo-quadrant ludo-q2"></div>
+                        <div class="ludo-quadrant ludo-q3"></div>
+                        <div class="ludo-quadrant ludo-q4"></div>
+                        <div class="ludo-center"><span class="text-black font-bold text-xl">LUDO</span></div>
+                    </div>
+                    
+                    <div class="dice mx-auto my-4" id="ludoDice">⚀</div>
+                    
+                    <button id="rollDiceBtn" class="btn-primary w-full py-4 text-lg">
+                        <i class="fas fa-dice-d6 mr-2"></i> ROLL DICE
+                    </button>
+                    
+                    <div id="ludoCooldown" class="text-xs text-yellow-400 mt-3 hidden">⏱️ Cooldown active...</div>
+                </div>
+                
+                <div class="glass-card p-4">
+                    <h4 class="font-bold text-gold mb-2">📖 How to Play</h4>
+                    <ul class="text-xs text-gray-300 space-y-1 list-disc list-inside">
+                        <li>Pay game cost to roll the dice</li>
+                        <li>Win = Dice number × 10 points</li>
+                        <li>Choose: Claim base reward OR watch ad for 2x bonus!</li>
+                        <li>Ads are optional - you always get base reward</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Color Game Page -->
+            <div id="colorGamePage" class="page">
+                <button onclick="showPage('homePage')" class="btn-secondary mb-4 text-sm">
+                    <i class="fas fa-arrow-left mr-2"></i> Back
+                </button>
+                
+                <div class="glass-card p-5 text-center mb-6">
+                    <h2 class="text-2xl font-bold text-gold mb-2">🎨 Color Match</h2>
+                    <p class="text-gray-300 text-sm mb-4">Find the matching color!</p>
+                    
+                    <div class="bg-premium-dark rounded-2xl p-4 mb-4">
+                        <p class="text-sm text-gray-400">Find this color:</p>
+                        <div id="targetColor" class="w-24 h-16 mx-auto rounded-xl my-3 border-2 border-white"></div>
+                        <p id="targetRgb" class="font-mono text-sm font-bold text-gold"></p>
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-3" id="colorOptions"></div>
+                </div>
+            </div>
+
+            <!-- Try Your Luck Page -->
+            <div id="tryLuckPage" class="page">
+                <button onclick="showPage('homePage')" class="btn-secondary mb-4 text-sm">
+                    <i class="fas fa-arrow-left mr-2"></i> Back
+                </button>
+                
+                <div class="glass-card p-5 text-center">
+                    <div class="w-20 h-20 mx-auto rounded-full bg-premium-pink flex items-center justify-center mb-4">
+                        <i class="fas fa-star text-3xl text-white"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gold mb-2">Try Your Luck!</h2>
+                    <p class="text-gray-300 text-sm mb-4">Complete offers and watch optional ads for bonus points!</p>
+                    
+                    <div class="bg-premium-dark rounded-2xl p-4 mb-6">
+                        <p class="text-sm text-gray-400">Base Reward</p>
+                        <p class="text-2xl font-bold text-green-400" id="tryLuckBaseReward">100 Points</p>
+                        <p class="text-xs text-gray-500 mt-1">Watch ads for 2x, 3x, or 5x bonuses!</p>
+                    </div>
+                    
+                    <button id="startTryLuckBtn" class="btn-primary w-full py-4 text-lg">
+                        <i class="fas fa-play mr-2"></i> Start Playing
+                    </button>
+                </div>
+            </div>
+
+            <!-- OfferWall Page -->
+            <div id="offerwallPage" class="page">
+                <button onclick="showPage('homePage')" class="btn-secondary mb-4 text-sm">
+                    <i class="fas fa-arrow-left mr-2"></i> Back
+                </button>
+                
+                <div class="glass-card p-5 text-center mb-4">
+                    <div class="w-20 h-20 mx-auto rounded-full bg-premium-purple flex items-center justify-center mb-4">
+                        <i class="fas fa-gift text-3xl text-white"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gold mb-2">OfferWall</h2>
+                    <p class="text-gray-300 text-sm mb-4">Complete offers to earn bonus points!</p>
+                    
+                    <div class="grid grid-cols-3 gap-3 mb-6">
+                        <div class="bg-premium-dark p-3 rounded-xl">
+                            <p class="text-xl font-bold text-purple-400" id="offersCount">0</p>
+                            <p class="text-xs text-gray-400">Available</p>
+                        </div>
+                        <div class="bg-premium-dark p-3 rounded-xl">
+                            <p class="text-xl font-bold text-yellow-400" id="pendingCount">0</p>
+                            <p class="text-xs text-gray-400">Pending</p>
+                        </div>
+                        <div class="bg-premium-dark p-3 rounded-xl">
+                            <p class="text-xl font-bold text-green-400" id="completedCount">0</p>
+                            <p class="text-xs text-gray-400">Completed</p>
+                        </div>
+                    </div>
+                    
+                    <button onclick="openOfferWall()" class="btn-primary w-full py-3">
+                        <i class="fas fa-store mr-2"></i> Browse Offers
+                    </button>
+                </div>
+            </div>
+
+            <!-- Wallet Page -->
+            <div id="walletPage" class="page">
+                <button onclick="showPage('homePage')" class="btn-secondary mb-4 text-sm">
+                    <i class="fas fa-arrow-left mr-2"></i> Back
+                </button>
+                
+                <div class="glass-card p-5 text-center mb-4">
+                    <h2 class="text-2xl font-bold text-gold mb-2">My Wallet</h2>
+                    <div class="bg-premium-dark rounded-2xl p-6 mb-4">
+                        <p class="text-sm text-gray-400 mb-1">Total Balance</p>
+                        <p class="text-4xl font-bold text-gold" id="walletBalance">0</p>
+                        <p class="text-xs text-gray-500 mt-2">1000 Coins = ₹10</p>
+                    </div>
+                    
+                    <div class="text-left mb-4">
+                        <label class="text-sm text-gray-400 block mb-2">Withdrawal Method</label>
+                        <select id="withdrawMethod" class="w-full bg-premium-dark border border-gray-700 rounded-xl p-3 text-white">
+                            <option value="UPI">UPI</option>
+                            <option value="Paytm">Paytm</option>
+                            <option value="PayPal">PayPal</option>
+                        </select>
+                    </div>
+                    
+                    <div class="text-left mb-4">
+                        <label class="text-sm text-gray-400 block mb-2">Payment Details</label>
+                        <input type="text" id="paymentDetails" placeholder="Enter your UPI ID / Phone / Email" 
+                               class="w-full bg-premium-dark border border-gray-700 rounded-xl p-3 text-white">
+                    </div>
+                    
+                    <div class="text-left mb-4">
+                        <label class="text-sm text-gray-400 block mb-2">Amount (Coins)</label>
+                        <input type="number" id="withdrawAmount" placeholder="Minimum 1000 coins" 
+                               class="w-full bg-premium-dark border border-gray-700 rounded-xl p-3 text-white">
+                    </div>
+                    
+                    <button id="withdrawBtn" class="btn-primary w-full py-3">
+                        <i class="fas fa-money-bill-wave mr-2"></i> Request Withdrawal
+                    </button>
+                </div>
+                
+                <div class="glass-card p-4">
+                    <h3 class="font-bold text-gold mb-3">Withdrawal History</h3>
+                    <div id="withdrawalHistory" class="space-y-2"></div>
+                </div>
+            </div>
+
+            <!-- Refer Page -->
+            <div id="referPage" class="page">
+                <button onclick="showPage('homePage')" class="btn-secondary mb-4 text-sm">
+                    <i class="fas fa-arrow-left mr-2"></i> Back
+                </button>
+                
+                <div class="glass-card p-5 text-center mb-4">
+                    <div class="w-20 h-20 mx-auto rounded-full bg-premium-cyan flex items-center justify-center mb-4">
+                        <i class="fas fa-user-plus text-3xl text-white"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gold mb-2">Refer & Earn</h2>
+                    <p class="text-gray-300 text-sm mb-4">Invite friends and earn 100 bonus points each!</p>
+                    
+                    <div class="bg-premium-dark rounded-2xl p-4 mb-4">
+                        <p class="text-sm text-gray-400 mb-2">Your Referral Code</p>
+                        <div class="flex items-center justify-between gap-3">
+                            <code class="text-xl font-bold text-gold bg-black bg-opacity-30 px-4 py-2 rounded-lg flex-1" id="referralCode">LOADING</code>
+                            <button id="copyCodeBtn" class="btn-secondary p-2">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <button id="shareBtn" class="btn-primary w-full py-3">
+                        <i class="fas fa-share-alt mr-2"></i> Share & Earn
+                    </button>
+                </div>
+                
+                <div class="glass-card p-4">
+                    <h3 class="font-bold text-gold mb-2">Have a referral code?</h3>
+                    <div class="flex gap-2">
+                        <input type="text" id="referralInput" placeholder="Enter code" 
+                               class="flex-1 bg-premium-dark border border-gray-700 rounded-xl p-3 text-white">
+                        <button id="applyReferralBtn" class="btn-primary px-4">Apply</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Page -->
+            <div id="profilePage" class="page">
+                <button onclick="showPage('homePage')" class="btn-secondary mb-4 text-sm">
+                    <i class="fas fa-arrow-left mr-2"></i> Back
+                </button>
+                
+                <div class="glass-card p-5 text-center mb-4">
+                    <img id="profilePagePic" class="w-24 h-24 rounded-full border-4 border-yellow-400 mx-auto mb-4 object-cover" 
+                         src="https://placehold.co/100x100/1e1e1e/facc15?text=U" alt="Profile">
+                    <h2 class="text-xl font-bold text-gold" id="profileName">User</h2>
+                    <p class="text-gray-400 text-sm mb-4" id="profileEmail">user@example.com</p>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-premium-dark p-3 rounded-xl">
+                            <p class="text-xs text-gray-400">Member Since</p>
+                            <p class="font-bold text-gold" id="memberSince">Today</p>
+                        </div>
+                        <div class="bg-premium-dark p-3 rounded-xl">
+                            <p class="text-xs text-gray-400">Total Earned</p>
+                            <p class="font-bold text-gold" id="totalEarned">0</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="logoutBtn" class="btn-secondary w-full py-3 text-red-400 border-red-400">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Close App
+                </button>
+            </div>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav fixed bottom-0 left-0 right-0 max-w-md mx-auto grid grid-cols-5 py-3 px-2">
+            <div class="nav-item active" data-page="homePage">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </div>
+            <div class="nav-item" data-page="offerwallPage">
+                <i class="fas fa-gift"></i>
+                <span>Offers</span>
+            </div>
+            <div class="nav-item" data-page="tryLuckPage">
+                <i class="fas fa-star"></i>
+                <span>Luck</span>
+            </div>
+            <div class="nav-item" data-page="walletPage">
+                <i class="fas fa-wallet"></i>
+                <span>Wallet</span>
+            </div>
+            <div class="nav-item" data-page="profilePage">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </div>
+        </nav>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // ============================================
+        // FIREBASE CONFIGURATION
+        // ============================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyBEvTvWy-hH1HHgjoOhUKkj-Dglm11Oc8U",
+            authDomain: "cash-rewards-01-624ae.firebaseapp.com",
+            projectId: "cash-rewards-01-624ae",
+            storageBucket: "cash-rewards-01-624ae.firebasestorage.app",
+            messagingSenderId: "29119912449",
+            appId: "1:29119912449:web:e0c68c1994ff0a71603e00"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // ============================================
+        // GLOBAL VARIABLES
+        // ============================================
+        let currentUser = null;
+        let userData = null;
+        let appConfig = {};
+        let gamesConfig = {};
+        let telegramUser = null;
+        let isTelegramApp = false;
+        
+        // Game state
+        let currentGameReward = 0;
+        let currentGameBonusMultiplier = 2;
+        let pendingGameCallback = null;
+        
+        let currentLudoWin = 0;
+        let isRolling = false;
+        let ludoDisabledUntil = 0;
+        
+        let colorGameTarget = null;
+        
+        let tryLuckActive = false;
+        let tryLuckBaseReward = 100;
+        
+        // Ad providers
+        let adsGramReward = null;
+        let adsGramInterstitial = null;
+        
+        // ============================================
+        // UTILITY FUNCTIONS
+        // ============================================
+        window.showLoading = function(show) {
+            document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
+        };
+        
+        function showAlert(message) {
+            alert(message);
+        }
+        
+        window.closeAdModal = function() {
+            document.getElementById('adModal').style.display = 'none';
+        };
+        
+        function showAdModal(message) {
+            document.getElementById('adModalMessage').textContent = message;
+            document.getElementById('adModal').style.display = 'flex';
+        }
+        
+        window.closeRewardModal = function() {
+            document.getElementById('rewardModal').style.display = 'none';
+        };
+        
+        function showRewardModal(title, amount, message, onBaseClaim, onBonusClaim) {
+            document.getElementById('rewardModalTitle').textContent = title;
+            document.getElementById('rewardAmount').textContent = `+${amount} Points`;
+            document.getElementById('rewardMessage').textContent = message;
+            
+            const claimBaseBtn = document.getElementById('claimBaseBtn');
+            const claimBonusBtn = document.getElementById('claimBonusBtn');
+            
+            const newBaseBtn = claimBaseBtn.cloneNode(true);
+            const newBonusBtn = claimBonusBtn.cloneNode(true);
+            claimBaseBtn.parentNode.replaceChild(newBaseBtn, claimBaseBtn);
+            claimBonusBtn.parentNode.replaceChild(newBonusBtn, claimBonusBtn);
+            
+            newBaseBtn.onclick = () => {
+                closeRewardModal();
+                onBaseClaim();
+            };
+            newBonusBtn.onclick = () => {
+                closeRewardModal();
+                onBonusClaim();
+            };
+            
+            document.getElementById('rewardModal').style.display = 'flex';
+        }
+        
+        window.closeDiceModal = function() {
+            document.getElementById('diceModal').style.display = 'none';
+        };
+        
+        function showDiceModal(amount, onBaseClaim, onBonusClaim) {
+            document.getElementById('diceWinAmount').textContent = `${amount} Points`;
+            
+            const claimBaseBtn = document.getElementById('diceClaimBaseBtn');
+            const claimBonusBtn = document.getElementById('diceClaimBonusBtn');
+            
+            const newBaseBtn = claimBaseBtn.cloneNode(true);
+            const newBonusBtn = claimBonusBtn.cloneNode(true);
+            claimBaseBtn.parentNode.replaceChild(newBaseBtn, claimBaseBtn);
+            claimBonusBtn.parentNode.replaceChild(newBonusBtn, claimBonusBtn);
+            
+            newBaseBtn.onclick = () => {
+                closeDiceModal();
+                onBaseClaim();
+            };
+            newBonusBtn.onclick = () => {
+                closeDiceModal();
+                onBonusClaim();
+            };
+            
+            document.getElementById('diceModal').style.display = 'flex';
+        }
+        
+        // ============================================
+        // AD PROVIDERS (Compliant - Optional Bonuses)
+        // ============================================
+        async function showAdsGramReward() {
+            return new Promise((resolve, reject) => {
+                if (!adsGramReward) {
+                    reject(new Error("AdsGram not initialized"));
+                    return;
+                }
+                
+                showAdModal("Loading ad...");
+                const timeout = setTimeout(() => {
+                    closeAdModal();
+                    reject(new Error("Ad timeout"));
+                }, 15000);
+                
+                adsGramReward.show()
+                    .then((result) => {
+                        clearTimeout(timeout);
+                        closeAdModal();
+                        if (result.done) resolve(true);
+                        else reject(new Error("Ad not completed"));
+                    })
+                    .catch((error) => {
+                        clearTimeout(timeout);
+                        closeAdModal();
+                        reject(error);
+                    });
+            });
+        }
+        
+        async function showGigapubAd() {
+            return new Promise((resolve, reject) => {
+                if (typeof window.showGiga !== 'function') {
+                    reject(new Error("Gigapub not available"));
+                    return;
+                }
+                
+                showAdModal("Loading ad...");
+                const timeout = setTimeout(() => {
+                    closeAdModal();
+                    reject(new Error("Ad timeout"));
+                }, 15000);
+                
+                window.showGiga()
+                    .then(() => {
+                        clearTimeout(timeout);
+                        closeAdModal();
+                        resolve(true);
+                    })
+                    .catch((error) => {
+                        clearTimeout(timeout);
+                        closeAdModal();
+                        reject(error);
+                    });
+            });
+        }
+        
+        async function showOptionalBonusAd() {
+            // Try multiple providers for bonus ads
+            try {
+                await showAdsGramReward();
+                return true;
+            } catch(e) {
+                try {
+                    await showGigapubAd();
+                    return true;
+                } catch(e2) {
+                    console.log("All ad providers failed");
+                    return false;
+                }
+            }
+        }
+        
+        // ============================================
+        // BALANCE & USER FUNCTIONS
+        // ============================================
+        async function updateBalance(amount, reason) {
+            if (!currentUser || !userData) return false;
+            
+            const newBalance = (userData.balance || 0) + amount;
+            userData.balance = newBalance;
+            
+            if (userData.userType === 'telegram' || userData.userType === 'telegram_session') {
+                await db.collection('users').doc(currentUser.uid).update({
+                    balance: newBalance,
+                    totalEarned: firebase.firestore.FieldValue.increment(amount > 0 ? amount : 0),
+                    tasksCompleted: amount > 0 ? firebase.firestore.FieldValue.increment(1) : firebase.firestore.FieldValue.increment(0)
+                });
+            } else {
+                localStorage.setItem('browserUserData', JSON.stringify(userData));
+            }
+            
+            updateUI();
+            return true;
+        }
+        
+        async function deductBalance(amount) {
+            if (!userData || (userData.balance || 0) < amount) return false;
+            await updateBalance(-amount, 'game_cost');
+            return true;
+        }
+        
+        function updateUI() {
+            if (userData) {
+                document.getElementById('balance').textContent = (userData.balance || 0).toFixed(0);
+                document.getElementById('walletBalance').textContent = (userData.balance || 0).toFixed(0);
+                
+                const todayEarnings = userData.dailyAdCount ? userData.dailyAdCount * 10 : 0;
+                document.getElementById('todayEarnings').textContent = todayEarnings;
+                
+                const tasksDone = (userData.dailyAdCount || 0) + (userData.visitedSitesToday?.length || 0);
+                document.getElementById('tasksDone').textContent = tasksDone;
+                
+                const level = Math.floor((userData.totalEarned || 0) / 1000) + 1;
+                document.getElementById('userLevel').textContent = level;
+            }
+        }
+        
+        // ============================================
+        // GAME FUNCTIONS (Compliant - Optional Ads)
+        // ============================================
+        
+        // Ludo Game
+        async function rollDice() {
+            if (isRolling) return;
+            
+            const now = Date.now();
+            if (now < ludoDisabledUntil) {
+                const waitSec = Math.ceil((ludoDisabledUntil - now) / 1000);
+                showAlert(`Please wait ${waitSec} seconds before rolling again!`);
+                return;
+            }
+            
+            const cost = gamesConfig.ludoDice?.gameCost || 10;
+            if ((userData?.balance || 0) < cost) {
+                showAlert(`You need ${cost} points to play!`);
+                return;
+            }
+            
+            await deductBalance(cost);
+            isRolling = true;
+            const rollBtn = document.getElementById('rollDiceBtn');
+            rollBtn.disabled = true;
+            
+            // Animation
+            let rolls = 0;
+            const totalRolls = 12;
+            const diceFaces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+            
+            function animate() {
+                if (rolls < totalRolls) {
+                    const random = Math.floor(Math.random() * 6);
+                    document.getElementById('ludoDice').textContent = diceFaces[random];
+                    rolls++;
+                    setTimeout(animate, 80);
+                } else {
+                    const result = Math.floor(Math.random() * 6) + 1;
+                    currentLudoWin = result * 10;
+                    document.getElementById('ludoDice').textContent = diceFaces[result - 1];
+                    
+                    showDiceModal(
+                        currentLudoWin,
+                        async () => {
+                            await updateBalance(currentLudoWin, 'ludo_base');
+                            showAlert(`🎉 You won ${currentLudoWin} points!`);
+                            ludoDisabledUntil = Date.now() + 10000;
+                            document.getElementById('ludoCooldown').classList.remove('hidden');
+                            setTimeout(() => {
+                                document.getElementById('ludoCooldown').classList.add('hidden');
+                            }, 10000);
+                        },
+                        async () => {
+                            showAdModal("Watch ad for 2x bonus...");
+                            const adWatched = await showOptionalBonusAd();
+                            if (adWatched) {
+                                const bonusAmount = currentLudoWin * 2;
+                                await updateBalance(bonusAmount, 'ludo_bonus');
+                                showAlert(`🎉 You won ${bonusAmount} points with bonus!`);
+                            } else {
+                                await updateBalance(currentLudoWin, 'ludo_base');
+                                showAlert(`⚠️ Ad failed. You received ${currentLudoWin} points.`);
+                            }
+                            ludoDisabledUntil = Date.now() + 10000;
+                        }
+                    );
+                    
+                    isRolling = false;
+                    rollBtn.disabled = false;
+                }
+            }
+            
+            animate();
+        }
+        
+        // Color Game
+        function initColorGame() {
+            const r = Math.floor(Math.random() * 256);
+            const g = Math.floor(Math.random() * 256);
+            const b = Math.floor(Math.random() * 256);
+            colorGameTarget = `rgb(${r}, ${g}, ${b})`;
+            
+            document.getElementById('targetColor').style.backgroundColor = colorGameTarget;
+            document.getElementById('targetRgb').textContent = colorGameTarget;
+            
+            const options = [colorGameTarget];
+            while (options.length < 9) {
+                const diff = 40 + Math.floor(Math.random() * 60);
+                const r2 = Math.max(0, Math.min(255, r + (Math.random() > 0.5 ? diff : -diff)));
+                const g2 = Math.max(0, Math.min(255, g + (Math.random() > 0.5 ? diff : -diff)));
+                const b2 = Math.max(0, Math.min(255, b + (Math.random() > 0.5 ? diff : -diff)));
+                const color = `rgb(${r2}, ${g2}, ${b2})`;
+                if (!options.includes(color)) options.push(color);
+            }
+            
+            options.sort(() => Math.random() - 0.5);
+            
+            const container = document.getElementById('colorOptions');
+            container.innerHTML = '';
+            options.forEach(color => {
+                const div = document.createElement('div');
+                div.className = 'color-option';
+                div.style.backgroundColor = color;
+                div.onclick = () => checkColorMatch(color);
+                container.appendChild(div);
+            });
+        }
+        
+        async function checkColorMatch(selected) {
+            const reward = gamesConfig.colorGame?.rewardPerPlay || 50;
+            
+            if (selected === colorGameTarget) {
+                showRewardModal(
+                    '🎨 Correct!',
+                    reward,
+                    'You matched the color! Choose your reward:',
+                    async () => {
+                        await updateBalance(reward, 'color_base');
+                        showAlert(`🎉 You earned ${reward} points!`);
+                        initColorGame();
+                    },
+                    async () => {
+                        showAdModal("Watch ad for 2x bonus...");
+                        const adWatched = await showOptionalBonusAd();
+                        if (adWatched) {
+                            const bonusAmount = reward * 2;
+                            await updateBalance(bonusAmount, 'color_bonus');
+                            showAlert(`🎉 You earned ${bonusAmount} points with bonus!`);
+                        } else {
+                            await updateBalance(reward, 'color_base');
+                            showAlert(`⚠️ Ad failed. You received ${reward} points.`);
+                        }
+                        initColorGame();
+                    }
+                );
+            } else {
+                showAlert('❌ Wrong color! Try again!');
+                initColorGame();
+            }
+        }
+        
+        // Try Your Luck
+        function initTryLuck() {
+            tryLuckBaseReward = gamesConfig.tryYourLuck?.rewardPerPlay || 100;
+            document.getElementById('tryLuckBaseReward').textContent = `${tryLuckBaseReward} Points`;
+        }
+        
+        async function startTryLuck() {
+            showRewardModal(
+                '🎰 Try Your Luck!',
+                tryLuckBaseReward,
+                'Complete offers or watch ads for bonuses!',
+                async () => {
+                    await updateBalance(tryLuckBaseReward, 'tryluck_base');
+                    showAlert(`🎉 You earned ${tryLuckBaseReward} points!`);
+                },
+                async () => {
+                    showAdModal("Watch ad for bonus...");
+                    const adWatched = await showOptionalBonusAd();
+                    if (adWatched) {
+                        const bonus = tryLuckBaseReward * 2;
+                        await updateBalance(bonus, 'tryluck_bonus');
+                        showAlert(`🎉 You earned ${bonus} points with bonus!`);
+                    } else {
+                        await updateBalance(tryLuckBaseReward, 'tryluck_base');
+                        showAlert(`⚠️ Ad failed. You received ${tryLuckBaseReward} points.`);
+                    }
+                }
+            );
+        }
+        
+        // ============================================
+        // OFFERWALL FUNCTIONS
+        // ============================================
+        window.openOfferWall = function() {
+            if (window.gigaOfferWallSDK) {
+                window.gigaOfferWallSDK.open();
+            } else {
+                showAlert("OfferWall is loading. Please try again.");
+            }
+        };
+        
+        async function updateOfferWallStats() {
+            if (window.gigaOfferWallSDK) {
+                try {
+                    const offers = await window.gigaOfferWallSDK.getOffers();
+                    const pending = await window.gigaOfferWallSDK.pending();
+                    const rewards = await window.gigaOfferWallSDK.getRewards();
+                    
+                    document.getElementById('offersCount').textContent = offers.available || 0;
+                    document.getElementById('pendingCount').textContent = pending ? pending.length : 0;
+                    document.getElementById('completedCount').textContent = rewards ? rewards.length : 0;
+                } catch(e) { console.log(e); }
+            }
+        }
+        
+        window.creditUserReward = async function(userId, amount) {
+            if (currentUser && currentUser.uid === userId) {
+                await updateBalance(amount, 'offerwall');
+                showAlert(`🎉 You earned ${amount} points from OfferWall!`);
+            }
+        };
+        
+        // ============================================
+        // WITHDRAWAL FUNCTIONS
+        // ============================================
+        async function requestWithdrawal() {
+            const method = document.getElementById('withdrawMethod').value;
+            const details = document.getElementById('paymentDetails').value.trim();
+            const amount = parseInt(document.getElementById('withdrawAmount').value);
+            const minWithdraw = appConfig.minWithdrawal || 1000;
+            
+            if (!amount || amount < minWithdraw) {
+                showAlert(`Minimum withdrawal is ${minWithdraw} coins`);
+                return;
+            }
+            
+            if (!details) {
+                showAlert("Please enter payment details");
+                return;
+            }
+            
+            if ((userData?.balance || 0) < amount) {
+                showAlert("Insufficient balance");
+                return;
+            }
+            
+            showLoading(true);
+            try {
+                await updateBalance(-amount, 'withdrawal');
+                
+                await db.collection('withdrawals').add({
+                    userId: currentUser.uid,
+                    userName: userData.name,
+                    amount: amount,
+                    method: method,
+                    paymentDetail: details,
+                    status: 'pending',
+                    requestedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showAlert("✅ Withdrawal request submitted successfully!");
+                document.getElementById('withdrawAmount').value = '';
+                document.getElementById('paymentDetails').value = '';
+                loadWithdrawalHistory();
+            } catch (error) {
+                showAlert("Error submitting request");
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        async function loadWithdrawalHistory() {
+            if (!currentUser) return;
+            
+            const historyDiv = document.getElementById('withdrawalHistory');
+            historyDiv.innerHTML = '<div class="text-center text-gray-400 py-4">Loading...</div>';
+            
+            try {
+                const snapshot = await db.collection('withdrawals')
+                    .where('userId', '==', currentUser.uid)
+                    .orderBy('requestedAt', 'desc')
+                    .get();
+                
+                if (snapshot.empty) {
+                    historyDiv.innerHTML = '<div class="text-center text-gray-400 py-4">No withdrawal history</div>';
+                    return;
+                }
+                
+                historyDiv.innerHTML = '';
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const date = data.requestedAt?.toDate().toLocaleDateString() || 'Pending';
+                    const statusColor = data.status === 'approved' ? 'text-green-400' : 
+                                      data.status === 'rejected' ? 'text-red-400' : 'text-yellow-400';
+                    
+                    historyDiv.innerHTML += `
+                        <div class="bg-premium-dark p-3 rounded-xl flex justify-between items-center">
+                            <div>
+                                <p class="font-bold">${data.amount} Coins</p>
+                                <p class="text-xs text-gray-400">${data.method}</p>
+                                <p class="text-xs text-gray-500">${date}</p>
+                            </div>
+                            <p class="font-semibold ${statusColor} capitalize">${data.status}</p>
+                        </div>
+                    `;
+                });
+            } catch (error) {
+                historyDiv.innerHTML = '<div class="text-center text-gray-400 py-4">Error loading history</div>';
+            }
+        }
+        
+        // ============================================
+        // REFERRAL FUNCTIONS
+        // ============================================
+        async function applyReferralCode() {
+            const code = document.getElementById('referralInput').value.trim().toUpperCase();
+            if (!code) return;
+            
+            if (userData.referredBy) {
+                showAlert("You've already used a referral code");
+                return;
+            }
+            
+            showLoading(true);
+            try {
+                const snapshot = await db.collection('users').where('referralCode', '==', code).get();
+                if (snapshot.empty) {
+                    showAlert("Invalid referral code");
+                    return;
+                }
+                
+                const referrer = snapshot.docs[0];
+                const bonus = appConfig.referralBonus || 100;
+                
+                await updateBalance(bonus, 'referral');
+                await db.collection('users').doc(currentUser.uid).update({ referredBy: code });
+                await db.collection('users').doc(referrer.id).update({
+                    balance: firebase.firestore.FieldValue.increment(bonus)
+                });
+                
+                userData.referredBy = code;
+                showAlert(`🎉 Code applied! You earned ${bonus} points!`);
+            } catch (error) {
+                showAlert("Error applying code");
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        function copyReferralCode() {
+            navigator.clipboard.writeText(userData?.referralCode || '');
+            showAlert("✅ Code copied!");
+        }
+        
+        function shareReferral() {
+            const text = `Join CashReward and earn money! Use my code: ${userData?.referralCode}`;
+            if (navigator.share) {
+                navigator.share({ title: 'CashReward', text: text });
+            } else {
+                navigator.clipboard.writeText(text);
+                showAlert("✅ Share text copied!");
+            }
+        }
+        
+        // ============================================
+        // PAGE NAVIGATION
+        // ============================================
+        window.showPage = function(pageId) {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.toggle('active', item.dataset.page === pageId);
+            });
+            
+            // Initialize page specific content
+            if (pageId === 'colorGamePage') initColorGame();
+            if (pageId === 'tryLuckPage') initTryLuck();
+            if (pageId === 'walletPage') loadWithdrawalHistory();
+            if (pageId === 'offerwallPage') updateOfferWallStats();
+            if (pageId === 'referPage') {
+                document.getElementById('referralCode').textContent = userData?.referralCode || 'LOADING';
+            }
+            if (pageId === 'profilePage') {
+                document.getElementById('profileName').textContent = userData?.name || 'User';
+                document.getElementById('profileEmail').textContent = userData?.email || 'user@example.com';
+                document.getElementById('memberSince').textContent = userData?.createdAt?.toDate?.().toLocaleDateString() || 'Today';
+                document.getElementById('totalEarned').textContent = (userData?.totalEarned || 0).toFixed(0);
+            }
+        };
+        
+        // ============================================
+        // GAMES GRID
+        // ============================================
+        function buildGamesGrid() {
+            const games = [
+                { id: 'ludoPage', name: '🎲 Ludo Dice', desc: 'Roll & Win!', icon: 'fa-dice-d6', color: 'from-yellow-400 to-orange-500' },
+                { id: 'colorGamePage', name: '🎨 Color Match', desc: 'Match Colors', icon: 'fa-palette', color: 'from-pink-400 to-purple-500' },
+                { id: 'tryLuckPage', name: '🎰 Try Luck', desc: 'Bonus Rewards', icon: 'fa-star', color: 'from-purple-400 to-pink-500' },
+                { id: 'offerwallPage', name: '🎁 Offers', desc: 'Earn More', icon: 'fa-gift', color: 'from-blue-400 to-cyan-500' }
+            ];
+            
+            const container = document.getElementById('gamesGrid');
+            container.innerHTML = '';
+            
+            games.forEach(game => {
+                const isVisible = gamesConfig[game.id.replace('Page', '')]?.visible !== false;
+                if (isVisible) {
+                    container.innerHTML += `
+                        <div onclick="showPage('${game.id}')" class="game-card text-center cursor-pointer">
+                            <div class="game-icon bg-gradient-to-r ${game.color} mx-auto">
+                                <i class="fas ${game.icon} text-white"></i>
+                            </div>
+                            <h4 class="font-bold text-sm">${game.name}</h4>
+                            <p class="text-xs text-gray-400">${game.desc}</p>
+                        </div>
+                    `;
+                }
+            });
+        }
+        
+        // ============================================
+        // SLIDER
+        // ============================================
+        let sliderInterval;
+        let currentSlide = 0;
+        
+        function initSlider() {
+            const banners = appConfig.sliderBanners || [
+                { img: "https://images.unsplash.com/photo-1611605698335-8b1569810432?w=800&h=300&fit=crop", link: "#" },
+                { img: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=800&h=300&fit=crop", link: "#" },
+                { img: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=800&h=300&fit=crop", link: "#" }
+            ];
+            
+            const track = document.getElementById('sliderTrack');
+            const dots = document.getElementById('sliderDots');
+            
+            track.innerHTML = '';
+            dots.innerHTML = '';
+            
+            banners.forEach((banner, i) => {
+                track.innerHTML += `<div class="min-w-full h-full"><img src="${banner.img}" class="w-full h-full object-cover"></div>`;
+                dots.innerHTML += `<div class="w-2 h-2 rounded-full bg-white bg-opacity-50 cursor-pointer transition-all" data-slide="${i}"></div>`;
+            });
+            
+            if (sliderInterval) clearInterval(sliderInterval);
+            sliderInterval = setInterval(() => {
+                currentSlide = (currentSlide + 1) % banners.length;
+                updateSlider();
+            }, 4000);
+            
+            document.querySelectorAll('#sliderDots div').forEach(dot => {
+                dot.addEventListener('click', () => {
+                    currentSlide = parseInt(dot.dataset.slide);
+                    updateSlider();
+                });
+            });
+            
+            updateSlider();
+        }
+        
+        function updateSlider() {
+            const track = document.getElementById('sliderTrack');
+            const dots = document.querySelectorAll('#sliderDots div');
+            track.style.transform = `translateX(-${currentSlide * 100}%)`;
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('bg-yellow-400', i === currentSlide);
+                dot.classList.toggle('bg-white bg-opacity-50', i !== currentSlide);
+                if (i === currentSlide) dot.classList.add('w-4');
+                else dot.classList.remove('w-4');
+            });
+        }
+        
+        // ============================================
+        // TELEGRAM & AUTH INITIALIZATION
+        // ============================================
+        async function initTelegramUser() {
+            if (window.Telegram?.WebApp) {
+                isTelegramApp = true;
+                const tg = window.Telegram.WebApp;
+                tg.ready();
+                tg.expand();
+                telegramUser = tg.initDataUnsafe?.user;
+            }
+            
+            if (telegramUser) {
+                const userId = `tg_${telegramUser.id}`;
+                const userRef = db.collection('users').doc(userId);
+                const userSnap = await userRef.get();
+                
+                if (userSnap.exists()) {
+                    userData = userSnap.data();
+                    currentUser = { uid: userId };
+                } else {
+                    const referralCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+                    userData = {
+                        uid: userId,
+                        name: telegramUser.first_name || 'Telegram User',
+                        email: `${telegramUser.id}@telegram.user`,
+                        balance: 0,
+                        referralCode: referralCode,
+                        referredBy: null,
+                        createdAt: new Date(),
+                        totalEarned: 0,
+                        tasksCompleted: 0,
+                        userType: 'telegram'
+                    };
+                    await userRef.set(userData);
+                    currentUser = { uid: userId };
+                }
+            } else {
+                // Browser demo user
+                const saved = localStorage.getItem('browserUserData');
+                if (saved) {
+                    userData = JSON.parse(saved);
+                    currentUser = { uid: userData.uid };
+                } else {
+                    const userId = `browser_${Date.now()}`;
+                    userData = {
+                        uid: userId,
+                        name: 'Guest User',
+                        email: `${userId}@browser.user`,
+                        balance: 50,
+                        referralCode: 'GUEST',
+                        referredBy: null,
+                        createdAt: new Date(),
+                        totalEarned: 0,
+                        tasksCompleted: 0,
+                        userType: 'browser'
+                    };
+                    localStorage.setItem('browserUserData', JSON.stringify(userData));
+                    currentUser = { uid: userId };
+                }
+            }
+            
+            document.getElementById('userName').textContent = `Hi, ${userData.name.split(' ')[0]}`;
+            document.getElementById('profilePic').src = telegramUser?.photo_url || `https://placehold.co/100x100/1e1e1e/facc15?text=${userData.name.charAt(0)}`;
+            document.getElementById('profilePagePic').src = telegramUser?.photo_url || `https://placehold.co/100x100/1e1e1e/facc15?text=${userData.name.charAt(0)}`;
+            updateUI();
+        }
+        
+        // ============================================
+        // CONFIGURATION LOADING
+        // ============================================
+        async function loadConfigs() {
+            const configSnap = await db.collection('config').doc('main').get();
+            if (configSnap.exists()) appConfig = configSnap.data();
+            
+            const gamesSnap = await db.collection('config').doc('games').get();
+            if (gamesSnap.exists()) gamesConfig = gamesSnap.data();
+            
+            initSlider();
+            buildGamesGrid();
+            
+            // Initialize AdsGram
+            if (typeof Adsgram !== 'undefined') {
+                try {
+                    adsGramReward = Adsgram.init({ blockId: "21145" });
+                    console.log("AdsGram initialized");
+                } catch(e) { console.log("AdsGram init error"); }
+            }
+        }
+        
+        // ============================================
+        // EVENT LISTENERS
+        // ============================================
+        function setupEventListeners() {
+            document.getElementById('rollDiceBtn')?.addEventListener('click', rollDice);
+            document.getElementById('startTryLuckBtn')?.addEventListener('click', startTryLuck);
+            document.getElementById('withdrawBtn')?.addEventListener('click', requestWithdrawal);
+            document.getElementById('copyCodeBtn')?.addEventListener('click', copyReferralCode);
+            document.getElementById('shareBtn')?.addEventListener('click', shareReferral);
+            document.getElementById('applyReferralBtn')?.addEventListener('click', applyReferralCode);
+            document.getElementById('logoutBtn')?.addEventListener('click', () => {
+                if (isTelegramApp && window.Telegram?.WebApp) window.Telegram.WebApp.close();
+                else showAlert("You can close the app to logout");
+            });
+            
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', () => showPage(item.dataset.page));
+            });
+        }
+        
+        // ============================================
+        // APP INITIALIZATION
+        // ============================================
+        async function init() {
+            showLoading(true);
+            await initTelegramUser();
+            await loadConfigs();
+            setupEventListeners();
+            showLoading(false);
+            showPage('homePage');
+        }
+        
+        init();
+    </script>
+</body>
+</html>
