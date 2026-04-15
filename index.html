@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="referrer" content="no-referrer">
+    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;">
+    <title>After Hours • Premium Access</title>
+
+    <!-- Load critical CSS first -->
+    <style>
+        /* Critical CSS to prevent white screen */
+        body {
+            background: linear-gradient(145deg, #0a0a0f 0%, #1a0a1a 40%, #0f0a1a 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            color: #f3f4f6;
+        }
+        
+        #app {
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+        
+        .loading-indicator {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(236, 72, 153, 0.2);
+            border-top-color: #ec4899;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+    
+    <!-- Load Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Load Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- AdsGram SDK -->
+    <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            scrollbar-width: none;
+        }
+        
+        body::-webkit-scrollbar {
+            display: none;
+        }
+        
+        @keyframes fadeIn { 
+            from { opacity: 0; } 
+            to { opacity: 1; } 
+        }
+        
+        @keyframes slideUp { 
+            from { opacity: 0; transform: translateY(30px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(236, 72, 153, 0.3), 0 0 40px rgba(139, 92, 246, 0.1); }
+            50% { box-shadow: 0 0 30px rgba(236, 72, 153, 0.5), 0 0 60px rgba(139, 92, 246, 0.2); }
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        .fade-in { animation: fadeIn 1s ease-out forwards; }
+        .slide-up { animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+        .animation-delay-200 { animation-delay: 0.2s; }
+        .animation-delay-400 { animation-delay: 0.4s; }
+        .animation-delay-600 { animation-delay: 0.6s; }
+        
+        .slider-container { 
+            position: relative; 
+            overflow: hidden;
+            border-radius: 28px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        
+        .slider-wrapper { 
+            display: flex; 
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        
+        .slider-item { 
+            min-width: 100%; 
+            box-sizing: border-box; 
+        }
+        
+        .slider-dots { 
+            position: absolute; 
+            bottom: 20px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            display: flex; 
+            gap: 10px;
+            z-index: 10;
+        }
+        
+        .slider-dot { 
+            width: 8px; 
+            height: 8px; 
+            border-radius: 4px; 
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            cursor: pointer; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .slider-dot.active { 
+            width: 32px;
+            background: linear-gradient(90deg, #ec4899, #8b5cf6);
+            box-shadow: 0 0 20px rgba(236, 72, 153, 0.5);
+        }
+        
+        .glass-card {
+            background: rgba(20, 10, 25, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(236, 72, 153, 0.15);
+        }
+        
+        .glass-header {
+            background: rgba(15, 5, 20, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(236, 72, 153, 0.2);
+        }
+        
+        .premium-gradient {
+            background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #ec4899 100%);
+            background-size: 200% 200%;
+            animation: gradient-shift 3s ease infinite;
+        }
+        
+        @keyframes gradient-shift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 40px rgba(236, 72, 153, 0.2), 0 0 30px rgba(139, 92, 246, 0.1);
+            border-color: rgba(236, 72, 153, 0.3);
+        }
+        
+        .skeleton {
+            background: linear-gradient(90deg, #1a0a1a 25%, #2a0a2a 50%, #1a0a1a 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        
+        .access-btn {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .access-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .badge-premium {
+            background: linear-gradient(135deg, #ec4899, #8b5cf6);
+            clip-path: polygon(0 0, 100% 0, 90% 100%, 0 100%);
+        }
+        
+        .badge-hot {
+            background: linear-gradient(90deg, #ef4444, #ec4899);
+            animation: pulse-glow 2s infinite;
+        }
+        
+        .search-input {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(236, 72, 153, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        .search-input:focus {
+            border-color: #ec4899;
+            box-shadow: 0 0 30px rgba(236, 72, 153, 0.3);
+        }
+        
+        .toast-sexy {
+            background: linear-gradient(135deg, #1a0a1a, #0a0a0f);
+            border: 1px solid rgba(236, 72, 153, 0.3);
+            box-shadow: 0 10px 40px rgba(236, 72, 153, 0.2);
+        }
+        
+        .glow-text {
+            text-shadow: 0 0 30px rgba(236, 72, 153, 0.5);
+        }
+        
+        .overlay-gradient {
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
+        }
+
+        .timer-badge {
+            background: linear-gradient(135deg, #ec4899, #8b5cf6);
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 9999px;
+            margin-left: 0.5rem;
+        }
+
+        /* POPUP STYLES */
+        .popup-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 16px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+        }
+        
+        .popup-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .popup-card {
+            background: rgba(20, 10, 25, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(236, 72, 153, 0.4);
+            border-radius: 28px;
+            width: 100%;
+            max-width: 420px;
+            padding: 24px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6), 0 0 40px rgba(236,72,153,0.2);
+            transform: scale(0.95);
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        .popup-overlay.active .popup-card {
+            transform: scale(1);
+        }
+        
+        .popup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .popup-title {
+            font-weight: 800;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, #ec4899, #8b5cf6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .popup-close {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #ccc;
+        }
+        
+        .popup-close:hover {
+            background: rgba(236,72,153,0.2);
+            color: white;
+            border-color: #ec4899;
+        }
+        
+        .link-preview-box {
+            background: rgba(0,0,0,0.35);
+            border-radius: 18px;
+            padding: 16px;
+            border: 1px dashed rgba(236,72,153,0.3);
+            margin-bottom: 24px;
+            word-break: break-all;
+        }
+        
+        .link-text {
+            font-size: 0.9rem;
+            color: #e2e8f0;
+            font-family: monospace;
+            opacity: 0.9;
+        }
+        
+        .popup-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .popup-btn {
+            flex: 1;
+            padding: 14px 10px;
+            border-radius: 40px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+            font-size: 1rem;
+        }
+        
+        .btn-copy {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+        }
+        
+        .btn-copy:hover {
+            background: rgba(236,72,153,0.2);
+            border-color: #ec4899;
+        }
+        
+        .btn-open {
+            background: linear-gradient(135deg, #ec4899, #8b5cf6);
+            color: white;
+            box-shadow: 0 8px 20px rgba(236,72,153,0.3);
+        }
+        
+        .btn-open:hover {
+            filter: brightness(1.1);
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+<body class="text-gray-100">
+
+    <!-- Loading indicator that shows immediately -->
+    <div id="initialLoading" class="loading-indicator">
+        <div class="spinner"></div>
+    </div>
+
+    <div id="app" class="container mx-auto p-4 md:p-6 max-w-7xl" style="display: none;">
+        <!-- Header -->
+        <header class="relative glass-header p-6 md:p-8 rounded-3xl shadow-2xl mb-8 fade-in border border-pink-500/20">
+            <div class="absolute top-0 right-0 p-4">
+                <div class="badge-hot px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider">
+                    <i class="fas fa-fire mr-2"></i>18+ PREMIUM
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4 mb-4">
+                <div class="w-12 h-12 md:w-16 md:h-16 rounded-2xl premium-gradient flex items-center justify-center">
+                    <i class="fas fa-crown text-white text-xl md:text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-4xl md:text-5xl font-black">
+                        <span class="bg-gradient-to-r from-pink-400 via-purple-400 to-pink-400 bg-clip-text text-transparent glow-text">
+                            After Hours
+                        </span>
+                    </h1>
+                    <p class="text-gray-400 text-sm md:text-base flex items-center gap-2">
+                        <i class="fas fa-lock text-pink-400 text-xs"></i>
+                        <span>Exclusive Content • VIP Access Only</span>
+                    </p>
+                </div>
+            </div>
+            
+            <p class="text-gray-300 text-base md:text-lg mb-6 max-w-2xl">
+                <i class="fas fa-play-circle text-pink-400 mr-2"></i>
+                Unlock premium content • Files open automatically after access
+            </p>
+            
+            <div class="max-w-2xl">
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <i class="fas fa-search text-pink-400"></i>
+                    </div>
+                    <input type="text" id="searchInput" 
+                           placeholder="Search exclusive content..." 
+                           class="search-input w-full p-4 pl-12 pr-20 rounded-2xl text-white placeholder-gray-500 focus:outline-none text-base">
+                    <div class="absolute inset-y-0 right-2 flex items-center">
+                        <span class="text-xs text-gray-500 px-3 py-1.5 bg-black/30 rounded-xl">
+                            <i class="fas fa-keyboard mr-1"></i>Search
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Slider Section -->
+        <div class="mb-10 slide-up animation-delay-200">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-1.5 h-6 bg-gradient-to-b from-pink-500 to-purple-600 rounded-full"></div>
+                <h2 class="text-xl font-bold text-white">
+                    <i class="fas fa-star text-pink-400 mr-2"></i>
+                    Featured Content
+                </h2>
+            </div>
+            
+            <div id="slider" class="slider-container w-full h-52 md:h-96">
+                <div id="slider-wrapper" class="slider-wrapper h-full">
+                    <div class="slider-item skeleton w-full h-full"></div>
+                </div>
+                <div id="slider-dots" class="slider-dots"></div>
+                <div class="absolute top-4 left-4 z-10">
+                    <span class="badge-premium px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-white">
+                        <i class="fas fa-crown mr-1"></i> HOT
+                    </span>
+                </div>
+                <div class="absolute inset-0 overlay-gradient pointer-events-none"></div>
+            </div>
+        </div>
+
+        <!-- Files Grid -->
+        <div class="slide-up animation-delay-400">
+            <div class="flex items-center justify-between mb-5">
+                <div class="flex items-center gap-3">
+                    <div class="w-1.5 h-6 bg-gradient-to-b from-pink-500 to-purple-600 rounded-full"></div>
+                    <h2 class="text-2xl font-black text-white">
+                        <i class="fas fa-gem text-pink-400 mr-2"></i>
+                        Premium Library
+                    </h2>
+                </div>
+                <span class="text-xs text-gray-500 px-3 py-1.5 glass-card rounded-full">
+                    <i class="fas fa-lock mr-1"></i>Unlock with access
+                </span>
+            </div>
+            
+            <div id="files-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+                <!-- Content will be loaded here -->
+            </div>
+            
+            <div id="no-results" class="hidden text-center py-16">
+                <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl glass-card border border-pink-500/30 mb-4">
+                    <i class="fas fa-search text-3xl text-gray-500"></i>
+                </div>
+                <p class="text-xl text-gray-400 font-semibold">No exclusive content found</p>
+                <p class="text-sm text-gray-600 mt-2">Try searching for something else</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popup -->
+    <div id="linkPopup" class="popup-overlay">
+        <div class="popup-card">
+            <div class="popup-header">
+                <span class="popup-title"><i class="fas fa-link mr-2"></i>Link Ready</span>
+                <div class="popup-close" id="closePopupBtn">
+                    <i class="fas fa-times"></i>
+                </div>
+            </div>
+            <div class="link-preview-box">
+                <div class="link-text" id="popupLinkDisplay">https://</div>
+            </div>
+            <div class="popup-actions">
+                <button class="popup-btn btn-copy" id="copyLinkBtn">
+                    <i class="far fa-copy"></i> Copy
+                </button>
+                <button class="popup-btn btn-open" id="openLinkBtn">
+                    <i class="fas fa-external-link-alt"></i> Open
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 toast-sexy py-4 px-6 rounded-2xl opacity-0 transform translate-y-10 transition-all duration-500 z-50">
+        <div class="flex items-center gap-3">
+            <i class="fas fa-check-circle text-pink-400 text-lg"></i>
+            <p id="toast-message" class="text-sm font-medium"></p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-12 py-8 border-t border-pink-500/10">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-crown text-pink-400"></i>
+                    <span class="bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent font-bold">After Hours</span>
+                </div>
+                <p class="text-gray-500 text-xs">
+                    © 2025 After Hours Premium • 18+ Only • All Rights Reserved
+                </p>
+                <div class="flex gap-3">
+                    <i class="fas fa-shield-alt text-gray-600"></i>
+                    <i class="fas fa-lock text-gray-600"></i>
+                    <i class="fas fa-user-secret text-gray-600"></i>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Show app after a short delay to ensure everything is loaded
+        setTimeout(function() {
+            document.getElementById('initialLoading').style.display = 'none';
+            document.getElementById('app').style.display = 'block';
+        }, 500);
+
+        // Main application code
+        (function() {
+            // Check if we're in Telegram
+            const isTelegram = navigator.userAgent.includes('Telegram');
+            console.log('Running in Telegram:', isTelegram);
+            
+            // Initialize Firebase
+            const firebaseConfig = {
+                apiKey: "AIzaSyDEPyhjNRSXEmIRlpKlpt3zbDg8qLuJYI0",
+                authDomain: "visit-1f400.firebaseapp.com",
+                databaseURL: "https://visit-1f400-default-rtdb.firebaseio.com",
+                projectId: "visit-1f400",
+                storageBucket: "visit-1f400.firebasestorage.app",
+                messagingSenderId: "226827389556",
+                appId: "1:226827389556:web:86f3abe0d0ff5c1279df21",
+                measurementId: "G-7XHC81RT5D"
+            };
+            
+            firebase.initializeApp(firebaseConfig);
+            const db = firebase.firestore();
+
+            const sliderWrapper = document.getElementById('slider-wrapper');
+            const sliderDotsContainer = document.getElementById('slider-dots');
+            const filesGrid = document.getElementById('files-grid');
+            const searchInput = document.getElementById('searchInput');
+            const noResultsMessage = document.getElementById('no-results');
+
+            const popupOverlay = document.getElementById('linkPopup');
+            const popupLinkDisplay = document.getElementById('popupLinkDisplay');
+            const closePopupBtn = document.getElementById('closePopupBtn');
+            const copyLinkBtn = document.getElementById('copyLinkBtn');
+            const openLinkBtn = document.getElementById('openLinkBtn');
+
+            let currentPopupLink = '';
+            let sliderInterval;
+            let currentSlide = 0;
+            let AdController = null;
+            let allFiles = [];
+            let timerDuration = 10;
+            let unlockDuration = 10;
+            let isAdInProgress = false;
+            let currentProcessingButton = null;
+            
+            const unlockTimers = new Map();
+            const fileCooldowns = new Map();
+
+            function showToast(message) {
+                const toast = document.getElementById('toast');
+                document.getElementById('toast-message').textContent = message;
+                toast.classList.remove('opacity-0', 'translate-y-10');
+                setTimeout(function() {
+                    toast.classList.add('opacity-0', 'translate-y-10');
+                }, 2000);
+            }
+
+            function showLinkPopup(link) {
+                if (!link) return;
+                currentPopupLink = link;
+                popupLinkDisplay.textContent = link;
+                popupOverlay.classList.add('active');
+            }
+
+            function hidePopup() {
+                popupOverlay.classList.remove('active');
+            }
+
+            function copyToClipboard(text) {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(text).then(function() {
+                        showToast('🔗 Link copied to clipboard');
+                    }).catch(function() {
+                        fallbackCopy(text);
+                    });
+                } else {
+                    fallbackCopy(text);
+                }
+            }
+            
+            function fallbackCopy(text) {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    showToast('🔗 Link copied to clipboard');
+                } catch (err) {
+                    showToast('❌ Failed to copy');
+                }
+                document.body.removeChild(textarea);
+            }
+
+            function openLinkInBrowser(link) {
+                if (!link) return;
+                
+                if (!link.startsWith('http://') && !link.startsWith('https://')) {
+                    link = 'https://' + link;
+                }
+                
+                if (isTelegram) {
+                    window.location.href = link;
+                } else {
+                    window.open(link, '_blank');
+                }
+            }
+
+            // Popup event listeners
+            closePopupBtn.addEventListener('click', hidePopup);
+            popupOverlay.addEventListener('click', function(e) {
+                if (e.target === popupOverlay) hidePopup();
+            });
+            
+            copyLinkBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (currentPopupLink) {
+                    copyToClipboard(currentPopupLink);
+                    hidePopup();
+                }
+            });
+            
+            openLinkBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (currentPopupLink) {
+                    openLinkInBrowser(currentPopupLink);
+                    hidePopup();
+                }
+            });
+
+            // Initialize AdsGram
+            function initAdsGram() {
+                if (typeof window.Adsgram !== 'undefined') {
+                    AdController = window.Adsgram.init({ blockId: "int-27569" });
+                    console.log("✅ AdsGram initialized");
+                } else {
+                    setTimeout(initAdsGram, 500);
+                }
+            }
+
+            function checkUnlockExpiry(fileId) {
+                const unlockData = JSON.parse(localStorage.getItem('unlock_' + fileId) || '{}');
+                if (unlockData.expiryTime && Date.now() > unlockData.expiryTime) {
+                    localStorage.removeItem('adCount_' + fileId);
+                    localStorage.removeItem('unlock_' + fileId);
+                    return false;
+                }
+                return unlockData.expiryTime && Date.now() <= unlockData.expiryTime;
+            }
+
+            function startUnlockTimer(fileId, button) {
+                if (unlockTimers.has(fileId)) {
+                    clearInterval(unlockTimers.get(fileId));
+                    unlockTimers.delete(fileId);
+                }
+                
+                const timer = setInterval(function() {
+                    const unlockData = JSON.parse(localStorage.getItem('unlock_' + fileId) || '{}');
+                    if (!unlockData.expiryTime || Date.now() > unlockData.expiryTime) {
+                        clearInterval(timer);
+                        unlockTimers.delete(fileId);
+                        localStorage.removeItem('adCount_' + fileId);
+                        localStorage.removeItem('unlock_' + fileId);
+                        updateButtonState(button);
+                        showToast('⏰ Unlock period expired');
+                        return;
+                    }
+
+                    const timeLeft = unlockData.expiryTime - Date.now();
+                    const minutes = Math.floor(timeLeft / 60000);
+                    const seconds = Math.floor((timeLeft % 60000) / 1000);
+                    
+                    const existingBadge = button.querySelector('.timer-badge');
+                    if (existingBadge) {
+                        existingBadge.textContent = minutes + 'm ' + seconds + 's';
+                    }
+                }, 1000);
+
+                unlockTimers.set(fileId, timer);
+            }
+
+            function updateButtonState(button) {
+                const fileId = button.dataset.fileId;
+                const requiredCount = parseInt(button.dataset.requiredAds || 1);
+                const isUnlocked = checkUnlockExpiry(fileId);
+                const adCount = parseInt(localStorage.getItem('adCount_' + fileId) || 0);
+                
+                button.disabled = false;
+                
+                let existingBadge = button.querySelector('.timer-badge');
+                
+                if (isUnlocked) {
+                    button.innerHTML = '<i class="fas fa-download"></i><span>Download</span>';
+                    button.classList.add('from-green-400', 'to-green-600');
+                    button.classList.remove('from-pink-500', 'to-purple-600');
+                    
+                    if (!existingBadge) {
+                        existingBadge = document.createElement('span');
+                        existingBadge.className = 'timer-badge';
+                        button.appendChild(existingBadge);
+                    }
+                    existingBadge.style.display = 'inline-block';
+                    
+                    startUnlockTimer(fileId, button);
+                } else {
+                    button.innerHTML = '<i class="fas fa-lock"></i><span>Unlock (' + adCount + '/' + requiredCount + ')</span>';
+                    button.classList.add('from-pink-500', 'to-purple-600');
+                    button.classList.remove('from-green-400', 'to-green-600');
+                    
+                    if (existingBadge) {
+                        existingBadge.style.display = 'none';
+                    }
+                    
+                    if (unlockTimers.has(fileId)) {
+                        clearInterval(unlockTimers.get(fileId));
+                        unlockTimers.delete(fileId);
+                    }
+                }
+            }
+
+            function startCooldownTimer(button) {
+                const buttonTextEl = button.querySelector('span');
+                let countdown = timerDuration;
+                buttonTextEl.textContent = 'Wait ' + countdown + 's';
+                
+                const timerInterval = setInterval(function() {
+                    countdown--;
+                    if (countdown > 0) {
+                        buttonTextEl.textContent = 'Wait ' + countdown + 's';
+                    } else {
+                        clearInterval(timerInterval);
+                        button.disabled = false;
+                        updateButtonState(button);
+                    }
+                }, 1000);
+            }
+
+            function showInterstitialAd(button) {
+                if (!AdController) {
+                    console.error('AdsGram not initialized');
+                    showToast('❌ Ad service unavailable');
+                    updateButtonState(button);
+                    return;
+                }
+                
+                isAdInProgress = true;
+                currentProcessingButton = button;
+                
+                const buttonTextEl = button.querySelector('span');
+                const originalText = buttonTextEl.textContent;
+                buttonTextEl.textContent = 'Loading Ad...';
+                
+                AdController.show().then(function(result) {
+                    console.log('Ad result:', result);
+                    
+                    if (result.done) {
+                        const fileId = button.dataset.fileId;
+                        const requiredCount = parseInt(button.dataset.requiredAds || 1);
+                        let adCount = parseInt(localStorage.getItem('adCount_' + fileId) || 0);
+                        
+                        adCount++;
+                        localStorage.setItem('adCount_' + fileId, adCount);
+                        
+                        showToast('✅ Ad completed! Progress: ' + adCount + '/' + requiredCount);
+                        
+                        if (adCount >= requiredCount) {
+                            const expiryTime = Date.now() + (unlockDuration * 60 * 1000);
+                            localStorage.setItem('unlock_' + fileId, JSON.stringify({ expiryTime: expiryTime }));
+                            showToast('🎉 Unlocked for ' + unlockDuration + ' minutes!');
+                            updateButtonState(button);
+                            
+                            // Show the link popup
+                            const url = button.dataset.url;
+                            if (url) {
+                                showLinkPopup(url);
+                            }
+                        } else {
+                            updateButtonState(button);
+                            startCooldownTimer(button);
+                        }
+                    } else {
+                        showToast('⏭️ Ad skipped. Watch full ad for progress.');
+                        updateButtonState(button);
+                    }
+                    
+                    isAdInProgress = false;
+                    currentProcessingButton = null;
+                }).catch(function(error) {
+                    console.error('Ad error:', error);
+                    showToast('❌ Ad error. Try again.');
+                    updateButtonState(button);
+                    isAdInProgress = false;
+                    currentProcessingButton = null;
+                });
+            }
+
+            function handleAccessClick(button) {
+                if (button.disabled || isAdInProgress) return;
+                
+                const fileId = button.dataset.fileId;
+                const isUnlocked = checkUnlockExpiry(fileId);
+                
+                if (isUnlocked) {
+                    const url = button.dataset.url;
+                    if (url) {
+                        showLinkPopup(url);
+                    }
+                    return;
+                }
+                
+                button.disabled = true;
+                showInterstitialAd(button);
+            }
+
+            function attachButtonListeners() {
+                document.querySelectorAll('.access-btn').forEach(function(btn) {
+                    const newBtn = btn.cloneNode(true);
+                    btn.parentNode.replaceChild(newBtn, btn);
+                    
+                    newBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleAccessClick(this);
+                    });
+                });
+            }
+
+            function loadSettings() {
+                return db.collection("settings").doc("general").get().then(function(docSnap) {
+                    if (docSnap.exists) {
+                        timerDuration = docSnap.data().timerDuration || 10;
+                        unlockDuration = docSnap.data().unlockDuration || 10;
+                    }
+                }).catch(function(error) {
+                    console.error("Error loading settings:", error);
+                });
+            }
+
+            function loadAllData() {
+                loadSettings().then(function() {
+                    return Promise.all([
+                        db.collection("sliders").orderBy("createdAt", "desc").limit(10).get(),
+                        db.collection("files").orderBy("createdAt", "desc").limit(50).get()
+                    ]);
+                }).then(function(results) {
+                    renderSliders(results[0]);
+                    renderFiles(results[1]);
+                    setTimeout(attachButtonListeners, 100);
+                }).catch(function(error) {
+                    console.error("Error loading:", error);
+                    filesGrid.innerHTML = '<p class="col-span-full text-center text-gray-500 py-8">Loading content...</p>';
+                });
+            }
+
+            function renderSliders(sliderSnapshot) {
+                sliderWrapper.innerHTML = '';
+                sliderDotsContainer.innerHTML = '';
+                const slides = [];
+                sliderSnapshot.forEach(function(doc) {
+                    slides.push(doc.data());
+                });
+                
+                if (slides.length > 0) {
+                    slides.forEach(function(slide, index) {
+                        const slideEl = document.createElement('div');
+                        slideEl.className = 'slider-item';
+                        if (slide.linkUrl) {
+                            slideEl.innerHTML = '<a href="' + slide.linkUrl + '" target="_blank"><img src="' + slide.imageUrl + '" class="w-full h-full object-cover" onerror="this.src=\'https://placehold.co/1280x400/1a0a1a/ec4899?text=Premium+Content\'"></a>';
+                        } else {
+                            slideEl.innerHTML = '<img src="' + slide.imageUrl + '" class="w-full h-full object-cover" onerror="this.src=\'https://placehold.co/1280x400/1a0a1a/ec4899?text=Premium+Content\'">';
+                        }
+                        sliderWrapper.appendChild(slideEl);
+                        
+                        const dotEl = document.createElement('div');
+                        dotEl.className = 'slider-dot';
+                        dotEl.dataset.index = index;
+                        sliderDotsContainer.appendChild(dotEl);
+                    });
+                    setupSlider(slides.length);
+                }
+            }
+
+            function renderFiles(filesSnapshot) {
+                filesGrid.innerHTML = '';
+                allFiles = [];
+                
+                if (filesSnapshot.empty) {
+                    filesGrid.innerHTML = '<p class="col-span-full text-center text-gray-500 py-8">No exclusive content available.</p>';
+                    return;
+                }
+                
+                filesSnapshot.forEach(function(doc) {
+                    allFiles.push(Object.assign({ id: doc.id }, doc.data()));
+                });
+                
+                allFiles.forEach(function(file) {
+                    const card = document.createElement('div');
+                    card.className = 'file-card glass-card rounded-2xl overflow-hidden card-hover border border-pink-500/20';
+                    card.dataset.title = file.title.toLowerCase();
+                    card.dataset.description = (file.description || '').toLowerCase();
+                    card.id = 'card-' + file.id;
+                    
+                    const requiredAds = file.requiredAds || 1;
+                    const isUnlocked = checkUnlockExpiry(file.id);
+                    const adCount = parseInt(localStorage.getItem('adCount_' + file.id) || 0);
+                    
+                    let html = '<div class="relative aspect-video overflow-hidden">';
+                    html += '<img src="' + file.thumbnailUrl + '" alt="' + file.title + '" class="w-full h-full object-cover" onerror="this.src=\'https://placehold.co/400x225/1a0a1a/ec4899?text=Premium\'">';
+                    html += '<div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>';
+                    html += '<div class="absolute top-3 left-3">';
+                    html += '<span class="bg-gradient-to-r from-pink-500/90 to-purple-600/90 backdrop-blur-sm px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wide">';
+                    html += '<i class="fas fa-crown mr-1"></i>PREMIUM</span></div></div>';
+                    html += '<div class="p-4">';
+                    html += '<h3 class="text-base font-bold text-white truncate mb-1">' + file.title + '</h3>';
+                    html += '<p class="text-gray-400 text-xs line-clamp-2 mb-4 h-8">' + (file.description || 'Exclusive premium content') + '</p>';
+                    html += '<div class="mt-2">';
+                    html += '<button data-file-id="' + file.id + '" data-url="' + file.downloadUrl + '" data-required-ads="' + requiredAds + '" class="access-btn w-full py-3 px-4 rounded-xl text-white text-sm font-bold premium-gradient flex items-center justify-center gap-2 shadow-lg">';
+                    
+                    if (isUnlocked) {
+                        html += '<i class="fas fa-download"></i><span>Download</span>';
+                    } else {
+                        html += '<i class="fas fa-lock"></i><span>Unlock (' + adCount + '/' + requiredAds + ')</span>';
+                    }
+                    
+                    html += '</button></div></div>';
+                    
+                    card.innerHTML = html;
+                    filesGrid.appendChild(card);
+                    
+                    const button = card.querySelector('.access-btn');
+                    
+                    if (isUnlocked) {
+                        const badge = document.createElement('span');
+                        badge.className = 'timer-badge';
+                        button.appendChild(badge);
+                        startUnlockTimer(file.id, button);
+                    }
+                });
+            }
+
+            function setupSlider(slideCount) {
+                if (slideCount <= 1) {
+                    if (slideCount === 1) {
+                        const dot = document.querySelector('.slider-dot');
+                        if (dot) dot.classList.add('active');
+                    }
+                    return;
+                }
+                
+                const dots = document.querySelectorAll('.slider-dot');
+                
+                function goToSlide(index) {
+                    currentSlide = (index + slideCount) % slideCount;
+                    sliderWrapper.style.transform = 'translateX(-' + (currentSlide * 100) + '%)';
+                    dots.forEach(function(dot) {
+                        dot.classList.remove('active');
+                    });
+                    if (dots[currentSlide]) dots[currentSlide].classList.add('active');
+                }
+                
+                if (sliderInterval) clearInterval(sliderInterval);
+                sliderInterval = setInterval(function() {
+                    goToSlide(currentSlide + 1);
+                }, 3000);
+                
+                dots.forEach(function(dot) {
+                    dot.addEventListener('click', function(e) {
+                        goToSlide(parseInt(e.target.dataset.index));
+                    });
+                });
+                
+                goToSlide(0);
+            }
+
+            function handleSearch() {
+                const term = searchInput.value.toLowerCase();
+                let visible = 0;
+                
+                document.querySelectorAll('.file-card').forEach(function(card) {
+                    const title = card.dataset.title;
+                    const desc = card.dataset.description;
+                    if (title.includes(term) || desc.includes(term)) {
+                        card.style.display = 'block';
+                        visible++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+                
+                if (noResultsMessage) {
+                    noResultsMessage.classList.toggle('hidden', visible > 0);
+                }
+            }
+
+            searchInput.addEventListener('input', handleSearch);
+
+            // Start loading
+            loadAllData();
+            initAdsGram();
+        })();
+    </script>
+</body>
+</html>
