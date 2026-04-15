@@ -8,8 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- AdsGram SDK -->
-    <script src="https://s.adsgram.ai/js/sadg.min.js"></script>
+    <!-- AdsGram SDK - Correct URL from documentation -->
+    <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     <style>
         /* Custom styles for animations and aesthetics */
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -132,16 +132,16 @@
 
         let sliderInterval;
         let currentSlide = 0;
-        let timerDuration = 10; // Default wait time in seconds
-        let unlockDuration = 10; // Default unlock duration in minutes
+        let timerDuration = 10;
+        let unlockDuration = 10;
         let currentLang = 'en';
         
-        // Store active timers for each file
-        const unlockTimers = new Map();
-        // Store current button being processed for AdsGram callback
+        // AdsGram controller
+        let AdController = null;
+        // Store current button being processed
         let currentProcessingButton = null;
-        // AdsGram instance
-        let SadgAds = null;
+        // Store active timers
+        const unlockTimers = new Map();
 
         const translations = {
             en: { 
@@ -164,8 +164,8 @@
                 verifying_button: "Please wait {countdown}s",
                 unlocked_time_remaining: "Unlocked: {minutes}m {seconds}s left",
                 toast_expired: "Unlock period expired. Please watch ads again to unlock.",
-                ad_skipped: "Ad was skipped. Please watch the complete ad.",
-                ad_completed: "Ad completed! Progress saved."
+                ad_completed: "Ad completed! Progress saved.",
+                ad_skipped: "Ad was skipped. Watch full ad to get progress."
             },
             hi: { 
                 main_title: "वेबऐप सीखो", 
@@ -186,9 +186,9 @@
                 loading_ad: "विज्ञापन लोड हो रहा है...", 
                 verifying_button: "कृपया प्रतीक्षा करें... {countdown}s",
                 unlocked_time_remaining: "अनलॉक: {minutes}मि {seconds}से बाकी",
-                toast_expired: "अनलॉक अवधि समाप्त हो गई। कृपया अनलॉक करने के लिए फिर से विज्ञापन देखें।",
-                ad_skipped: "विज्ञापन छोड़ दिया गया। कृपया पूरा विज्ञापन देखें।",
-                ad_completed: "विज्ञापन पूरा हुआ! प्रगति सहेजी गई।"
+                toast_expired: "अनलॉक अवधि समाप्त हो गई।",
+                ad_completed: "विज्ञापन पूरा हुआ! प्रगति सहेजी गई।",
+                ad_skipped: "विज्ञापन छोड़ दिया गया। प्रगति के लिए पूरा विज्ञापन देखें।"
             },
             bn: { 
                 main_title: "ওয়েবঅ্যাপ শিখুন", 
@@ -199,105 +199,30 @@
                 no_slides: "কোন প্রচারমূলক স্লাইড উপলব্ধ নেই।", 
                 slides_error: "স্লাইড লোড করা যায়নি।", 
                 no_files_uploaded: "এখনো কোনো ফাইল আপলোড করা হয়নি।", 
-                files_error: "ফাইল লোড করা যায়নি। অনুগ্রহ করে পরে আবার চেষ্টা করুন।", 
+                files_error: "ফাইল লোড করা যায়নি।", 
                 unlock_button: "আনলক করুন ({adCount}/{requiredCount})", 
                 download_now_button: "এখনই ডাউনলোড করুন", 
                 toast_download_starting: "আপনার ডাউনলোড শুরু হচ্ছে...", 
                 toast_progress: "অগ্রগতি: {adCount}/{requiredCount}", 
                 toast_unlocked: "{minutes} মিনিটের জন্য ডাউনলোড আনলক করা হয়েছে!", 
-                toast_ad_error: "বিজ্ঞাপন লোড করা যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।", 
+                toast_ad_error: "বিজ্ঞাপন লোড করা যায়নি।", 
                 loading_ad: "বিজ্ঞাপন লোড হচ্ছে...", 
                 verifying_button: "অনুগ্রহ করে অপেক্ষা করুন... {countdown}s",
                 unlocked_time_remaining: "আনলক: {minutes}মি {seconds}সে বাকি",
-                toast_expired: "আনলকের সময় শেষ হয়েছে। আবার বিজ্ঞাপন দেখুন।",
-                ad_skipped: "বিজ্ঞাপন স্কিপ করা হয়েছে। সম্পূর্ণ বিজ্ঞাপন দেখুন।",
-                ad_completed: "বিজ্ঞাপন সম্পন্ন! অগ্রগতি সংরক্ষিত।"
+                toast_expired: "আনলকের সময় শেষ হয়েছে।",
+                ad_completed: "বিজ্ঞাপন সম্পন্ন! অগ্রগতি সংরক্ষিত।",
+                ad_skipped: "বিজ্ঞাপন স্কিপ করা হয়েছে। অগ্রগতির জন্য সম্পূর্ণ বিজ্ঞাপন দেখুন।"
             }
         };
 
-        // Initialize AdsGram
+        // Initialize AdsGram with correct method
         function initAdsGram() {
-            if (typeof Sadg !== 'undefined') {
-                SadgAds = new Sadg({
-                    blockId: 'int-27569',
-                    onAdCompleted: () => {
-                        console.log('AdsGram: Ad completed successfully');
-                        handleAdCompleted();
-                    },
-                    onAdSkipped: () => {
-                        console.log('AdsGram: Ad was skipped');
-                        handleAdSkipped();
-                    },
-                    onAdError: (error) => {
-                        console.error('AdsGram: Ad error', error);
-                        handleAdError(error);
-                    }
-                });
-                console.log('AdsGram initialized with block ID: int-27569');
+            if (typeof window.Adsgram !== 'undefined') {
+                AdController = window.Adsgram.init({ blockId: "int-27569" });
+                console.log('✅ AdsGram initialized with block ID: int-27569');
             } else {
-                console.error('AdsGram SDK not loaded');
+                console.error('❌ AdsGram SDK not loaded');
             }
-        }
-
-        function handleAdCompleted() {
-            if (currentProcessingButton) {
-                const button = currentProcessingButton;
-                const fileId = button.dataset.id;
-                const requiredCount = parseInt(button.dataset.requiredAds);
-                let adCount = parseInt(localStorage.getItem(`adCount_${fileId}`) || 0);
-                
-                adCount++;
-                localStorage.setItem(`adCount_${fileId}`, adCount);
-                
-                showToast('ad_completed');
-                
-                if (adCount >= requiredCount) {
-                    // Set unlock expiry time
-                    const expiryTime = Date.now() + (unlockDuration * 60 * 1000);
-                    localStorage.setItem(`unlock_${fileId}`, JSON.stringify({ expiryTime }));
-                    
-                    showToast('toast_unlocked', { minutes: unlockDuration });
-                    updateButtonState(button);
-                } else {
-                    showToast('toast_progress', { adCount, requiredCount });
-                    startCooldownTimer(button);
-                }
-                
-                currentProcessingButton = null;
-            }
-        }
-
-        function handleAdSkipped() {
-            showToast('ad_skipped');
-            if (currentProcessingButton) {
-                updateButtonState(currentProcessingButton);
-                currentProcessingButton = null;
-            }
-        }
-
-        function handleAdError(error) {
-            showToast('toast_ad_error');
-            if (currentProcessingButton) {
-                updateButtonState(currentProcessingButton);
-                currentProcessingButton = null;
-            }
-        }
-
-        function startCooldownTimer(button) {
-            const buttonTextEl = button.querySelector('span');
-            let countdown = timerDuration;
-            buttonTextEl.textContent = getText('verifying_button', { countdown });
-            
-            const timerInterval = setInterval(() => {
-                countdown--;
-                if (countdown > 0) {
-                    buttonTextEl.textContent = getText('verifying_button', { countdown });
-                } else {
-                    clearInterval(timerInterval);
-                    button.disabled = false;
-                    updateButtonState(button);
-                }
-            }, 1000);
         }
 
         function applyLanguage(lang) {
@@ -442,7 +367,7 @@
             if (slideCount <= 1) {
                 if(slideCount === 1) document.querySelector('.slider-dot').classList.add('active');
                 return;
-            };
+            }
             const dots = document.querySelectorAll('.slider-dot');
             function goToSlide(slideIndex) {
                 currentSlide = (slideIndex + slideCount) % slideCount;
@@ -535,8 +460,6 @@
             if (!button || button.disabled) return;
             const fileId = button.dataset.id;
             const downloadUrl = button.dataset.url;
-            const requiredCount = parseInt(button.dataset.requiredAds);
-            const adCount = parseInt(localStorage.getItem(`adCount_${fileId}`) || 0);
             const isUnlocked = checkUnlockExpiry(fileId);
             
             if (isUnlocked) {
@@ -548,25 +471,71 @@
             processAdUnlock(button);
         }
 
-        function processAdUnlock(button) {
+        async function processAdUnlock(button) {
+            if (!AdController) {
+                console.error('AdsGram not initialized');
+                showToast('toast_ad_error');
+                return;
+            }
+            
             button.disabled = true;
             const buttonTextEl = button.querySelector('span');
-            const fileId = button.dataset.id;
-            const requiredCount = parseInt(button.dataset.requiredAds);
-            let adCount = parseInt(localStorage.getItem(`adCount_${fileId}`) || 0);
-            
             buttonTextEl.textContent = getText('loading_ad');
             currentProcessingButton = button;
             
-            // Show AdsGram interstitial ad
-            if (SadgAds) {
-                SadgAds.showInterstitial();
-            } else {
-                console.error('AdsGram not initialized');
+            try {
+                const result = await AdController.show();
+                console.log('Ad result:', result);
+                
+                if (result.done) {
+                    // Ad watched completely (Rewarded) or closed after watching (Interstitial)
+                    const fileId = button.dataset.id;
+                    const requiredCount = parseInt(button.dataset.requiredAds);
+                    let adCount = parseInt(localStorage.getItem(`adCount_${fileId}`) || 0);
+                    
+                    adCount++;
+                    localStorage.setItem(`adCount_${fileId}`, adCount);
+                    
+                    showToast('ad_completed');
+                    
+                    if (adCount >= requiredCount) {
+                        const expiryTime = Date.now() + (unlockDuration * 60 * 1000);
+                        localStorage.setItem(`unlock_${fileId}`, JSON.stringify({ expiryTime }));
+                        showToast('toast_unlocked', { minutes: unlockDuration });
+                        updateButtonState(button);
+                    } else {
+                        showToast('toast_progress', { adCount, requiredCount });
+                        startCooldownTimer(button);
+                    }
+                } else {
+                    // Ad was skipped or not completed
+                    showToast('ad_skipped');
+                    updateButtonState(button);
+                }
+            } catch (error) {
+                console.error('Ad error:', error);
                 showToast('toast_ad_error');
                 updateButtonState(button);
+            } finally {
                 currentProcessingButton = null;
             }
+        }
+
+        function startCooldownTimer(button) {
+            const buttonTextEl = button.querySelector('span');
+            let countdown = timerDuration;
+            buttonTextEl.textContent = getText('verifying_button', { countdown });
+            
+            const timerInterval = setInterval(() => {
+                countdown--;
+                if (countdown > 0) {
+                    buttonTextEl.textContent = getText('verifying_button', { countdown });
+                } else {
+                    clearInterval(timerInterval);
+                    button.disabled = false;
+                    updateButtonState(button);
+                }
+            }, 1000);
         }
 
         function handleSearch() {
@@ -587,7 +556,6 @@
         }
 
         window.addEventListener('load', () => {
-            // Initialize AdsGram
             initAdsGram();
             
             const savedLang = localStorage.getItem('userLanguage');
