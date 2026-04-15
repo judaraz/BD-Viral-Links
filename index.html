@@ -575,6 +575,7 @@
             const openLinkBtn = document.getElementById('openLinkBtn');
 
             let currentPopupLink = '';
+            let currentFileId = ''; // Track current file ID for view counting
             let sliderInterval;
             let currentSlide = 0;
             let AdController = null;
@@ -586,6 +587,9 @@
             
             const unlockTimers = new Map();
             const fileCooldowns = new Map();
+            
+            // Track viewed files to avoid double counting
+            const viewedFiles = new Set();
 
             function showToast(message) {
                 const toast = document.getElementById('toast');
@@ -596,15 +600,53 @@
                 }, 2000);
             }
 
-            function showLinkPopup(link) {
+            // Track file view in Firebase
+            async function trackFileView(fileId) {
+                if (!fileId || viewedFiles.has(fileId)) return;
+                
+                try {
+                    const fileRef = db.collection("files").doc(fileId);
+                    await fileRef.update({
+                        views: firebase.firestore.FieldValue.increment(1)
+                    });
+                    viewedFiles.add(fileId);
+                    console.log(`✅ File view tracked: ${fileId}`);
+                } catch (error) {
+                    console.error('Error tracking file view:', error);
+                }
+            }
+
+            // Track slider view in Firebase
+            async function trackSliderView(sliderId) {
+                if (!sliderId) return;
+                
+                try {
+                    const sliderRef = db.collection("sliders").doc(sliderId);
+                    await sliderRef.update({
+                        views: firebase.firestore.FieldValue.increment(1)
+                    });
+                    console.log(`✅ Slider view tracked: ${sliderId}`);
+                } catch (error) {
+                    console.error('Error tracking slider view:', error);
+                }
+            }
+
+            function showLinkPopup(link, fileId) {
                 if (!link) return;
                 currentPopupLink = link;
+                currentFileId = fileId;
                 popupLinkDisplay.textContent = link;
                 popupOverlay.classList.add('active');
+                
+                // Track file view when popup is shown
+                if (fileId) {
+                    trackFileView(fileId);
+                }
             }
 
             function hidePopup() {
                 popupOverlay.classList.remove('active');
+                currentFileId = '';
             }
 
             function copyToClipboard(text) {
@@ -812,10 +854,10 @@
                             showToast('🎉 Unlocked for ' + unlockDuration + ' minutes!');
                             updateButtonState(button);
                             
-                            // Show the link popup
+                            // Show the link popup and track view
                             const url = button.dataset.url;
                             if (url) {
-                                showLinkPopup(url);
+                                showLinkPopup(url, fileId);
                             }
                         } else {
                             updateButtonState(button);
@@ -846,7 +888,7 @@
                 if (isUnlocked) {
                     const url = button.dataset.url;
                     if (url) {
-                        showLinkPopup(url);
+                        showLinkPopup(url, fileId);
                     }
                     return;
                 }
@@ -899,16 +941,21 @@
                 sliderWrapper.innerHTML = '';
                 sliderDotsContainer.innerHTML = '';
                 const slides = [];
+                const sliderIds = [];
+                
                 sliderSnapshot.forEach(function(doc) {
                     slides.push(doc.data());
+                    sliderIds.push(doc.id);
                 });
                 
                 if (slides.length > 0) {
                     slides.forEach(function(slide, index) {
                         const slideEl = document.createElement('div');
                         slideEl.className = 'slider-item';
+                        slideEl.dataset.sliderId = sliderIds[index];
+                        
                         if (slide.linkUrl) {
-                            slideEl.innerHTML = '<a href="' + slide.linkUrl + '" target="_blank"><img src="' + slide.imageUrl + '" class="w-full h-full object-cover" onerror="this.src=\'https://placehold.co/1280x400/1a0a1a/ec4899?text=Premium+Content\'"></a>';
+                            slideEl.innerHTML = '<a href="' + slide.linkUrl + '" target="_blank" class="slider-link" data-slider-id="' + sliderIds[index] + '"><img src="' + slide.imageUrl + '" class="w-full h-full object-cover" onerror="this.src=\'https://placehold.co/1280x400/1a0a1a/ec4899?text=Premium+Content\'"></a>';
                         } else {
                             slideEl.innerHTML = '<img src="' + slide.imageUrl + '" class="w-full h-full object-cover" onerror="this.src=\'https://placehold.co/1280x400/1a0a1a/ec4899?text=Premium+Content\'">';
                         }
@@ -919,6 +966,17 @@
                         dotEl.dataset.index = index;
                         sliderDotsContainer.appendChild(dotEl);
                     });
+                    
+                    // Add click listeners to slider links for tracking
+                    document.querySelectorAll('.slider-link').forEach(function(link) {
+                        link.addEventListener('click', function(e) {
+                            const sliderId = this.dataset.sliderId;
+                            if (sliderId) {
+                                trackSliderView(sliderId);
+                            }
+                        });
+                    });
+                    
                     setupSlider(slides.length);
                 }
             }
