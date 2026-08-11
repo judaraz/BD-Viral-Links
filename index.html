@@ -8,244 +8,163 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
-        body{font-family:'Inter',sans-serif;background:#0a0a1a;color:#fff;min-height:100vh;overflow-x:hidden}
+        body{font-family:Arial,sans-serif;background:#0a0a1a;color:#fff;min-height:100vh}
+        .max-width{max-width:450px;margin:0 auto}
         .glass{background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1);border-radius:20px}
-        .text-gold{background:linear-gradient(135deg,#FFD700,#FFA500);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-        .btn-gold{background:linear-gradient(135deg,#FFD700,#FFA500);color:#1a1a2e;font-weight:700;border-radius:14px;padding:14px 24px;border:none;width:100%;cursor:pointer;font-size:16px;transition:all 0.3s}
-        .btn-gold:hover{transform:scale(1.02);box-shadow:0 4px 20px rgba(255,215,0,0.4)}
-        .btn-gold:active{transform:scale(0.98)}
-        .btn-purple{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;font-weight:700;border-radius:14px;padding:14px 24px;border:none;width:100%;cursor:pointer;font-size:16px;transition:all 0.3s}
-        .btn-purple:hover{transform:scale(1.02);box-shadow:0 4px 20px rgba(102,126,234,0.4)}
-        .btn-outline{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;font-weight:600;border-radius:14px;padding:12px 20px;cursor:pointer;width:100%;transition:all 0.3s}
-        .btn-outline:hover{background:rgba(255,255,255,0.2)}
-        .nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;color:#6b7280;cursor:pointer;transition:all 0.3s;padding:8px 0}
-        .nav-item.active{color:#FFD700}
-        .nav-item i{font-size:22px}
-        .nav-item span{font-size:11px;font-weight:500}
-        .bottom-nav{background:rgba(15,15,35,0.98);backdrop-filter:blur(20px);border-top:1px solid rgba(255,215,0,0.2);border-radius:25px 25px 0 0;position:fixed;bottom:0;left:0;right:0;max-width:450px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);padding:8px 4px 12px;z-index:100}
-        .page{display:none;animation:fadeIn 0.3s ease;padding-bottom:80px}
+        .text-gold{color:#FFD700}
+        .btn{display:block;width:100%;padding:14px;border-radius:14px;border:none;font-size:16px;font-weight:700;cursor:pointer;text-align:center;margin-bottom:10px}
+        .btn-gold{background:linear-gradient(135deg,#FFD700,#FFA500);color:#1a1a2e}
+        .btn-purple{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff}
+        .btn-outline{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff}
+        .page{display:none;padding:16px;padding-bottom:100px}
         .page.active{display:block}
-        @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-        .game-card{background:linear-gradient(145deg,rgba(30,30,60,0.9),rgba(20,20,40,0.95));border-radius:24px;padding:20px;border:1px solid rgba(255,215,0,0.15);cursor:pointer;transition:all 0.3s;text-align:center}
-        .game-card:hover{transform:translateY(-4px);border-color:rgba(255,215,0,0.5)}
-        .game-icon{width:55px;height:55px;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 12px}
-        .modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);display:none;align-items:center;justify-content:center;z-index:1000;padding:20px}
-        .modal-content{background:linear-gradient(145deg,rgba(30,30,60,0.98),rgba(20,20,40,0.98));border-radius:28px;max-width:380px;width:100%;padding:30px;border:1px solid rgba(255,215,0,0.3);text-align:center}
-        .dice-box{width:65px;height:65px;background:#fff;border-radius:14px;border:3px solid #2c3e50;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:900;color:#2c3e50;margin:15px auto}
-        .color-box{aspect-ratio:1;border-radius:14px;cursor:pointer;transition:all 0.2s;min-height:60px}
-        .color-box:hover{transform:scale(1.08);box-shadow:0 5px 20px rgba(0,0,0,0.4)}
-        .spinner{width:45px;height:45px;border:3px solid rgba(255,215,0,0.1);border-top-color:#FFD700;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto}
+        .game-card{background:linear-gradient(145deg,rgba(30,30,60,0.9),rgba(20,20,40,0.95));border-radius:20px;padding:20px;border:1px solid rgba(255,215,0,0.2);cursor:pointer;text-align:center}
+        .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);display:none;align-items:center;justify-content:center;z-index:1000}
+        .modal-box{background:#1a1a2e;border-radius:24px;padding:30px;max-width:360px;width:90%;text-align:center;border:1px solid rgba(255,215,0,0.3)}
+        .dice{width:60px;height:60px;background:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:#1a1a2e;margin:15px auto}
+        .color-box{width:100%;aspect-ratio:1;border-radius:12px;cursor:pointer;min-height:60px}
+        .bottom-nav{position:fixed;bottom:0;left:0;right:0;max-width:450px;margin:0 auto;background:rgba(10,10,26,0.98);display:grid;grid-template-columns:repeat(5,1fr);padding:8px 4px 12px;z-index:100;border-top:1px solid rgba(255,215,0,0.2)}
+        .nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;color:#666;cursor:pointer;font-size:12px}
+        .nav-item.active{color:#FFD700}
+        .nav-item i{font-size:20px}
+        .spinner{width:40px;height:40px;border:3px solid rgba(255,215,0,0.2);border-top-color:#FFD700;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto}
         @keyframes spin{to{transform:rotate(360deg)}}
         
-        /* AD OVERLAY */
+        /* Ad overlay */
         .ad-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.97);z-index:9999;display:flex;align-items:center;justify-content:center}
-        .ad-box{background:#fff;border-radius:16px;width:94%;max-width:420px;min-height:400px;padding:20px;position:relative;display:flex;flex-direction:column}
-        .ad-box-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-        .ad-badge{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;color:#fff}
-        .ad-badge-reward{background:#4CAF50}
-        .ad-badge-inter{background:#FF9800}
-        .ad-close{width:32px;height:32px;background:#e74c3c;color:#fff;border:none;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;font-weight:700}
-        .ad-close:hover{background:#c0392b}
-        .ad-body{flex:1;background:#f0f0f0;border-radius:12px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;min-height:280px}
-        .ad-footer{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
-        .ad-timer{color:#555;font-size:13px;font-weight:600}
-        .ad-skip{background:#2196F3;color:#fff;border:none;padding:8px 18px;border-radius:20px;cursor:pointer;font-size:13px;font-weight:600}
-        .ad-skip:disabled{background:#bbb;cursor:not-allowed}
-        .ad-loading-text{color:#888;font-size:14px;text-align:center}
+        .ad-box{background:#fff;border-radius:16px;width:92%;max-width:400px;padding:16px;color:#333}
+        .ad-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+        .ad-badge{padding:5px 12px;border-radius:15px;font-size:11px;font-weight:700;color:#fff}
+        .ad-badge-r{background:#4CAF50}
+        .ad-badge-i{background:#FF9800}
+        .ad-close-btn{width:28px;height:28px;background:#e74c3c;color:#fff;border:none;border-radius:50%;cursor:pointer;font-size:14px;font-weight:700}
+        .ad-body{background:#eee;border-radius:10px;min-height:250px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+        .ad-footer{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+        .ad-timer{color:#666;font-size:13px;font-weight:600}
+        .ad-skip-btn{background:#2196F3;color:#fff;border:none;padding:7px 16px;border-radius:15px;cursor:pointer;font-size:12px;font-weight:600}
+        .ad-skip-btn:disabled{background:#bbb;cursor:not-allowed}
     </style>
 </head>
-<body class="max-w-md mx-auto relative">
+<body>
 
-    <!-- REWARD MODAL -->
+    <!-- Reward Modal -->
     <div id="rewardModal" class="modal">
-        <div class="modal-content">
-            <div style="font-size:50px;margin-bottom:10px">🏆</div>
-            <h3 class="text-2xl font-bold text-gold mb-2" id="rmTitle">You Won!</h3>
-            <p class="text-3xl font-bold text-green-400 mb-3" id="rmAmount">+100 Points</p>
-            <p class="text-gray-400 text-sm mb-5">Choose how to claim:</p>
-            <button id="rmBaseBtn" class="btn-gold mb-3" style="display:block">✅ Claim Base Reward</button>
-            <button id="rmBonusBtn" class="btn-purple mb-3" style="display:block">📺 Watch Ad for 2x Bonus!</button>
-            <button onclick="closeModal('rewardModal')" class="btn-outline">Later</button>
+        <div class="modal-box">
+            <div style="font-size:50px">🏆</div>
+            <h3 style="font-size:22px;margin:10px 0" class="text-gold" id="modalTitle">You Won!</h3>
+            <p style="font-size:28px;font-weight:700;color:#4CAF50;margin:10px 0" id="modalAmount">+100</p>
+            <button class="btn btn-gold" id="modalBaseBtn">✅ Claim Base Reward</button>
+            <button class="btn btn-purple" id="modalBonusBtn">📺 Watch Ad for 2x!</button>
+            <button class="btn btn-outline" onclick="document.getElementById('rewardModal').style.display='none'">Close</button>
         </div>
     </div>
 
-    <!-- DICE RESULT MODAL -->
-    <div id="diceResultModal" class="modal">
-        <div class="modal-content">
-            <div class="dice-box" id="drDice">⚀</div>
-            <h3 class="text-xl font-bold text-gold mb-2">Dice Result</h3>
-            <p class="text-3xl font-bold text-green-400 mb-3" id="drAmount">0 Points</p>
-            <p class="text-gray-400 text-sm mb-5">Choose how to claim:</p>
-            <button id="drBaseBtn" class="btn-gold mb-3" style="display:block">✅ Claim Base</button>
-            <button id="drBonusBtn" class="btn-purple mb-3" style="display:block">📺 2x with Ad!</button>
-            <button onclick="closeModal('diceResultModal')" class="btn-outline">Later</button>
-        </div>
-    </div>
-
-    <!-- MAIN APP -->
-    <div id="app">
-        <!-- HEADER -->
-        <header style="padding:16px 16px 10px;position:sticky;top:0;z-index:50;background:rgba(10,10,26,0.95);backdrop-filter:blur(10px)">
-            <div style="display:flex;justify-content:space-between;align-items:center">
-                <div style="display:flex;align-items:center;gap:10px">
-                    <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#FFD700,#FFA500);display:flex;align-items:center;justify-content:center;font-size:20px">👤</div>
-                    <div>
-                        <h2 style="font-weight:700;font-size:16px" id="userName">Player</h2>
-                        <p style="font-size:11px;color:#888">Premium Member</p>
-                    </div>
-                </div>
-                <div class="glass" style="padding:8px 14px;display:flex;align-items:center;gap:6px">
-                    <span style="font-size:18px">🪙</span>
-                    <span style="font-weight:700;font-size:18px" class="text-gold" id="balance">100</span>
-                </div>
+    <!-- Main App -->
+    <div class="max-width">
+        <!-- Header -->
+        <div style="padding:15px;display:flex;justify-content:space-between;align-items:center;background:rgba(10,10,26,0.95);position:sticky;top:0;z-index:50">
+            <div style="display:flex;align-items:center;gap:10px">
+                <div style="width:40px;height:40px;border-radius:50%;background:#FFD700;display:flex;align-items:center;justify-content:center;font-size:20px">👤</div>
+                <div><div style="font-weight:700">Player</div><div style="font-size:11px;color:#888">Premium</div></div>
             </div>
-        </header>
+            <div class="glass" style="padding:8px 14px;display:flex;align-items:center;gap:6px">
+                <span>🪙</span><span style="font-weight:700;font-size:18px" class="text-gold" id="balance">100</span>
+            </div>
+        </div>
 
-        <!-- PAGES -->
-        <!-- HOME -->
-        <div id="homePage" class="page active" style="padding:16px">
+        <!-- HOME PAGE -->
+        <div id="homePage" class="page active">
             <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px">
-                <div class="glass" style="padding:12px;text-align:center">
-                    <div style="font-size:22px;margin-bottom:4px">🔥</div>
-                    <div style="font-size:11px;color:#888">Earnings</div>
-                    <div style="font-weight:700" class="text-gold" id="todayEarnings">0</div>
-                </div>
-                <div class="glass" style="padding:12px;text-align:center">
-                    <div style="font-size:22px;margin-bottom:4px">✅</div>
-                    <div style="font-size:11px;color:#888">Played</div>
-                    <div style="font-weight:700" class="text-gold" id="gamesPlayed">0</div>
-                </div>
-                <div class="glass" style="padding:12px;text-align:center">
-                    <div style="font-size:22px;margin-bottom:4px">⭐</div>
-                    <div style="font-size:11px;color:#888">Level</div>
-                    <div style="font-weight:700" class="text-gold" id="userLevel">1</div>
-                </div>
+                <div class="glass" style="padding:12px;text-align:center"><div style="font-size:20px">🔥</div><div style="font-size:10px;color:#888">Earnings</div><div style="font-weight:700" class="text-gold" id="todayEarnings">0</div></div>
+                <div class="glass" style="padding:12px;text-align:center"><div style="font-size:20px">🎮</div><div style="font-size:10px;color:#888">Played</div><div style="font-weight:700" class="text-gold" id="gamesPlayed">0</div></div>
+                <div class="glass" style="padding:12px;text-align:center"><div style="font-size:20px">⭐</div><div style="font-size:10px;color:#888">Level</div><div style="font-weight:700" class="text-gold" id="userLevel">1</div></div>
             </div>
-            <h3 style="font-size:18px;font-weight:700;margin-bottom:14px" class="text-gold">🎮 Play & Earn</h3>
-            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px" id="gamesGrid"></div>
+            <h3 style="font-size:20px;margin-bottom:14px" class="text-gold">🎮 Play & Earn</h3>
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px" id="gamesGrid">
+                <!-- Games will be inserted here by JavaScript -->
+            </div>
         </div>
 
         <!-- LUDO PAGE -->
-        <div id="ludoPage" class="page" style="padding:16px">
-            <button onclick="showPage('homePage')" class="btn-outline" style="width:auto;margin-bottom:16px;padding:10px 20px">← Back</button>
+        <div id="ludoPage" class="page">
+            <button onclick="showPage('homePage')" class="btn btn-outline" style="width:auto;padding:8px 16px;margin-bottom:16px">← Back</button>
             <div class="glass" style="padding:20px;text-align:center">
-                <h2 style="font-size:22px;font-weight:700;margin-bottom:8px" class="text-gold">🎲 Ludo Dice</h2>
-                <p style="color:#aaa;font-size:13px;margin-bottom:16px">Roll the dice and win coins!</p>
-                <div style="background:rgba(0,0,0,0.3);border-radius:16px;padding:14px;margin-bottom:16px">
-                    <div style="font-size:12px;color:#888">Game Cost</div>
-                    <div style="font-size:24px;font-weight:700" class="text-gold">10 Coins</div>
+                <h2 style="font-size:22px;margin-bottom:8px" class="text-gold">🎲 Ludo Dice</h2>
+                <p style="color:#aaa;font-size:13px;margin-bottom:16px">Roll the dice and win!</p>
+                <div style="background:rgba(0,0,0,0.3);border-radius:14px;padding:12px;margin-bottom:16px">
+                    <div style="font-size:12px;color:#888">Cost: 10 Coins</div>
+                    <div style="font-size:13px;color:#4CAF50">Win up to 60 Coins!</div>
                 </div>
-                <div style="width:200px;height:200px;background:#fff;border-radius:16px;border:6px solid #2c3e50;margin:0 auto 16px;transform:rotate(45deg);position:relative;overflow:hidden">
-                    <div style="position:absolute;top:0;left:0;width:50%;height:50%;background:#ff6b6b;border-bottom-right-radius:100%"></div>
-                    <div style="position:absolute;top:0;right:0;width:50%;height:50%;background:#4ecdc4;border-bottom-left-radius:100%"></div>
-                    <div style="position:absolute;bottom:0;left:0;width:50%;height:50%;background:#ffd93d;border-top-right-radius:100%"></div>
-                    <div style="position:absolute;bottom:0;right:0;width:50%;height:50%;background:#6c5ce7;border-top-left-radius:100%"></div>
-                    <div style="position:absolute;width:30%;height:30%;background:#fff;top:50%;left:50%;transform:translate(-50%,-50%);border-radius:8px;border:2px solid #2c3e50;display:flex;align-items:center;justify-content:center;font-weight:700;color:#2c3e50;font-size:16px">LUDO</div>
-                </div>
-                <div class="dice-box" id="ludoDice" style="transform:none">⚀</div>
-                <button id="rollDiceBtn" class="btn-gold" style="margin-top:8px">🎯 ROLL DICE</button>
-                <div id="ludoCooldown" style="font-size:12px;color:#f0a500;margin-top:8px;display:none">⏱️ Cooldown...</div>
+                <div class="dice" id="ludoDice">⚀</div>
+                <button class="btn btn-gold" id="rollDiceBtn">🎯 ROLL DICE</button>
+                <div id="ludoCooldown" style="font-size:12px;color:#f0a500;margin-top:8px;display:none">⏱️ Wait...</div>
             </div>
         </div>
 
         <!-- COLOR GAME PAGE -->
-        <div id="colorGamePage" class="page" style="padding:16px">
-            <button onclick="showPage('homePage')" class="btn-outline" style="width:auto;margin-bottom:16px;padding:10px 20px">← Back</button>
+        <div id="colorGamePage" class="page">
+            <button onclick="showPage('homePage')" class="btn btn-outline" style="width:auto;padding:8px 16px;margin-bottom:16px">← Back</button>
             <div class="glass" style="padding:20px;text-align:center">
-                <h2 style="font-size:22px;font-weight:700;margin-bottom:8px" class="text-gold">🎨 Color Match</h2>
+                <h2 style="font-size:22px;margin-bottom:8px" class="text-gold">🎨 Color Match</h2>
                 <p style="color:#aaa;font-size:13px;margin-bottom:16px">Find the matching color!</p>
-                <div style="background:rgba(0,0,0,0.3);border-radius:16px;padding:14px;margin-bottom:16px">
-                    <div style="font-size:12px;color:#888">Match this color:</div>
-                    <div id="targetColor" style="width:80px;height:50px;margin:8px auto;border-radius:12px;border:2px solid #fff"></div>
-                    <div id="targetRgb" style="font-size:13px;font-weight:600" class="text-gold"></div>
+                <div style="background:rgba(0,0,0,0.3);border-radius:14px;padding:12px;margin-bottom:16px">
+                    <div style="font-size:12px;color:#888">Match this:</div>
+                    <div id="targetColor" style="width:80px;height:50px;margin:8px auto;border-radius:10px;border:2px solid #fff"></div>
+                    <div id="targetRgb" style="font-size:13px;font-weight:600" class="text-gold">rgb(0,0,0)</div>
                 </div>
-                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px" id="colorOptions"></div>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px" id="colorOptions"></div>
             </div>
         </div>
 
         <!-- TRY LUCK PAGE -->
-        <div id="tryLuckPage" class="page" style="padding:16px">
-            <button onclick="showPage('homePage')" class="btn-outline" style="width:auto;margin-bottom:16px;padding:10px 20px">← Back</button>
+        <div id="tryLuckPage" class="page">
+            <button onclick="showPage('homePage')" class="btn btn-outline" style="width:auto;padding:8px 16px;margin-bottom:16px">← Back</button>
             <div class="glass" style="padding:20px;text-align:center">
-                <div style="font-size:50px;margin-bottom:10px">🍀</div>
-                <h2 style="font-size:22px;font-weight:700;margin-bottom:8px" class="text-gold">Try Your Luck!</h2>
-                <p style="color:#aaa;font-size:13px;margin-bottom:16px">Get free coins every day!</p>
-                <div style="background:rgba(0,0,0,0.3);border-radius:16px;padding:16px;margin-bottom:16px">
+                <div style="font-size:60px;margin-bottom:10px">🍀</div>
+                <h2 style="font-size:22px;margin-bottom:8px" class="text-gold">Try Your Luck!</h2>
+                <p style="color:#aaa;font-size:13px;margin-bottom:16px">Free daily reward!</p>
+                <div style="background:rgba(0,0,0,0.3);border-radius:14px;padding:16px;margin-bottom:16px">
                     <div style="font-size:12px;color:#888">Daily Reward</div>
-                    <div style="font-size:28px;font-weight:700;color:#4CAF50" id="luckAmount">50 Coins</div>
-                    <div style="font-size:11px;color:#888;margin-top:4px">Watch ad for 2x bonus!</div>
+                    <div style="font-size:30px;font-weight:700;color:#4CAF50">50 Coins</div>
+                    <div style="font-size:11px;color:#888">2x with ad!</div>
                 </div>
-                <button id="luckBtn" class="btn-gold">🎰 Claim Reward</button>
+                <button class="btn btn-gold" id="luckBtn">🎰 Claim Now</button>
             </div>
         </div>
 
         <!-- WALLET PAGE -->
-        <div id="walletPage" class="page" style="padding:16px">
-            <button onclick="showPage('homePage')" class="btn-outline" style="width:auto;margin-bottom:16px;padding:10px 20px">← Back</button>
-            <div class="glass" style="padding:20px;text-align:center;margin-bottom:16px">
-                <h2 style="font-size:22px;font-weight:700;margin-bottom:12px" class="text-gold">💰 My Wallet</h2>
-                <div style="background:rgba(0,0,0,0.3);border-radius:16px;padding:20px;margin-bottom:16px">
-                    <div style="font-size:13px;color:#888">Total Balance</div>
-                    <div style="font-size:36px;font-weight:700" class="text-gold" id="walletBalance">100</div>
-                    <div style="font-size:11px;color:#888;margin-top:4px">1000 Coins = ₹10</div>
-                </div>
-                <div style="text-align:left;margin-bottom:12px">
-                    <label style="font-size:12px;color:#888;display:block;margin-bottom:4px">Amount (min 1000)</label>
-                    <input type="number" id="withdrawAmount" placeholder="1000" style="width:100%;padding:12px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.2);border-radius:12px;color:#fff;font-size:16px">
-                </div>
-                <div style="text-align:left;margin-bottom:12px">
-                    <label style="font-size:12px;color:#888;display:block;margin-bottom:4px">UPI ID</label>
-                    <input type="text" id="upiId" placeholder="yourname@upi" style="width:100%;padding:12px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.2);border-radius:12px;color:#fff;font-size:16px">
-                </div>
-                <button id="withdrawBtn" class="btn-gold">💸 Request Withdrawal</button>
-            </div>
-        </div>
-
-        <!-- PROFILE PAGE -->
-        <div id="profilePage" class="page" style="padding:16px">
-            <button onclick="showPage('homePage')" class="btn-outline" style="width:auto;margin-bottom:16px;padding:10px 20px">← Back</button>
+        <div id="walletPage" class="page">
+            <button onclick="showPage('homePage')" class="btn btn-outline" style="width:auto;padding:8px 16px;margin-bottom:16px">← Back</button>
             <div class="glass" style="padding:20px;text-align:center">
-                <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#FFD700,#FFA500);display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 12px">👤</div>
-                <h2 style="font-size:20px;font-weight:700" class="text-gold" id="profileName">Player</h2>
-                <p style="color:#888;font-size:13px;margin-bottom:16px">Premium Member</p>
-                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px">
-                    <div style="background:rgba(0,0,0,0.3);padding:12px;border-radius:12px">
-                        <div style="font-size:11px;color:#888">Total Earned</div>
-                        <div style="font-weight:700" class="text-gold" id="totalEarned">0</div>
-                    </div>
-                    <div style="background:rgba(0,0,0,0.3);padding:12px;border-radius:12px">
-                        <div style="font-size:11px;color:#888">Games Played</div>
-                        <div style="font-weight:700" class="text-gold" id="totalGames">0</div>
-                    </div>
+                <h2 style="font-size:22px;margin-bottom:12px" class="text-gold">💰 Wallet</h2>
+                <div style="background:rgba(0,0,0,0.3);border-radius:14px;padding:20px;margin-bottom:16px">
+                    <div style="font-size:12px;color:#888">Balance</div>
+                    <div style="font-size:32px;font-weight:700" class="text-gold" id="walletBalance">100</div>
+                    <div style="font-size:11px;color:#888">1000 = ₹10</div>
                 </div>
-                <p style="color:#888;font-size:12px">Adsgram: Rewarded #42429 | Interstitial #int-27569</p>
+                <input type="number" id="withdrawAmount" placeholder="Amount (min 1000)" style="width:100%;padding:12px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.2);border-radius:10px;color:#fff;margin-bottom:10px">
+                <input type="text" id="upiId" placeholder="UPI ID" style="width:100%;padding:12px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.2);border-radius:10px;color:#fff;margin-bottom:10px">
+                <button class="btn btn-gold" id="withdrawBtn">💸 Withdraw</button>
             </div>
         </div>
     </div>
 
-    <!-- BOTTOM NAV -->
-    <nav class="bottom-nav">
+    <!-- Bottom Nav -->
+    <div class="bottom-nav">
         <div class="nav-item active" data-page="homePage"><i class="fas fa-home"></i><span>Home</span></div>
         <div class="nav-item" data-page="ludoPage"><i class="fas fa-dice"></i><span>Ludo</span></div>
         <div class="nav-item" data-page="colorGamePage"><i class="fas fa-palette"></i><span>Color</span></div>
         <div class="nav-item" data-page="tryLuckPage"><i class="fas fa-star"></i><span>Luck</span></div>
         <div class="nav-item" data-page="walletPage"><i class="fas fa-wallet"></i><span>Wallet</span></div>
-    </nav>
+    </div>
 
     <script>
-        // ============ ADSGRAM HARDCODED CONFIG ============
-        const AD_CONFIG = {
-            rewardedId: "42429",
-            interstitialId: "int-27569"
-        };
-
-        // ============ GLOBAL STATE ============
-        let state = {
+        // ============ STATE ============
+        const STATE = {
             balance: 100,
             totalEarned: 0,
             todayEarnings: 0,
@@ -257,88 +176,52 @@
         };
 
         // Load saved state
-        const saved = localStorage.getItem('cashreward_state');
-        if (saved) state = {...state, ...JSON.parse(saved)};
+        try {
+            const saved = localStorage.getItem('cr_state');
+            if (saved) Object.assign(STATE, JSON.parse(saved));
+        } catch(e) {}
 
         function saveState() {
-            localStorage.setItem('cashreward_state', JSON.stringify(state));
+            try { localStorage.setItem('cr_state', JSON.stringify(STATE)); } catch(e) {}
             updateUI();
         }
 
-        // ============ UI UPDATE ============
         function updateUI() {
-            document.getElementById('balance').textContent = state.balance;
-            document.getElementById('walletBalance').textContent = state.balance;
-            document.getElementById('todayEarnings').textContent = state.todayEarnings;
-            document.getElementById('gamesPlayed').textContent = state.gamesPlayed;
-            document.getElementById('userLevel').textContent = Math.floor(state.totalEarned / 1000) + 1;
-            document.getElementById('totalEarned').textContent = state.totalEarned;
-            document.getElementById('totalGames').textContent = state.gamesPlayed;
-        }
-
-        // ============ MODALS ============
-        function closeModal(id) {
-            document.getElementById(id).style.display = 'none';
-        }
-
-        function showRewardModal(title, amount, onBase, onBonus) {
-            document.getElementById('rmTitle').textContent = title;
-            document.getElementById('rmAmount').textContent = '+' + amount + ' Coins';
-            const baseBtn = document.getElementById('rmBaseBtn');
-            const bonusBtn = document.getElementById('rmBonusBtn');
-            baseBtn.onclick = () => { closeModal('rewardModal'); onBase(); };
-            bonusBtn.onclick = () => { closeModal('rewardModal'); onBonus(); };
-            document.getElementById('rewardModal').style.display = 'flex';
-        }
-
-        function showDiceModal(amount, onBase, onBonus) {
-            const faces = ['⚀','⚁','⚂','⚃','⚄','⚅'];
-            document.getElementById('drDice').textContent = faces[Math.floor(Math.random()*6)];
-            document.getElementById('drAmount').textContent = amount + ' Coins';
-            document.getElementById('drBaseBtn').onclick = () => { closeModal('diceResultModal'); onBase(); };
-            document.getElementById('drBonusBtn').onclick = () => { closeModal('diceResultModal'); onBonus(); };
-            document.getElementById('diceResultModal').style.display = 'flex';
+            document.getElementById('balance').textContent = STATE.balance;
+            document.getElementById('walletBalance').textContent = STATE.balance;
+            document.getElementById('todayEarnings').textContent = STATE.todayEarnings;
+            document.getElementById('gamesPlayed').textContent = STATE.gamesPlayed;
+            document.getElementById('userLevel').textContent = Math.floor(STATE.totalEarned / 1000) + 1;
         }
 
         // ============ ADS ============
         function showAd() {
             return new Promise((resolve) => {
-                state.adCallCount++;
-                const isRewarded = state.adCallCount % 2 === 1;
-                const adType = isRewarded ? 'rewarded' : 'interstitial';
-                const blockId = isRewarded ? AD_CONFIG.rewardedId : AD_CONFIG.interstitialId;
+                STATE.adCallCount++;
+                const isRewarded = STATE.adCallCount % 2 === 1;
+                const blockId = isRewarded ? "42429" : "int-27569";
                 
-                console.log(`📺 Showing ${adType.toUpperCase()} ad | Block: ${blockId} | SDK: ${typeof window.sad}`);
+                console.log('📺 Showing ' + (isRewarded?'Rewarded':'Interstitial') + ' ad | ID: ' + blockId);
                 
-                // Check if SDK loaded
-                if (typeof window.sad === 'undefined') {
-                    console.warn('Adsgram SDK not loaded - using demo');
-                    setTimeout(() => {
-                        alert('📺 Ad completed! (Demo mode - Add real block IDs for production)');
-                        resolve(true);
-                    }, 500);
-                    return;
-                }
-
                 // Create overlay
                 const overlay = document.createElement('div');
-                overlay.className = 'ad-overlay';
+                overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.97);z-index:9999;display:flex;align-items:center;justify-content:center';
                 overlay.innerHTML = `
-                    <div class="ad-box">
-                        <div class="ad-box-header">
-                            <span class="ad-badge ${isRewarded ? 'ad-badge-reward' : 'ad-badge-inter'}">${isRewarded ? '🎁 Rewarded' : '📢 Interstitial'}</span>
-                            <button class="ad-close" id="adCloseBtn">✕</button>
+                    <div style="background:#fff;border-radius:16px;width:92%;max-width:400px;padding:16px;color:#333">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+                            <span style="padding:5px 12px;border-radius:15px;font-size:11px;font-weight:700;color:#fff;background:${isRewarded?'#4CAF50':'#FF9800'}">${isRewarded?'🎁 Rewarded':'📢 Interstitial'}</span>
+                            <button id="adCloseBtn" style="width:28px;height:28px;background:#e74c3c;color:#fff;border:none;border-radius:50%;cursor:pointer;font-size:14px;font-weight:700">✕</button>
                         </div>
-                        <div class="ad-body" id="adBody">
+                        <div style="background:#eee;border-radius:10px;min-height:250px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden">
                             <div id="adLoading" style="text-align:center">
-                                <div class="spinner" style="margin-bottom:12px"></div>
-                                <p class="ad-loading-text">Loading ad...</p>
+                                <div class="spinner"></div>
+                                <p style="color:#888;margin-top:10px">Loading ad...</p>
                             </div>
                             <div id="adUnit" style="width:100%;height:100%;position:absolute;top:0;left:0"></div>
                         </div>
-                        <div class="ad-footer">
-                            <span class="ad-timer" id="adTimer">⏱ 0s</span>
-                            <button class="ad-skip" id="adSkipBtn" disabled>Skip in 5s</button>
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+                            <span id="adTimer" style="color:#666;font-size:13px;font-weight:600">⏱ 0s</span>
+                            <button id="adSkipBtn" style="background:#2196F3;color:#fff;border:none;padding:7px 16px;border-radius:15px;cursor:pointer;font-size:12px;font-weight:600" disabled>Skip in 5s</button>
                         </div>
                     </div>
                 `;
@@ -369,76 +252,82 @@
                 overlay.querySelector('#adCloseBtn').onclick = () => cleanup(false);
                 skipBtn.onclick = () => cleanup(false);
 
-                try {
-                    window.sad.createAd({
-                        blockId: blockId,
-                        type: isRewarded ? 'rewarded' : 'interstitial',
-                        userId: 'user_' + Date.now(),
-                        onAdLoaded: () => {
-                            console.log('✅ Ad loaded');
-                            const loadingEl = overlay.querySelector('#adLoading');
-                            if (loadingEl) loadingEl.style.display = 'none';
-                        },
-                        onAdCompleted: (data) => {
-                            console.log('🎉 Ad completed', data);
-                            cleanup(true);
-                        },
-                        onAdError: (err) => {
-                            console.error('❌ Ad error:', err);
-                            cleanup(false);
-                        },
-                        onAdClosed: () => {
-                            console.log('🔒 Ad closed');
-                            cleanup(false);
-                        }
-                    });
-                } catch(e) {
-                    console.error('Ad creation error:', e);
-                    cleanup(false);
+                // Try real ad
+                if (typeof window.sad !== 'undefined') {
+                    try {
+                        window.sad.createAd({
+                            blockId: blockId,
+                            type: isRewarded ? 'rewarded' : 'interstitial',
+                            userId: 'user_' + Date.now(),
+                            onAdLoaded: () => {
+                                const loadEl = overlay.querySelector('#adLoading');
+                                if (loadEl) loadEl.style.display = 'none';
+                            },
+                            onAdCompleted: () => cleanup(true),
+                            onAdError: () => cleanup(false),
+                            onAdClosed: () => cleanup(false)
+                        });
+                    } catch(e) {
+                        console.log('Ad error, using demo');
+                        setTimeout(() => cleanup(true), 500);
+                    }
+                } else {
+                    // Demo mode
+                    console.log('SDK not loaded, demo mode');
+                    setTimeout(() => {
+                        alert('📺 Ad completed! (Demo)');
+                        cleanup(true);
+                    }, 1000);
                 }
 
                 // Timeout
-                setTimeout(() => {
-                    if (!resolved) {
-                        console.log('⏰ Ad timeout');
-                        cleanup(false);
-                    }
-                }, 25000);
+                setTimeout(() => { if (!resolved) cleanup(false); }, 25000);
             });
         }
 
         // ============ BALANCE ============
-        function addBalance(amount) {
-            state.balance += amount;
+        function addCoins(amount) {
+            STATE.balance += amount;
             if (amount > 0) {
-                state.totalEarned += amount;
-                state.todayEarnings += amount;
+                STATE.totalEarned += amount;
+                STATE.todayEarnings += amount;
             }
             saveState();
         }
 
-        function deductBalance(amount) {
-            if (state.balance < amount) return false;
-            state.balance -= amount;
+        function spendCoins(amount) {
+            if (STATE.balance < amount) return false;
+            STATE.balance -= amount;
             saveState();
             return true;
         }
 
+        // ============ MODAL ============
+        function showRewardModal(amount, onBase, onBonus) {
+            document.getElementById('modalAmount').textContent = '+' + amount;
+            document.getElementById('modalBaseBtn').onclick = () => {
+                document.getElementById('rewardModal').style.display = 'none';
+                onBase();
+            };
+            document.getElementById('modalBonusBtn').onclick = () => {
+                document.getElementById('rewardModal').style.display = 'none';
+                onBonus();
+            };
+            document.getElementById('rewardModal').style.display = 'flex';
+        }
+
         // ============ GAMES ============
         // Ludo
-        function rollDice() {
-            if (state.ludoCooldown > Date.now()) {
-                const wait = Math.ceil((state.ludoCooldown - Date.now()) / 1000);
-                alert('Please wait ' + wait + ' seconds');
+        window.rollDice = function() {
+            if (STATE.ludoCooldown > Date.now()) {
+                alert('Wait ' + Math.ceil((STATE.ludoCooldown - Date.now())/1000) + 's');
                 return;
             }
-            if (!deductBalance(10)) {
-                alert('You need 10 coins to play!');
-                return;
-            }
+            if (!spendCoins(10)) { alert('Need 10 coins!'); return; }
 
             const btn = document.getElementById('rollDiceBtn');
-            if (btn) btn.disabled = true;
+            btn.disabled = true;
+            btn.textContent = 'Rolling...';
             
             const faces = ['⚀','⚁','⚂','⚃','⚄','⚅'];
             let count = 0;
@@ -450,58 +339,67 @@
                     setTimeout(animate, 60);
                 } else {
                     const result = Math.floor(Math.random()*6) + 1;
-                    state.currentLudoWin = result * 10;
+                    STATE.currentLudoWin = result * 10;
                     document.getElementById('ludoDice').textContent = faces[result-1];
                     
-                    showDiceModal(state.currentLudoWin,
+                    showRewardModal(STATE.currentLudoWin,
                         () => {
-                            addBalance(state.currentLudoWin);
-                            alert('🎉 Won ' + state.currentLudoWin + ' coins!');
-                            cooldown();
+                            addCoins(STATE.currentLudoWin);
+                            alert('Won ' + STATE.currentLudoWin + ' coins!');
+                            setCooldown();
                         },
                         async () => {
                             const adOk = await showAd();
                             if (adOk) {
-                                addBalance(state.currentLudoWin * 2);
-                                alert('🎉 Won ' + (state.currentLudoWin * 2) + ' coins with 2x bonus!');
+                                addCoins(STATE.currentLudoWin * 2);
+                                alert('🎉 2x Bonus! Won ' + (STATE.currentLudoWin * 2) + ' coins!');
                             } else {
-                                addBalance(state.currentLudoWin);
-                                alert('Ad skipped. Won ' + state.currentLudoWin + ' coins.');
+                                addCoins(STATE.currentLudoWin);
+                                alert('Won ' + STATE.currentLudoWin + ' coins.');
                             }
-                            cooldown();
+                            setCooldown();
                         }
                     );
                     
-                    if (btn) btn.disabled = false;
-                    state.gamesPlayed++;
+                    btn.disabled = false;
+                    btn.textContent = '🎯 ROLL DICE';
+                    STATE.gamesPlayed++;
                     saveState();
                 }
             }
             
-            function cooldown() {
-                state.ludoCooldown = Date.now() + 8000;
+            function setCooldown() {
+                STATE.ludoCooldown = Date.now() + 8000;
                 const cd = document.getElementById('ludoCooldown');
-                if (cd) { cd.style.display = 'block'; setTimeout(() => cd.style.display = 'none', 8000); }
-                saveState();
+                cd.style.display = 'block';
+                setTimeout(() => cd.style.display = 'none', 8000);
             }
             
             animate();
-        }
+        };
 
         // Color Game
-        function initColorGame() {
-            const r = Math.floor(Math.random()*256), g = Math.floor(Math.random()*256), b = Math.floor(Math.random()*256);
-            state.colorTarget = `rgb(${r},${g},${b})`;
-            document.getElementById('targetColor').style.backgroundColor = state.colorTarget;
-            document.getElementById('targetRgb').textContent = state.colorTarget;
+        window.initColorGame = function() {
+            const r = Math.floor(Math.random()*256);
+            const g = Math.floor(Math.random()*256);
+            const b = Math.floor(Math.random()*256);
+            STATE.colorTarget = 'rgb(' + r + ',' + g + ',' + b + ')';
             
-            const options = [state.colorTarget];
+            document.getElementById('targetColor').style.backgroundColor = STATE.colorTarget;
+            document.getElementById('targetRgb').textContent = STATE.colorTarget;
+            
+            const options = [STATE.colorTarget];
             while (options.length < 9) {
-                const dr = 40 + Math.floor(Math.random()*60), dg = 40 + Math.floor(Math.random()*60), db = 40 + Math.floor(Math.random()*60);
-                const c = `rgb(${Math.min(255,Math.max(0,r+(Math.random()>0.5?dr:-dr)))},${Math.min(255,Math.max(0,g+(Math.random()>0.5?dg:-dg)))},${Math.min(255,Math.max(0,b+(Math.random()>0.5?db:-db)))})`;
+                const dr = 40 + Math.floor(Math.random()*60);
+                const dg = 40 + Math.floor(Math.random()*60);
+                const db = 40 + Math.floor(Math.random()*60);
+                const c = 'rgb(' + 
+                    Math.min(255,Math.max(0,r+(Math.random()>0.5?dr:-dr))) + ',' +
+                    Math.min(255,Math.max(0,g+(Math.random()>0.5?dg:-dg))) + ',' +
+                    Math.min(255,Math.max(0,b+(Math.random()>0.5?db:-db))) + ')';
                 if (!options.includes(c)) options.push(c);
             }
-            options.sort(()=>Math.random()-0.5);
+            options.sort(() => Math.random() - 0.5);
             
             const container = document.getElementById('colorOptions');
             container.innerHTML = '';
@@ -512,113 +410,141 @@
                 div.onclick = () => checkColor(c);
                 container.appendChild(div);
             });
-        }
+        };
 
-        function checkColor(selected) {
-            if (selected === state.colorTarget) {
-                showRewardModal('🎨 Correct!', 50,
-                    () => { addBalance(50); alert('Won 50 coins!'); initColorGame(); },
+        window.checkColor = function(selected) {
+            if (selected === STATE.colorTarget) {
+                showRewardModal(50,
+                    () => {
+                        addCoins(50);
+                        alert('✅ Won 50 coins!');
+                        initColorGame();
+                    },
                     async () => {
                         const adOk = await showAd();
-                        if (adOk) { addBalance(100); alert('Won 100 coins with 2x bonus!'); }
-                        else { addBalance(50); alert('Ad skipped. Won 50 coins.'); }
+                        if (adOk) {
+                            addCoins(100);
+                            alert('🎉 2x! Won 100 coins!');
+                        } else {
+                            addCoins(50);
+                            alert('Won 50 coins.');
+                        }
                         initColorGame();
                     }
                 );
-                state.gamesPlayed++;
+                STATE.gamesPlayed++;
                 saveState();
             } else {
-                alert('❌ Wrong color! Try again.');
+                alert('❌ Wrong! Try again.');
                 initColorGame();
             }
-        }
+        };
 
         // Try Luck
-        function startLuck() {
-            showRewardModal('🍀 Lucky Draw!', 50,
-                () => { addBalance(50); alert('Won 50 coins!'); },
+        window.startLuck = function() {
+            showRewardModal(50,
+                () => {
+                    addCoins(50);
+                    alert('🍀 Won 50 coins!');
+                },
                 async () => {
                     const adOk = await showAd();
-                    if (adOk) { addBalance(100); alert('Won 100 coins with 2x bonus!'); }
-                    else { addBalance(50); alert('Ad skipped. Won 50 coins.'); }
+                    if (adOk) {
+                        addCoins(100);
+                        alert('🎉 2x! Won 100 coins!');
+                    } else {
+                        addCoins(50);
+                        alert('Won 50 coins.');
+                    }
                 }
             );
-            state.gamesPlayed++;
+            STATE.gamesPlayed++;
             saveState();
-        }
-
-        // ============ WALLET ============
-        function withdraw() {
-            const amount = parseInt(document.getElementById('withdrawAmount').value);
-            const upi = document.getElementById('upiId').value.trim();
-            if (!amount || amount < 1000) { alert('Minimum 1000 coins'); return; }
-            if (!upi) { alert('Enter UPI ID'); return; }
-            if (state.balance < amount) { alert('Insufficient balance'); return; }
-            deductBalance(amount);
-            alert('✅ Withdrawal of ' + amount + ' coins requested to ' + upi);
-            document.getElementById('withdrawAmount').value = '';
-            document.getElementById('upiId').value = '';
-        }
+        };
 
         // ============ NAVIGATION ============
-        function showPage(id) {
+        window.showPage = function(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.page === id));
-            if (id === 'colorGamePage') initColorGame();
-        }
+            const page = document.getElementById(pageId);
+            if (page) page.classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach(n => {
+                n.classList.toggle('active', n.getAttribute('data-page') === pageId);
+            });
+            
+            if (pageId === 'colorGamePage') initColorGame();
+        };
 
         // ============ BUILD GAMES GRID ============
-        function buildGrid() {
+        function buildGamesGrid() {
             const games = [
-                { id: 'ludoPage', icon: 'fa-dice-d6', name: '🎲 Ludo Dice', desc: 'Roll & Win!', color: '#ff6b6b' },
-                { id: 'colorGamePage', icon: 'fa-palette', name: '🎨 Color Match', desc: 'Match Colors', color: '#a855f7' },
-                { id: 'tryLuckPage', icon: 'fa-star', name: '🍀 Try Luck', desc: 'Daily Bonus', color: '#f59e0b' },
+                { id: 'ludoPage', icon: 'fa-dice-d6', name: '🎲 Ludo', desc: 'Roll & Win', color: '#ff6b6b' },
+                { id: 'colorGamePage', icon: 'fa-palette', name: '🎨 Color', desc: 'Match Colors', color: '#a855f7' },
+                { id: 'tryLuckPage', icon: 'fa-star', name: '🍀 Luck', desc: 'Daily Bonus', color: '#f59e0b' },
                 { id: 'walletPage', icon: 'fa-wallet', name: '💰 Wallet', desc: 'Withdraw', color: '#10b981' }
             ];
-            document.getElementById('gamesGrid').innerHTML = games.map(g => `
+            
+            const grid = document.getElementById('gamesGrid');
+            if (!grid) { console.error('gamesGrid not found!'); return; }
+            
+            grid.innerHTML = games.map(g => `
                 <div onclick="showPage('${g.id}')" class="game-card">
-                    <div class="game-icon" style="background:${g.color}"><i class="fas ${g.icon}" style="color:#fff"></i></div>
-                    <h4 style="font-weight:700;font-size:14px;margin-bottom:4px">${g.name}</h4>
-                    <p style="font-size:11px;color:#888">${g.desc}</p>
+                    <div style="width:50px;height:50px;border-radius:15px;background:${g.color};display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:22px">
+                        <i class="fas ${g.icon}" style="color:#fff"></i>
+                    </div>
+                    <div style="font-weight:700;font-size:15px;margin-bottom:4px">${g.name}</div>
+                    <div style="font-size:11px;color:#888">${g.desc}</div>
                 </div>
             `).join('');
         }
 
         // ============ INIT ============
         function init() {
-            // Set username
-            const tg = window.Telegram?.WebApp;
-            if (tg) {
-                tg.ready();
-                tg.expand();
-                const user = tg.initDataUnsafe?.user;
-                if (user) document.getElementById('userName').textContent = 'Hi, ' + (user.first_name || 'Player');
+            console.log('🚀 Initializing CashReward...');
+            
+            // Telegram
+            if (window.Telegram?.WebApp) {
+                window.Telegram.WebApp.ready();
+                window.Telegram.WebApp.expand();
             }
             
+            // Build games
+            buildGamesGrid();
+            
+            // Update UI
             updateUI();
-            buildGrid();
             
             // Event listeners
-            document.getElementById('rollDiceBtn').addEventListener('click', rollDice);
-            document.getElementById('luckBtn').addEventListener('click', startLuck);
-            document.getElementById('withdrawBtn').addEventListener('click', withdraw);
-            
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.addEventListener('click', () => showPage(item.dataset.page));
+            document.getElementById('rollDiceBtn')?.addEventListener('click', rollDice);
+            document.getElementById('luckBtn')?.addEventListener('click', startLuck);
+            document.getElementById('withdrawBtn')?.addEventListener('click', () => {
+                const amount = parseInt(document.getElementById('withdrawAmount').value);
+                const upi = document.getElementById('upiId').value.trim();
+                if (!amount || amount < 1000) { alert('Min 1000 coins'); return; }
+                if (!upi) { alert('Enter UPI ID'); return; }
+                if (STATE.balance < amount) { alert('Insufficient balance'); return; }
+                spendCoins(amount);
+                alert('✅ Withdrawal of ' + amount + ' coins to ' + upi);
+                document.getElementById('withdrawAmount').value = '';
+                document.getElementById('upiId').value = '';
             });
             
-            // Init color game
-            if (document.getElementById('colorGamePage').classList.contains('active')) initColorGame();
+            // Navigation
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', () => showPage(item.getAttribute('data-page')));
+            });
             
-            console.log('✅ CashReward Ready');
-            console.log('📺 Adsgram SDK:', typeof window.sad !== 'undefined' ? 'Loaded' : 'Not Loaded');
-            console.log('🎁 Rewarded ID:', AD_CONFIG.rewardedId);
-            console.log('📢 Interstitial ID:', AD_CONFIG.interstitialId);
-            console.log('🔄 Ads alternate: Rewarded ↔ Interstitial');
+            console.log('✅ CashReward Ready!');
+            console.log('📺 Adsgram:', typeof window.sad !== 'undefined' ? 'Loaded' : 'Demo Mode');
+            console.log('🎮 Games:', document.querySelectorAll('.game-card').length);
         }
 
-        init();
+        // Start when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
     </script>
 </body>
 </html>
