@@ -8,10 +8,8 @@
     <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
-    <!-- Ad Networks SDKs -->
+    <!-- Adsgram SDK -->
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
-    <!-- Add other ad network SDKs here -->
-    <!-- <script src="https://example.com/adnetwork2.js"></script> -->
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -300,16 +298,42 @@
             z-index: 10001;
         }
         
-        .ad-network-badge {
+        .ad-type-badge {
             position: absolute;
             top: 10px;
             right: 50px;
-            background: #4CAF50;
-            color: white;
             padding: 3px 10px;
             border-radius: 12px;
             font-size: 11px;
             z-index: 10001;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .ad-type-rewarded {
+            background: #4CAF50;
+        }
+        
+        .ad-type-interstitial {
+            background: #FF9800;
+        }
+        
+        .ad-skip-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            z-index: 10001;
+        }
+        
+        .ad-skip-btn:hover {
+            background: rgba(0,0,0,0.9);
         }
     </style>
 </head>
@@ -385,7 +409,7 @@
             </div>
         </header>
 
-        <!-- Main Content (Same as before, kept for brevity) -->
+        <!-- Main Content -->
         <main class="flex-1 px-4 py-4 pb-24">
             <!-- Home Page -->
             <div id="homePage" class="page active">
@@ -410,7 +434,7 @@
                 <div class="grid grid-cols-2 gap-4" id="gamesGrid"></div>
             </div>
 
-            <!-- Other pages remain the same -->
+            <!-- Ludo Page -->
             <div id="ludoPage" class="page">
                 <button onclick="showPage('homePage')" class="btn-secondary mb-4 text-sm">
                     <i class="fas fa-arrow-left mr-2"></i> Back
@@ -446,6 +470,7 @@
                 </div>
             </div>
 
+            <!-- Color Game Page -->
             <div id="colorGamePage" class="page">
                 <button onclick="showPage('homePage')" class="btn-secondary mb-4 text-sm">
                     <i class="fas fa-arrow-left mr-2"></i> Back
@@ -462,6 +487,7 @@
                 </div>
             </div>
 
+            <!-- Try Your Luck Page -->
             <div id="tryLuckPage" class="page">
                 <button onclick="showPage('homePage')" class="btn-secondary mb-4 text-sm">
                     <i class="fas fa-arrow-left mr-2"></i> Back
@@ -483,6 +509,7 @@
                 </div>
             </div>
 
+            <!-- OfferWall Page -->
             <div id="offerwallPage" class="page">
                 <button onclick="showPage('homePage')" class="btn-secondary mb-4 text-sm">
                     <i class="fas fa-arrow-left mr-2"></i> Back
@@ -513,6 +540,7 @@
                 </div>
             </div>
 
+            <!-- Wallet Page -->
             <div id="walletPage" class="page">
                 <button onclick="showPage('homePage')" class="btn-secondary mb-4 text-sm">
                     <i class="fas fa-arrow-left mr-2"></i> Back
@@ -552,6 +580,7 @@
                 </div>
             </div>
 
+            <!-- Refer Page -->
             <div id="referPage" class="page">
                 <button onclick="showPage('homePage')" class="btn-secondary mb-4 text-sm">
                     <i class="fas fa-arrow-left mr-2"></i> Back
@@ -585,6 +614,7 @@
                 </div>
             </div>
 
+            <!-- Profile Page -->
             <div id="profilePage" class="page">
                 <button onclick="showPage('homePage')" class="btn-secondary mb-4 text-sm">
                     <i class="fas fa-arrow-left mr-2"></i> Back
@@ -656,303 +686,73 @@
         const db = firebase.firestore();
 
         // ============================================
-        // AD NETWORK MANAGER - Dynamic from Admin Panel
+        // ADSGRAM HARDCODED CONFIGURATION
         // ============================================
-        class AdNetworkManager {
+        const ADSGRAM_CONFIG = {
+            rewardedBlockId: "42429",     // Rewarded Ad Block ID
+            interstitialBlockId: "int-27569", // Interstitial Ad Block ID
+            adTimeout: 30000,              // 30 seconds timeout
+            debug: true                    // Enable debug logs
+        };
+
+        // ============================================
+        // AD ALTERNATING MANAGER
+        // ============================================
+        class AdAlternatingManager {
             constructor() {
-                this.adNetworks = [];
-                this.currentNetworkIndex = 0;
-                this.adStats = {}; // Track ad performance
-                this.isInitialized = false;
-                this.adTimeout = 30000; // 30 seconds default
-                this.maxRetries = 2;
-            }
-
-            // Fetch ad network configuration from Firebase/Admin Panel
-            async fetchAdConfig() {
-                try {
-                    console.log('🔵 Fetching ad configuration from admin panel...');
-                    
-                    // Fetch from Firebase 'adConfig' collection
-                    const configDoc = await db.collection('adConfig').doc('rewardedAds').get();
-                    
-                    if (configDoc.exists) {
-                        const config = configDoc.data();
-                        console.log('✅ Ad config fetched:', config);
-                        return config;
-                    } else {
-                        console.log('⚠️ No ad config found, using default');
-                        return this.getDefaultConfig();
-                    }
-                } catch (error) {
-                    console.error('❌ Error fetching ad config:', error);
-                    return this.getDefaultConfig();
-                }
-            }
-
-            // Default configuration (fallback)
-            getDefaultConfig() {
-                return {
-                    enabled: true,
-                    rotationEnabled: true,
-                    rotationType: 'performance', // 'round-robin', 'weighted', 'performance'
-                    adTimeout: 30000,
-                    networks: [
-                        {
-                            id: 'adsgram',
-                            name: 'Adsgram',
-                            enabled: true,
-                            weight: 50,
-                            blockId: '', // Will be set from admin
-                            type: 'rewarded',
-                            sdkLoaded: typeof window.sad !== 'undefined'
-                        }
-                        // Add more networks as needed:
-                        // {
-                        //     id: 'adnetwork2',
-                        //     name: 'AdNetwork 2',
-                        //     enabled: true,
-                        //     weight: 30,
-                        //     placementId: '',
-                        //     type: 'rewarded'
-                        // }
-                    ]
+                this.adSequence = ['rewarded', 'interstitial']; // Alternating sequence
+                this.currentIndex = 0;
+                this.adStats = {
+                    rewarded: { shown: 0, completed: 0, failed: 0 },
+                    interstitial: { shown: 0, completed: 0, failed: 0 }
                 };
+                this.currentAdResolver = null;
+                this.adContainer = null;
+                this.interstitialTimer = null;
+                this.interstitialSkipEnabled = false;
             }
 
-            // Initialize ad networks
-            async initialize() {
-                if (this.isInitialized) return;
-                
-                console.log('🔵 Initializing Ad Network Manager...');
-                
-                // Fetch config from admin panel
-                const config = await this.fetchAdConfig();
-                
-                // Filter enabled networks
-                this.adNetworks = config.networks.filter(n => n.enabled);
-                this.adTimeout = config.adTimeout || 30000;
-                this.rotationEnabled = config.rotationEnabled || false;
-                this.rotationType = config.rotationType || 'round-robin';
-                
-                // Load SDKs if not loaded
-                await this.loadNetworkSDKs();
-                
-                // Initialize stats
-                this.adNetworks.forEach(network => {
-                    if (!this.adStats[network.id]) {
-                        this.adStats[network.id] = {
-                            attempts: 0,
-                            successes: 0,
-                            failures: 0,
-                            lastUsed: null,
-                            performance: 100 // Start at 100%
-                        };
-                    }
-                });
-                
-                this.isInitialized = true;
-                
-                console.log('✅ Ad Network Manager initialized');
-                console.log('📊 Active Networks:', this.adNetworks.map(n => n.name).join(', '));
-                console.log('🔄 Rotation:', this.rotationEnabled ? this.rotationType : 'disabled');
-                
-                return true;
+            // Get next ad type in alternation
+            getNextAdType() {
+                const adType = this.adSequence[this.currentIndex % this.adSequence.length];
+                this.currentIndex++;
+                console.log(`🔄 Alternating to: ${adType.toUpperCase()} ad`);
+                return adType;
             }
 
-            // Load required SDKs
-            async loadNetworkSDKs() {
-                for (const network of this.adNetworks) {
-                    if (network.id === 'adsgram' && !window.sad) {
-                        console.log(`⚠️ ${network.name} SDK not loaded`);
-                        network.sdkAvailable = false;
-                    } else {
-                        network.sdkAvailable = true;
-                    }
-                }
-            }
-
-            // Select next ad network based on rotation strategy
-            selectNetwork() {
-                if (this.adNetworks.length === 0) return null;
-                
-                // Filter available networks (SDK loaded)
-                const availableNetworks = this.adNetworks.filter(n => n.sdkAvailable);
-                
-                if (availableNetworks.length === 0) {
-                    console.error('❌ No ad networks available');
-                    return null;
-                }
-                
-                if (!this.rotationEnabled || availableNetworks.length === 1) {
-                    return availableNetworks[0];
-                }
-                
-                switch (this.rotationType) {
-                    case 'weighted':
-                        return this.selectWeightedNetwork(availableNetworks);
-                    
-                    case 'performance':
-                        return this.selectPerformanceNetwork(availableNetworks);
-                    
-                    case 'round-robin':
-                    default:
-                        return this.selectRoundRobin(availableNetworks);
-                }
-            }
-
-            // Round-robin selection
-            selectRoundRobin(networks) {
-                const network = networks[this.currentNetworkIndex % networks.length];
-                this.currentNetworkIndex++;
-                return network;
-            }
-
-            // Weighted random selection
-            selectWeightedNetwork(networks) {
-                const totalWeight = networks.reduce((sum, n) => sum + (n.weight || 1), 0);
-                let random = Math.random() * totalWeight;
-                
-                for (const network of networks) {
-                    random -= (network.weight || 1);
-                    if (random <= 0) return network;
-                }
-                
-                return networks[networks.length - 1];
-            }
-
-            // Performance-based selection (best performing network)
-            selectPerformanceNetwork(networks) {
-                return networks.sort((a, b) => {
-                    const perfA = this.adStats[a.id]?.performance || 100;
-                    const perfB = this.adStats[b.id]?.performance || 100;
-                    return perfB - perfA;
-                })[0];
-            }
-
-            // Update network statistics
-            updateStats(networkId, success) {
-                if (!this.adStats[networkId]) {
-                    this.adStats[networkId] = {
-                        attempts: 0,
-                        successes: 0,
-                        failures: 0,
-                        lastUsed: null,
-                        performance: 100
-                    };
-                }
-                
-                const stats = this.adStats[networkId];
-                stats.attempts++;
-                stats.lastUsed = new Date();
-                
-                if (success) {
-                    stats.successes++;
-                } else {
-                    stats.failures++;
-                }
-                
-                // Calculate performance (success rate)
-                stats.performance = Math.round((stats.successes / stats.attempts) * 100);
-                
-                // Save stats to Firebase for admin panel monitoring
-                this.saveStatsToFirebase(networkId, stats);
-            }
-
-            // Save stats to Firebase
-            async saveStatsToFirebase(networkId, stats) {
-                try {
-                    await db.collection('adStats').doc(networkId).set({
-                        ...stats,
-                        lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-                    }, { merge: true });
-                } catch (error) {
-                    console.error('Error saving ad stats:', error);
-                }
-            }
-
-            // Show ad using selected network
+            // Show ad (alternates between rewarded and interstitial)
             async showAd(userId) {
-                if (!this.isInitialized) {
-                    await this.initialize();
+                const adType = this.getNextAdType();
+                
+                if (adType === 'rewarded') {
+                    return await this.showRewardedAd(userId);
+                } else {
+                    return await this.showInterstitialAd(userId);
                 }
-                
-                // Select network
-                const network = this.selectNetwork();
-                
-                if (!network) {
-                    console.error('❌ No ad network selected');
-                    return false;
-                }
-                
-                console.log(`🎯 Selected ad network: ${network.name} (${network.id})`);
-                
-                // Show ad based on network type
-                let result = false;
-                
-                try {
-                    switch (network.id) {
-                        case 'adsgram':
-                            result = await this.showAdsgramAd(network, userId);
-                            break;
-                        
-                        // Add more networks here
-                        // case 'admob':
-                        //     result = await this.showAdmobAd(network, userId);
-                        //     break;
-                        
-                        default:
-                            console.error(`❌ Unknown ad network: ${network.id}`);
-                            result = false;
-                    }
-                } catch (error) {
-                    console.error(`❌ Error showing ${network.name} ad:`, error);
-                    result = false;
-                }
-                
-                // Update stats
-                this.updateStats(network.id, result);
-                
-                // If failed and rotation is enabled, try next network
-                if (!result && this.rotationEnabled && this.maxRetries > 0) {
-                    console.log('🔄 Ad failed, trying next network...');
-                    this.maxRetries--;
-                    
-                    // Remove failed network temporarily
-                    const failedNetworkIndex = this.adNetworks.findIndex(n => n.id === network.id);
-                    if (failedNetworkIndex > -1) {
-                        const failedNetwork = this.adNetworks.splice(failedNetworkIndex, 1)[0];
-                        
-                        // Try next network
-                        result = await this.showAd(userId);
-                        
-                        // Add failed network back
-                        this.adNetworks.push(failedNetwork);
-                    }
-                    
-                    this.maxRetries = 2; // Reset retries
-                }
-                
-                return result;
             }
 
-            // Show Adsgram ad
-            async showAdsgramAd(network, userId) {
+            // Show Rewarded Ad (Block ID: 42429)
+            async showRewardedAd(userId) {
+                console.log('🎁 Showing REWARDED ad (Block ID: 42429)');
+                
                 return new Promise((resolve) => {
-                    if (!window.sad || !network.blockId) {
-                        console.error('❌ Adsgram not properly configured');
-                        resolve(false);
+                    this.currentAdResolver = resolve;
+                    
+                    if (!window.sad) {
+                        console.error('❌ Adsgram SDK not loaded');
+                        this.adStats.rewarded.failed++;
+                        this.showFallbackAd('rewarded', resolve);
                         return;
                     }
                     
-                    const overlay = this.createAdOverlay(network);
+                    const overlay = this.createAdOverlay('rewarded');
                     let adCompleted = false;
                     let timerInterval;
                     let seconds = 0;
                     
+                    // Update timer
                     const adTimer = overlay.querySelector('#adTimer');
                     adTimer.style.display = 'block';
-                    
                     timerInterval = setInterval(() => {
                         seconds++;
                         adTimer.textContent = `⏱️ ${seconds}s`;
@@ -960,30 +760,30 @@
                     
                     try {
                         window.sad.createAd({
-                            blockId: network.blockId,
+                            blockId: ADSGRAM_CONFIG.rewardedBlockId,
                             containerId: 'adUnit',
                             type: 'rewarded',
                             userId: userId,
                             
                             onAdLoaded: () => {
-                                console.log(`✅ ${network.name} ad loaded`);
+                                console.log('✅ Rewarded ad loaded');
+                                this.adStats.rewarded.shown++;
                                 const loadingEl = overlay.querySelector('.ad-loading');
                                 if (loadingEl) loadingEl.remove();
                             },
                             
                             onAdStarted: () => {
-                                console.log(`▶️ ${network.name} ad started`);
+                                console.log('▶️ Rewarded ad started');
                             },
                             
                             onAdCompleted: (data) => {
-                                console.log(`🎉 ${network.name} ad completed:`, data);
+                                console.log('🎉 Rewarded ad completed:', data);
                                 adCompleted = true;
+                                this.adStats.rewarded.completed++;
                                 clearInterval(timerInterval);
                                 
-                                if (data?.reward) {
-                                    adTimer.textContent = `💰 +${data.reward} coins`;
-                                    adTimer.style.background = '#4CAF50';
-                                }
+                                adTimer.textContent = '✅ Reward Earned!';
+                                adTimer.style.background = '#4CAF50';
                                 
                                 setTimeout(() => {
                                     this.removeAdOverlay(overlay);
@@ -992,14 +792,15 @@
                             },
                             
                             onAdError: (error) => {
-                                console.error(`❌ ${network.name} ad error:`, error);
+                                console.error('❌ Rewarded ad error:', error);
+                                this.adStats.rewarded.failed++;
                                 clearInterval(timerInterval);
                                 this.removeAdOverlay(overlay);
                                 resolve(false);
                             },
                             
                             onAdClosed: () => {
-                                console.log(`🔒 ${network.name} ad closed`);
+                                console.log('🔒 Rewarded ad closed');
                                 clearInterval(timerInterval);
                                 if (!adCompleted) {
                                     this.removeAdOverlay(overlay);
@@ -1011,15 +812,125 @@
                         // Timeout handler
                         setTimeout(() => {
                             if (!adCompleted) {
-                                console.log(`⏰ ${network.name} ad timeout`);
+                                console.log('⏰ Rewarded ad timeout');
                                 clearInterval(timerInterval);
                                 this.removeAdOverlay(overlay);
                                 resolve(false);
                             }
-                        }, this.adTimeout);
+                        }, ADSGRAM_CONFIG.adTimeout);
                         
                     } catch (error) {
-                        console.error(`❌ Error creating ${network.name} ad:`, error);
+                        console.error('❌ Error creating rewarded ad:', error);
+                        this.adStats.rewarded.failed++;
+                        clearInterval(timerInterval);
+                        this.removeAdOverlay(overlay);
+                        resolve(false);
+                    }
+                });
+            }
+
+            // Show Interstitial Ad (Block ID: int-27569)
+            async showInterstitialAd(userId) {
+                console.log('📢 Showing INTERSTITIAL ad (Block ID: int-27569)');
+                
+                return new Promise((resolve) => {
+                    this.currentAdResolver = resolve;
+                    
+                    if (!window.sad) {
+                        console.error('❌ Adsgram SDK not loaded');
+                        this.adStats.interstitial.failed++;
+                        this.showFallbackAd('interstitial', resolve);
+                        return;
+                    }
+                    
+                    const overlay = this.createAdOverlay('interstitial');
+                    let adCompleted = false;
+                    let timerInterval;
+                    let seconds = 0;
+                    let skipTimeout;
+                    
+                    // Update timer
+                    const adTimer = overlay.querySelector('#adTimer');
+                    adTimer.style.display = 'block';
+                    timerInterval = setInterval(() => {
+                        seconds++;
+                        adTimer.textContent = `⏱️ ${seconds}s`;
+                        
+                        // Enable skip after 5 seconds
+                        if (seconds >= 5 && !this.interstitialSkipEnabled) {
+                            this.interstitialSkipEnabled = true;
+                            const skipBtn = overlay.querySelector('.ad-skip-btn');
+                            if (skipBtn) {
+                                skipBtn.style.display = 'block';
+                                skipBtn.textContent = 'Skip Ad ⏭️';
+                            }
+                        }
+                    }, 1000);
+                    
+                    try {
+                        window.sad.createAd({
+                            blockId: ADSGRAM_CONFIG.interstitialBlockId,
+                            containerId: 'adUnit',
+                            type: 'interstitial',
+                            userId: userId,
+                            
+                            onAdLoaded: () => {
+                                console.log('✅ Interstitial ad loaded');
+                                this.adStats.interstitial.shown++;
+                                const loadingEl = overlay.querySelector('.ad-loading');
+                                if (loadingEl) loadingEl.remove();
+                            },
+                            
+                            onAdStarted: () => {
+                                console.log('▶️ Interstitial ad started');
+                            },
+                            
+                            onAdCompleted: (data) => {
+                                console.log('🎉 Interstitial ad completed:', data);
+                                adCompleted = true;
+                                this.adStats.interstitial.completed++;
+                                clearInterval(timerInterval);
+                                
+                                adTimer.textContent = '✅ Ad Completed';
+                                adTimer.style.background = '#FF9800';
+                                
+                                setTimeout(() => {
+                                    this.removeAdOverlay(overlay);
+                                    resolve(true);
+                                }, 500);
+                            },
+                            
+                            onAdError: (error) => {
+                                console.error('❌ Interstitial ad error:', error);
+                                this.adStats.interstitial.failed++;
+                                clearInterval(timerInterval);
+                                this.removeAdOverlay(overlay);
+                                resolve(false);
+                            },
+                            
+                            onAdClosed: () => {
+                                console.log('🔒 Interstitial ad closed');
+                                clearInterval(timerInterval);
+                                if (!adCompleted) {
+                                    this.removeAdOverlay(overlay);
+                                    resolve(false);
+                                }
+                            }
+                        });
+                        
+                        // Timeout handler (shorter for interstitial)
+                        setTimeout(() => {
+                            if (!adCompleted) {
+                                console.log('⏰ Interstitial ad timeout');
+                                clearInterval(timerInterval);
+                                this.removeAdOverlay(overlay);
+                                resolve(true); // Consider timeout as success for interstitial
+                            }
+                        }, 15000); // 15 seconds for interstitial
+                        
+                    } catch (error) {
+                        console.error('❌ Error creating interstitial ad:', error);
+                        this.adStats.interstitial.failed++;
                         clearInterval(timerInterval);
                         this.removeAdOverlay(overlay);
                         resolve(false);
@@ -1028,29 +939,71 @@
             }
 
             // Create ad overlay UI
-            createAdOverlay(network) {
+            createAdOverlay(adType) {
                 // Remove existing overlay
                 const existing = document.querySelector('.ad-overlay');
                 if (existing) existing.remove();
+                
+                const isRewarded = adType === 'rewarded';
+                const badgeClass = isRewarded ? 'ad-type-rewarded' : 'ad-type-interstitial';
+                const badgeText = isRewarded ? '🎁 Reward Ad' : '📢 Interstitial Ad';
+                const closeBtnText = isRewarded ? '✕' : '✕';
+                const showSkipBtn = !isRewarded;
                 
                 const overlay = document.createElement('div');
                 overlay.className = 'ad-overlay';
                 overlay.innerHTML = `
                     <div class="ad-container">
-                        <button class="ad-close-btn" onclick="window.adManager.closeCurrentAd()">✕</button>
-                        <div class="ad-network-badge">${network.name}</div>
+                        <button class="ad-close-btn" id="adCloseBtn">${closeBtnText}</button>
+                        <div class="ad-type-badge ${badgeClass}">${badgeText}</div>
                         <div class="ad-timer" id="adTimer" style="display:none;">⏱️ 0s</div>
                         <div id="adUnit" style="width:100%; min-height:350px;">
                             <div class="ad-loading">
                                 <div class="spinner"></div>
-                                <p style="margin-top:20px; color:#666;">Loading ${network.name} ad...</p>
+                                <p style="margin-top:20px; color:#666;">Loading ${badgeText}...</p>
                             </div>
                         </div>
+                        ${showSkipBtn ? '<button class="ad-skip-btn" style="display:none;">⏳ Wait...</button>' : ''}
                     </div>
                 `;
                 
                 document.body.appendChild(overlay);
+                
+                // Add event listeners
+                const closeBtn = overlay.querySelector('#adCloseBtn');
+                const skipBtn = overlay.querySelector('.ad-skip-btn');
+                
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', () => {
+                        if (this.interstitialSkipEnabled || isRewarded) {
+                            this.skipCurrentAd();
+                        } else {
+                            // Can't skip interstitial before 5 seconds
+                            this.showToast('Please wait 5 seconds before skipping');
+                        }
+                    });
+                }
+                
+                if (skipBtn) {
+                    skipBtn.addEventListener('click', () => {
+                        this.skipCurrentAd();
+                    });
+                }
+                
+                this.interstitialSkipEnabled = false;
+                this.adContainer = overlay;
+                
                 return overlay;
+            }
+
+            // Skip current ad
+            skipCurrentAd() {
+                if (this.currentAdResolver) {
+                    const resolve = this.currentAdResolver;
+                    this.currentAdResolver = null;
+                    this.removeAdOverlay(this.adContainer);
+                    resolve(false); // Skipped = no reward
+                }
             }
 
             // Remove ad overlay
@@ -1064,19 +1017,46 @@
                         }
                     }, 300);
                 }
+                this.adContainer = null;
             }
 
-            // Close current ad
-            closeCurrentAd() {
-                const overlay = document.querySelector('.ad-overlay');
-                if (overlay) {
-                    this.removeAdOverlay(overlay);
-                    
-                    // Trigger close event on Adsgram if available
-                    if (window.sad && window.sad.closeAd) {
-                        window.sad.closeAd();
-                    }
-                }
+            // Fallback ad (when real ads fail)
+            showFallbackAd(adType, resolve) {
+                const message = adType === 'rewarded' 
+                    ? '📺 Demo Rewarded Ad Completed!'
+                    : '📢 Demo Interstitial Ad Completed!';
+                
+                alert(message);
+                resolve(true);
+            }
+
+            // Show toast message
+            showToast(message) {
+                const toast = document.createElement('div');
+                toast.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: rgba(0,0,0,0.8);
+                    color: white;
+                    padding: 10px 20px;
+                    border-radius: 20px;
+                    font-size: 14px;
+                    z-index: 99999;
+                    animation: fadeIn 0.3s ease;
+                `;
+                toast.textContent = message;
+                document.body.appendChild(toast);
+                
+                setTimeout(() => {
+                    toast.remove();
+                }, 2000);
+            }
+
+            // Get ad stats
+            getStats() {
+                return this.adStats;
             }
         }
 
@@ -1093,7 +1073,7 @@
         let tryLuckBaseReward = 100;
         
         // Initialize Ad Manager
-        window.adManager = new AdNetworkManager();
+        const adManager = new AdAlternatingManager();
 
         // ============================================
         // UTILITY FUNCTIONS
@@ -1149,17 +1129,18 @@
         }
 
         // ============================================
-        // AD FUNCTIONS - Using Dynamic Ad Manager
+        // AD FUNCTIONS - Alternating Rewarded & Interstitial
         // ============================================
         async function showOptionalBonusAd() {
-            console.log('🎯 Requesting ad from dynamic ad manager...');
+            console.log('🎯 Requesting ad (alternating rewarded/interstitial)...');
             
             try {
                 const userId = currentUser?.uid || 'guest_user';
-                const result = await window.adManager.showAd(userId);
+                const result = await adManager.showAd(userId);
                 
                 if (result) {
                     console.log('✅ Ad completed successfully');
+                    console.log('📊 Ad Stats:', adManager.getStats());
                 } else {
                     console.log('⚠️ Ad failed or was skipped');
                 }
@@ -1665,22 +1646,20 @@
         async function init() {
             showLoading(true);
             
-            // Initialize Ad Network Manager
-            await window.adManager.initialize();
+            // Check Adsgram SDK
+            console.log('========================================');
+            console.log('🎮 CashReward Premium Initialized');
+            console.log('🔵 Adsgram SDK:', window.sad ? 'Loaded ✅' : 'Not Loaded ❌');
+            console.log('🎁 Rewarded Block ID:', ADSGRAM_CONFIG.rewardedBlockId);
+            console.log('📢 Interstitial Block ID:', ADSGRAM_CONFIG.interstitialBlockId);
+            console.log('🔄 Ad Mode: Alternating (Rewarded ↔ Interstitial)');
+            console.log('========================================');
             
             await initTelegramUser();
             buildGamesGrid();
             setupEventListeners();
             showLoading(false);
             showPage('homePage');
-            
-            // Log configuration
-            console.log('========================================');
-            console.log('🎮 CashReward Premium Initialized');
-            console.log('👤 User:', userData?.name || 'Guest');
-            console.log('🔵 Ad Networks:', window.adManager.adNetworks.map(n => n.name).join(', ') || 'None');
-            console.log('🔄 Rotation:', window.adManager.rotationEnabled ? 'Enabled' : 'Disabled');
-            console.log('========================================');
         }
         
         function setupEventListeners() {
