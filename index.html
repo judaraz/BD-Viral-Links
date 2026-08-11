@@ -8,6 +8,11 @@
     <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
+    <!-- Ad Networks SDKs -->
+    <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+    <!-- Add other ad network SDKs here -->
+    <!-- <script src="https://example.com/adnetwork2.js"></script> -->
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -43,6 +48,8 @@
             transition: all 0.3s ease;
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+            border: none;
+            width: 100%;
         }
         .btn-primary:hover { transform: scale(1.02); }
         .btn-primary:active { transform: scale(0.98); }
@@ -57,6 +64,7 @@
             padding: 12px 20px;
             transition: all 0.3s ease;
             cursor: pointer;
+            width: 100%;
         }
         .btn-secondary:hover { background: rgba(255, 255, 255, 0.2); }
         
@@ -69,6 +77,8 @@
             transition: all 0.3s ease;
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            border: none;
+            width: 100%;
         }
         .btn-bonus:hover { transform: scale(1.02); }
         
@@ -220,6 +230,87 @@
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
         ::-webkit-scrollbar-thumb { background: linear-gradient(135deg, #FFD700, #FFA500); border-radius: 10px; }
+        
+        /* Ad Container Styles */
+        .ad-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .ad-container {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            min-height: 400px;
+            padding: 15px;
+            position: relative;
+        }
+        
+        .ad-close-btn {
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            width: 35px;
+            height: 35px;
+            background: #ff4444;
+            color: white;
+            border: 2px solid white;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            z-index: 10001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        
+        .ad-close-btn:hover {
+            background: #ff0000;
+            transform: scale(1.1);
+        }
+        
+        .ad-loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 350px;
+            color: #333;
+        }
+        
+        .ad-timer {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            z-index: 10001;
+        }
+        
+        .ad-network-badge {
+            position: absolute;
+            top: 10px;
+            right: 50px;
+            background: #4CAF50;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            z-index: 10001;
+        }
     </style>
 </head>
 <body class="max-w-md mx-auto relative">
@@ -243,10 +334,10 @@
             <p class="text-gray-300 text-sm mb-6" id="rewardMessage">Choose your reward option:</p>
             
             <div class="space-y-3">
-                <button id="claimBaseBtn" class="btn-primary w-full">
+                <button id="claimBaseBtn" class="btn-primary">
                     <i class="fas fa-check-circle mr-2"></i> Claim Base Reward
                 </button>
-                <button id="claimBonusBtn" class="btn-bonus w-full">
+                <button id="claimBonusBtn" class="btn-bonus">
                     <i class="fas fa-star mr-2"></i> Watch Ad for 2x Bonus!
                 </button>
             </div>
@@ -263,10 +354,10 @@
             <p class="text-gray-300 text-sm mb-6">Choose your reward option:</p>
             
             <div class="space-y-3">
-                <button id="diceClaimBaseBtn" class="btn-primary w-full">
+                <button id="diceClaimBaseBtn" class="btn-primary">
                     <i class="fas fa-check-circle mr-2"></i> Claim Base Reward
                 </button>
-                <button id="diceClaimBonusBtn" class="btn-bonus w-full">
+                <button id="diceClaimBonusBtn" class="btn-bonus">
                     <i class="fas fa-star mr-2"></i> Watch Ad for 2x Bonus!
                 </button>
             </div>
@@ -294,11 +385,10 @@
             </div>
         </header>
 
-        <!-- Main Content -->
+        <!-- Main Content (Same as before, kept for brevity) -->
         <main class="flex-1 px-4 py-4 pb-24">
             <!-- Home Page -->
             <div id="homePage" class="page active">
-                <!-- Stats Row -->
                 <div class="grid grid-cols-3 gap-3 mb-6">
                     <div class="glass-card p-3 text-center">
                         <i class="fas fa-fire text-orange-400 text-xl mb-1"></i>
@@ -316,27 +406,22 @@
                         <p class="font-bold text-gold" id="userLevel">1</p>
                     </div>
                 </div>
-
-                <!-- Games Grid -->
                 <h3 class="text-lg font-bold mb-3 text-gold">🎮 Play & Earn</h3>
                 <div class="grid grid-cols-2 gap-4" id="gamesGrid"></div>
             </div>
 
-            <!-- Ludo Page -->
+            <!-- Other pages remain the same -->
             <div id="ludoPage" class="page">
                 <button onclick="showPage('homePage')" class="btn-secondary mb-4 text-sm">
                     <i class="fas fa-arrow-left mr-2"></i> Back
                 </button>
-                
                 <div class="glass-card p-5 text-center mb-6">
                     <h2 class="text-2xl font-bold text-gold mb-2">🎲 Ludo Dice</h2>
                     <p class="text-gray-300 text-sm mb-4">Roll the dice and win points!</p>
-                    
                     <div class="bg-black bg-opacity-30 rounded-2xl p-4 mb-4">
                         <p class="text-sm text-gray-400">Game Cost</p>
                         <p class="text-2xl font-bold text-gold" id="ludoCost">10 Points</p>
                     </div>
-                    
                     <div class="ludo-board mx-auto">
                         <div class="ludo-quadrant ludo-q1"></div>
                         <div class="ludo-quadrant ludo-q2"></div>
@@ -344,15 +429,12 @@
                         <div class="ludo-quadrant ludo-q4"></div>
                         <div class="ludo-center"><span class="text-black font-bold text-xl">LUDO</span></div>
                     </div>
-                    
                     <div class="dice mx-auto my-4" id="ludoDice">⚀</div>
-                    
                     <button id="rollDiceBtn" class="btn-primary w-full py-4 text-lg">
                         <i class="fas fa-dice-d6 mr-2"></i> ROLL DICE
                     </button>
                     <div id="ludoCooldown" class="text-xs text-yellow-400 mt-3 hidden">⏱️ Please wait...</div>
                 </div>
-                
                 <div class="glass-card p-4">
                     <h4 class="font-bold text-gold mb-2">📖 How to Play</h4>
                     <ul class="text-xs text-gray-300 space-y-1 list-disc list-inside">
@@ -364,64 +446,53 @@
                 </div>
             </div>
 
-            <!-- Color Game Page -->
             <div id="colorGamePage" class="page">
                 <button onclick="showPage('homePage')" class="btn-secondary mb-4 text-sm">
                     <i class="fas fa-arrow-left mr-2"></i> Back
                 </button>
-                
                 <div class="glass-card p-5 text-center mb-6">
                     <h2 class="text-2xl font-bold text-gold mb-2">🎨 Color Match</h2>
                     <p class="text-gray-300 text-sm mb-4">Find the matching color!</p>
-                    
                     <div class="bg-black bg-opacity-30 rounded-2xl p-4 mb-4">
                         <p class="text-sm text-gray-400">Find this color:</p>
                         <div id="targetColor" class="w-24 h-16 mx-auto rounded-xl my-3 border-2 border-white"></div>
                         <p id="targetRgb" class="font-mono text-sm font-bold text-gold"></p>
                     </div>
-                    
                     <div class="grid grid-cols-3 gap-3" id="colorOptions"></div>
                 </div>
             </div>
 
-            <!-- Try Your Luck Page -->
             <div id="tryLuckPage" class="page">
                 <button onclick="showPage('homePage')" class="btn-secondary mb-4 text-sm">
                     <i class="fas fa-arrow-left mr-2"></i> Back
                 </button>
-                
                 <div class="glass-card p-5 text-center">
                     <div class="w-20 h-20 mx-auto rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center mb-4">
                         <i class="fas fa-star text-3xl text-white"></i>
                     </div>
                     <h2 class="text-2xl font-bold text-gold mb-2">Try Your Luck!</h2>
                     <p class="text-gray-300 text-sm mb-4">Get rewards with optional bonus ads!</p>
-                    
                     <div class="bg-black bg-opacity-30 rounded-2xl p-4 mb-6">
                         <p class="text-sm text-gray-400">Base Reward</p>
                         <p class="text-2xl font-bold text-green-400" id="tryLuckBaseReward">100 Points</p>
                         <p class="text-xs text-gray-500 mt-1">Watch ad for 2x bonus!</p>
                     </div>
-                    
                     <button id="startTryLuckBtn" class="btn-primary w-full py-4 text-lg">
                         <i class="fas fa-play mr-2"></i> Start Playing
                     </button>
                 </div>
             </div>
 
-            <!-- OfferWall Page -->
             <div id="offerwallPage" class="page">
                 <button onclick="showPage('homePage')" class="btn-secondary mb-4 text-sm">
                     <i class="fas fa-arrow-left mr-2"></i> Back
                 </button>
-                
                 <div class="glass-card p-5 text-center mb-4">
                     <div class="w-20 h-20 mx-auto rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center justify-center mb-4">
                         <i class="fas fa-gift text-3xl text-white"></i>
                     </div>
                     <h2 class="text-2xl font-bold text-gold mb-2">OfferWall</h2>
                     <p class="text-gray-300 text-sm mb-4">Complete offers to earn bonus points!</p>
-                    
                     <div class="grid grid-cols-3 gap-3 mb-6">
                         <div class="bg-black bg-opacity-30 p-3 rounded-xl">
                             <p class="text-xl font-bold text-purple-400" id="offersCount">0</p>
@@ -436,19 +507,16 @@
                             <p class="text-xs text-gray-400">Completed</p>
                         </div>
                     </div>
-                    
                     <button onclick="openOfferWall()" class="btn-primary w-full py-3">
                         <i class="fas fa-store mr-2"></i> Browse Offers
                     </button>
                 </div>
             </div>
 
-            <!-- Wallet Page -->
             <div id="walletPage" class="page">
                 <button onclick="showPage('homePage')" class="btn-secondary mb-4 text-sm">
                     <i class="fas fa-arrow-left mr-2"></i> Back
                 </button>
-                
                 <div class="glass-card p-5 text-center mb-4">
                     <h2 class="text-2xl font-bold text-gold mb-2">My Wallet</h2>
                     <div class="bg-black bg-opacity-30 rounded-2xl p-6 mb-4">
@@ -456,7 +524,6 @@
                         <p class="text-4xl font-bold text-gold" id="walletBalance">0</p>
                         <p class="text-xs text-gray-500 mt-2">1000 Coins = ₹10</p>
                     </div>
-                    
                     <div class="text-left mb-4">
                         <label class="text-sm text-gray-400 block mb-2">Withdrawal Method</label>
                         <select id="withdrawMethod" class="w-full bg-black bg-opacity-30 border border-gray-700 rounded-xl p-3 text-white">
@@ -465,43 +532,36 @@
                             <option value="PayPal">PayPal</option>
                         </select>
                     </div>
-                    
                     <div class="text-left mb-4">
                         <label class="text-sm text-gray-400 block mb-2">Payment Details</label>
                         <input type="text" id="paymentDetails" placeholder="Enter your UPI ID / Phone / Email" 
                                class="w-full bg-black bg-opacity-30 border border-gray-700 rounded-xl p-3 text-white">
                     </div>
-                    
                     <div class="text-left mb-4">
                         <label class="text-sm text-gray-400 block mb-2">Amount (Coins)</label>
                         <input type="number" id="withdrawAmount" placeholder="Minimum 1000 coins" 
                                class="w-full bg-black bg-opacity-30 border border-gray-700 rounded-xl p-3 text-white">
                     </div>
-                    
                     <button id="withdrawBtn" class="btn-primary w-full py-3">
                         <i class="fas fa-money-bill-wave mr-2"></i> Request Withdrawal
                     </button>
                 </div>
-                
                 <div class="glass-card p-4">
                     <h3 class="font-bold text-gold mb-3">Withdrawal History</h3>
                     <div id="withdrawalHistory" class="space-y-2"></div>
                 </div>
             </div>
 
-            <!-- Refer Page -->
             <div id="referPage" class="page">
                 <button onclick="showPage('homePage')" class="btn-secondary mb-4 text-sm">
                     <i class="fas fa-arrow-left mr-2"></i> Back
                 </button>
-                
                 <div class="glass-card p-5 text-center mb-4">
                     <div class="w-20 h-20 mx-auto rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center mb-4">
                         <i class="fas fa-user-plus text-3xl text-white"></i>
                     </div>
                     <h2 class="text-2xl font-bold text-gold mb-2">Refer & Earn</h2>
                     <p class="text-gray-300 text-sm mb-4">Invite friends and earn 100 bonus points each!</p>
-                    
                     <div class="bg-black bg-opacity-30 rounded-2xl p-4 mb-4">
                         <p class="text-sm text-gray-400 mb-2">Your Referral Code</p>
                         <div class="flex items-center justify-between gap-3">
@@ -511,12 +571,10 @@
                             </button>
                         </div>
                     </div>
-                    
                     <button id="shareBtn" class="btn-primary w-full py-3">
                         <i class="fas fa-share-alt mr-2"></i> Share & Earn
                     </button>
                 </div>
-                
                 <div class="glass-card p-4">
                     <h3 class="font-bold text-gold mb-2">Have a referral code?</h3>
                     <div class="flex gap-2">
@@ -527,18 +585,15 @@
                 </div>
             </div>
 
-            <!-- Profile Page -->
             <div id="profilePage" class="page">
                 <button onclick="showPage('homePage')" class="btn-secondary mb-4 text-sm">
                     <i class="fas fa-arrow-left mr-2"></i> Back
                 </button>
-                
                 <div class="glass-card p-5 text-center mb-4">
                     <img id="profilePagePic" class="w-24 h-24 rounded-full border-4 border-yellow-400 mx-auto mb-4 object-cover" 
                          src="https://placehold.co/100x100/1e1e1e/facc15?text=U" alt="Profile">
                     <h2 class="text-xl font-bold text-gold" id="profileName">User</h2>
                     <p class="text-gray-400 text-sm mb-4" id="profileEmail">user@example.com</p>
-                    
                     <div class="grid grid-cols-2 gap-3">
                         <div class="bg-black bg-opacity-30 p-3 rounded-xl">
                             <p class="text-xs text-gray-400">Member Since</p>
@@ -550,7 +605,6 @@
                         </div>
                     </div>
                 </div>
-                
                 <button id="logoutBtn" class="btn-secondary w-full py-3 text-red-400 border-red-400">
                     <i class="fas fa-sign-out-alt mr-2"></i> Close App
                 </button>
@@ -602,19 +656,445 @@
         const db = firebase.firestore();
 
         // ============================================
+        // AD NETWORK MANAGER - Dynamic from Admin Panel
+        // ============================================
+        class AdNetworkManager {
+            constructor() {
+                this.adNetworks = [];
+                this.currentNetworkIndex = 0;
+                this.adStats = {}; // Track ad performance
+                this.isInitialized = false;
+                this.adTimeout = 30000; // 30 seconds default
+                this.maxRetries = 2;
+            }
+
+            // Fetch ad network configuration from Firebase/Admin Panel
+            async fetchAdConfig() {
+                try {
+                    console.log('🔵 Fetching ad configuration from admin panel...');
+                    
+                    // Fetch from Firebase 'adConfig' collection
+                    const configDoc = await db.collection('adConfig').doc('rewardedAds').get();
+                    
+                    if (configDoc.exists) {
+                        const config = configDoc.data();
+                        console.log('✅ Ad config fetched:', config);
+                        return config;
+                    } else {
+                        console.log('⚠️ No ad config found, using default');
+                        return this.getDefaultConfig();
+                    }
+                } catch (error) {
+                    console.error('❌ Error fetching ad config:', error);
+                    return this.getDefaultConfig();
+                }
+            }
+
+            // Default configuration (fallback)
+            getDefaultConfig() {
+                return {
+                    enabled: true,
+                    rotationEnabled: true,
+                    rotationType: 'performance', // 'round-robin', 'weighted', 'performance'
+                    adTimeout: 30000,
+                    networks: [
+                        {
+                            id: 'adsgram',
+                            name: 'Adsgram',
+                            enabled: true,
+                            weight: 50,
+                            blockId: '', // Will be set from admin
+                            type: 'rewarded',
+                            sdkLoaded: typeof window.sad !== 'undefined'
+                        }
+                        // Add more networks as needed:
+                        // {
+                        //     id: 'adnetwork2',
+                        //     name: 'AdNetwork 2',
+                        //     enabled: true,
+                        //     weight: 30,
+                        //     placementId: '',
+                        //     type: 'rewarded'
+                        // }
+                    ]
+                };
+            }
+
+            // Initialize ad networks
+            async initialize() {
+                if (this.isInitialized) return;
+                
+                console.log('🔵 Initializing Ad Network Manager...');
+                
+                // Fetch config from admin panel
+                const config = await this.fetchAdConfig();
+                
+                // Filter enabled networks
+                this.adNetworks = config.networks.filter(n => n.enabled);
+                this.adTimeout = config.adTimeout || 30000;
+                this.rotationEnabled = config.rotationEnabled || false;
+                this.rotationType = config.rotationType || 'round-robin';
+                
+                // Load SDKs if not loaded
+                await this.loadNetworkSDKs();
+                
+                // Initialize stats
+                this.adNetworks.forEach(network => {
+                    if (!this.adStats[network.id]) {
+                        this.adStats[network.id] = {
+                            attempts: 0,
+                            successes: 0,
+                            failures: 0,
+                            lastUsed: null,
+                            performance: 100 // Start at 100%
+                        };
+                    }
+                });
+                
+                this.isInitialized = true;
+                
+                console.log('✅ Ad Network Manager initialized');
+                console.log('📊 Active Networks:', this.adNetworks.map(n => n.name).join(', '));
+                console.log('🔄 Rotation:', this.rotationEnabled ? this.rotationType : 'disabled');
+                
+                return true;
+            }
+
+            // Load required SDKs
+            async loadNetworkSDKs() {
+                for (const network of this.adNetworks) {
+                    if (network.id === 'adsgram' && !window.sad) {
+                        console.log(`⚠️ ${network.name} SDK not loaded`);
+                        network.sdkAvailable = false;
+                    } else {
+                        network.sdkAvailable = true;
+                    }
+                }
+            }
+
+            // Select next ad network based on rotation strategy
+            selectNetwork() {
+                if (this.adNetworks.length === 0) return null;
+                
+                // Filter available networks (SDK loaded)
+                const availableNetworks = this.adNetworks.filter(n => n.sdkAvailable);
+                
+                if (availableNetworks.length === 0) {
+                    console.error('❌ No ad networks available');
+                    return null;
+                }
+                
+                if (!this.rotationEnabled || availableNetworks.length === 1) {
+                    return availableNetworks[0];
+                }
+                
+                switch (this.rotationType) {
+                    case 'weighted':
+                        return this.selectWeightedNetwork(availableNetworks);
+                    
+                    case 'performance':
+                        return this.selectPerformanceNetwork(availableNetworks);
+                    
+                    case 'round-robin':
+                    default:
+                        return this.selectRoundRobin(availableNetworks);
+                }
+            }
+
+            // Round-robin selection
+            selectRoundRobin(networks) {
+                const network = networks[this.currentNetworkIndex % networks.length];
+                this.currentNetworkIndex++;
+                return network;
+            }
+
+            // Weighted random selection
+            selectWeightedNetwork(networks) {
+                const totalWeight = networks.reduce((sum, n) => sum + (n.weight || 1), 0);
+                let random = Math.random() * totalWeight;
+                
+                for (const network of networks) {
+                    random -= (network.weight || 1);
+                    if (random <= 0) return network;
+                }
+                
+                return networks[networks.length - 1];
+            }
+
+            // Performance-based selection (best performing network)
+            selectPerformanceNetwork(networks) {
+                return networks.sort((a, b) => {
+                    const perfA = this.adStats[a.id]?.performance || 100;
+                    const perfB = this.adStats[b.id]?.performance || 100;
+                    return perfB - perfA;
+                })[0];
+            }
+
+            // Update network statistics
+            updateStats(networkId, success) {
+                if (!this.adStats[networkId]) {
+                    this.adStats[networkId] = {
+                        attempts: 0,
+                        successes: 0,
+                        failures: 0,
+                        lastUsed: null,
+                        performance: 100
+                    };
+                }
+                
+                const stats = this.adStats[networkId];
+                stats.attempts++;
+                stats.lastUsed = new Date();
+                
+                if (success) {
+                    stats.successes++;
+                } else {
+                    stats.failures++;
+                }
+                
+                // Calculate performance (success rate)
+                stats.performance = Math.round((stats.successes / stats.attempts) * 100);
+                
+                // Save stats to Firebase for admin panel monitoring
+                this.saveStatsToFirebase(networkId, stats);
+            }
+
+            // Save stats to Firebase
+            async saveStatsToFirebase(networkId, stats) {
+                try {
+                    await db.collection('adStats').doc(networkId).set({
+                        ...stats,
+                        lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                    }, { merge: true });
+                } catch (error) {
+                    console.error('Error saving ad stats:', error);
+                }
+            }
+
+            // Show ad using selected network
+            async showAd(userId) {
+                if (!this.isInitialized) {
+                    await this.initialize();
+                }
+                
+                // Select network
+                const network = this.selectNetwork();
+                
+                if (!network) {
+                    console.error('❌ No ad network selected');
+                    return false;
+                }
+                
+                console.log(`🎯 Selected ad network: ${network.name} (${network.id})`);
+                
+                // Show ad based on network type
+                let result = false;
+                
+                try {
+                    switch (network.id) {
+                        case 'adsgram':
+                            result = await this.showAdsgramAd(network, userId);
+                            break;
+                        
+                        // Add more networks here
+                        // case 'admob':
+                        //     result = await this.showAdmobAd(network, userId);
+                        //     break;
+                        
+                        default:
+                            console.error(`❌ Unknown ad network: ${network.id}`);
+                            result = false;
+                    }
+                } catch (error) {
+                    console.error(`❌ Error showing ${network.name} ad:`, error);
+                    result = false;
+                }
+                
+                // Update stats
+                this.updateStats(network.id, result);
+                
+                // If failed and rotation is enabled, try next network
+                if (!result && this.rotationEnabled && this.maxRetries > 0) {
+                    console.log('🔄 Ad failed, trying next network...');
+                    this.maxRetries--;
+                    
+                    // Remove failed network temporarily
+                    const failedNetworkIndex = this.adNetworks.findIndex(n => n.id === network.id);
+                    if (failedNetworkIndex > -1) {
+                        const failedNetwork = this.adNetworks.splice(failedNetworkIndex, 1)[0];
+                        
+                        // Try next network
+                        result = await this.showAd(userId);
+                        
+                        // Add failed network back
+                        this.adNetworks.push(failedNetwork);
+                    }
+                    
+                    this.maxRetries = 2; // Reset retries
+                }
+                
+                return result;
+            }
+
+            // Show Adsgram ad
+            async showAdsgramAd(network, userId) {
+                return new Promise((resolve) => {
+                    if (!window.sad || !network.blockId) {
+                        console.error('❌ Adsgram not properly configured');
+                        resolve(false);
+                        return;
+                    }
+                    
+                    const overlay = this.createAdOverlay(network);
+                    let adCompleted = false;
+                    let timerInterval;
+                    let seconds = 0;
+                    
+                    const adTimer = overlay.querySelector('#adTimer');
+                    adTimer.style.display = 'block';
+                    
+                    timerInterval = setInterval(() => {
+                        seconds++;
+                        adTimer.textContent = `⏱️ ${seconds}s`;
+                    }, 1000);
+                    
+                    try {
+                        window.sad.createAd({
+                            blockId: network.blockId,
+                            containerId: 'adUnit',
+                            type: 'rewarded',
+                            userId: userId,
+                            
+                            onAdLoaded: () => {
+                                console.log(`✅ ${network.name} ad loaded`);
+                                const loadingEl = overlay.querySelector('.ad-loading');
+                                if (loadingEl) loadingEl.remove();
+                            },
+                            
+                            onAdStarted: () => {
+                                console.log(`▶️ ${network.name} ad started`);
+                            },
+                            
+                            onAdCompleted: (data) => {
+                                console.log(`🎉 ${network.name} ad completed:`, data);
+                                adCompleted = true;
+                                clearInterval(timerInterval);
+                                
+                                if (data?.reward) {
+                                    adTimer.textContent = `💰 +${data.reward} coins`;
+                                    adTimer.style.background = '#4CAF50';
+                                }
+                                
+                                setTimeout(() => {
+                                    this.removeAdOverlay(overlay);
+                                    resolve(true);
+                                }, 1000);
+                            },
+                            
+                            onAdError: (error) => {
+                                console.error(`❌ ${network.name} ad error:`, error);
+                                clearInterval(timerInterval);
+                                this.removeAdOverlay(overlay);
+                                resolve(false);
+                            },
+                            
+                            onAdClosed: () => {
+                                console.log(`🔒 ${network.name} ad closed`);
+                                clearInterval(timerInterval);
+                                if (!adCompleted) {
+                                    this.removeAdOverlay(overlay);
+                                    resolve(false);
+                                }
+                            }
+                        });
+                        
+                        // Timeout handler
+                        setTimeout(() => {
+                            if (!adCompleted) {
+                                console.log(`⏰ ${network.name} ad timeout`);
+                                clearInterval(timerInterval);
+                                this.removeAdOverlay(overlay);
+                                resolve(false);
+                            }
+                        }, this.adTimeout);
+                        
+                    } catch (error) {
+                        console.error(`❌ Error creating ${network.name} ad:`, error);
+                        clearInterval(timerInterval);
+                        this.removeAdOverlay(overlay);
+                        resolve(false);
+                    }
+                });
+            }
+
+            // Create ad overlay UI
+            createAdOverlay(network) {
+                // Remove existing overlay
+                const existing = document.querySelector('.ad-overlay');
+                if (existing) existing.remove();
+                
+                const overlay = document.createElement('div');
+                overlay.className = 'ad-overlay';
+                overlay.innerHTML = `
+                    <div class="ad-container">
+                        <button class="ad-close-btn" onclick="window.adManager.closeCurrentAd()">✕</button>
+                        <div class="ad-network-badge">${network.name}</div>
+                        <div class="ad-timer" id="adTimer" style="display:none;">⏱️ 0s</div>
+                        <div id="adUnit" style="width:100%; min-height:350px;">
+                            <div class="ad-loading">
+                                <div class="spinner"></div>
+                                <p style="margin-top:20px; color:#666;">Loading ${network.name} ad...</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(overlay);
+                return overlay;
+            }
+
+            // Remove ad overlay
+            removeAdOverlay(overlay) {
+                if (overlay) {
+                    overlay.style.opacity = '0';
+                    overlay.style.transition = 'opacity 0.3s';
+                    setTimeout(() => {
+                        if (overlay.parentNode) {
+                            overlay.parentNode.removeChild(overlay);
+                        }
+                    }, 300);
+                }
+            }
+
+            // Close current ad
+            closeCurrentAd() {
+                const overlay = document.querySelector('.ad-overlay');
+                if (overlay) {
+                    this.removeAdOverlay(overlay);
+                    
+                    // Trigger close event on Adsgram if available
+                    if (window.sad && window.sad.closeAd) {
+                        window.sad.closeAd();
+                    }
+                }
+            }
+        }
+
+        // ============================================
         // GLOBAL VARIABLES
         // ============================================
         let currentUser = null;
         let userData = null;
-        let gamesConfig = {};
         let telegramUser = null;
-        
         let currentLudoWin = 0;
         let isRolling = false;
         let ludoDisabledUntil = 0;
         let colorGameTarget = null;
         let tryLuckBaseReward = 100;
         
+        // Initialize Ad Manager
+        window.adManager = new AdNetworkManager();
+
         // ============================================
         // UTILITY FUNCTIONS
         // ============================================
@@ -667,16 +1147,29 @@
             
             document.getElementById('diceModal').style.display = 'flex';
         }
-        
+
         // ============================================
-        // AD FUNCTIONS (Optional - for bonuses only)
+        // AD FUNCTIONS - Using Dynamic Ad Manager
         // ============================================
         async function showOptionalBonusAd() {
-            // Simulate ad watch - always returns true for demo
-            return new Promise((resolve) => {
-                showAlert("📺 Bonus ad complete! (Demo mode)");
-                resolve(true);
-            });
+            console.log('🎯 Requesting ad from dynamic ad manager...');
+            
+            try {
+                const userId = currentUser?.uid || 'guest_user';
+                const result = await window.adManager.showAd(userId);
+                
+                if (result) {
+                    console.log('✅ Ad completed successfully');
+                } else {
+                    console.log('⚠️ Ad failed or was skipped');
+                }
+                
+                return result;
+                
+            } catch (error) {
+                console.error('❌ Ad error:', error);
+                return false;
+            }
         }
         
         // ============================================
@@ -688,15 +1181,19 @@
             userData.balance = (userData.balance || 0) + amount;
             if (amount > 0) {
                 userData.totalEarned = (userData.totalEarned || 0) + amount;
+                userData.todayEarnings = (userData.todayEarnings || 0) + amount;
             }
             
             if (userData.userType === 'telegram') {
                 try {
                     await db.collection('users').doc(currentUser.uid).update({
                         balance: userData.balance,
-                        totalEarned: firebase.firestore.FieldValue.increment(amount > 0 ? amount : 0)
+                        totalEarned: firebase.firestore.FieldValue.increment(amount > 0 ? amount : 0),
+                        todayEarnings: firebase.firestore.FieldValue.increment(amount > 0 ? amount : 0)
                     });
-                } catch(e) { console.log("Firebase update error:", e); }
+                } catch(e) { 
+                    console.log("Firebase update error:", e); 
+                }
             } else {
                 localStorage.setItem('browserUserData', JSON.stringify(userData));
             }
@@ -715,6 +1212,7 @@
             if (userData) {
                 document.getElementById('balance').textContent = (userData.balance || 0).toFixed(0);
                 document.getElementById('walletBalance').textContent = (userData.balance || 0).toFixed(0);
+                document.getElementById('todayEarnings').textContent = (userData.todayEarnings || 0).toFixed(0);
                 
                 const level = Math.floor((userData.totalEarned || 0) / 1000) + 1;
                 document.getElementById('userLevel').textContent = level;
@@ -771,14 +1269,17 @@
                             }, 10000);
                         },
                         async () => {
+                            showLoading(true);
                             const adWatched = await showOptionalBonusAd();
+                            showLoading(false);
+                            
                             if (adWatched) {
                                 const bonus = currentLudoWin * 2;
                                 await updateBalance(bonus, 'ludo_bonus');
-                                showAlert(`🎉 You won ${bonus} points with bonus!`);
+                                showAlert(`🎉 You won ${bonus} points with 2x bonus!`);
                             } else {
                                 await updateBalance(currentLudoWin, 'ludo_base');
-                                showAlert(`⚠️ Ad failed. You received ${currentLudoWin} points.`);
+                                showAlert(`⚠️ Ad skipped. You received ${currentLudoWin} points.`);
                             }
                             ludoDisabledUntil = Date.now() + 10000;
                         }
@@ -839,14 +1340,17 @@
                         initColorGame();
                     },
                     async () => {
+                        showLoading(true);
                         const adWatched = await showOptionalBonusAd();
+                        showLoading(false);
+                        
                         if (adWatched) {
                             const bonus = reward * 2;
                             await updateBalance(bonus, 'color_bonus');
-                            showAlert(`🎉 You earned ${bonus} points with bonus!`);
+                            showAlert(`🎉 You earned ${bonus} points with 2x bonus!`);
                         } else {
                             await updateBalance(reward, 'color_base');
-                            showAlert(`⚠️ Ad failed. You received ${reward} points.`);
+                            showAlert(`⚠️ Ad skipped. You received ${reward} points.`);
                         }
                         initColorGame();
                     }
@@ -874,14 +1378,17 @@
                     showAlert(`🎉 You earned ${tryLuckBaseReward} points!`);
                 },
                 async () => {
+                    showLoading(true);
                     const adWatched = await showOptionalBonusAd();
+                    showLoading(false);
+                    
                     if (adWatched) {
                         const bonus = tryLuckBaseReward * 2;
                         await updateBalance(bonus, 'tryluck_bonus');
-                        showAlert(`🎉 You earned ${bonus} points with bonus!`);
+                        showAlert(`🎉 You earned ${bonus} points with 2x bonus!`);
                     } else {
                         await updateBalance(tryLuckBaseReward, 'tryluck_base');
-                        showAlert(`⚠️ Ad failed. You received ${tryLuckBaseReward} points.`);
+                        showAlert(`⚠️ Ad skipped. You received ${tryLuckBaseReward} points.`);
                     }
                 }
             );
@@ -1116,6 +1623,7 @@
                             referredBy: null,
                             createdAt: new Date(),
                             totalEarned: 0,
+                            todayEarnings: 0,
                             userType: 'telegram'
                         };
                         await userRef.set(userData);
@@ -1127,7 +1635,8 @@
                         name: telegramUser.first_name || 'Telegram User',
                         balance: 100,
                         referralCode: 'DEMO123',
-                        totalEarned: 0
+                        totalEarned: 0,
+                        todayEarnings: 0
                     };
                 }
             } else {
@@ -1141,6 +1650,7 @@
                         balance: 100,
                         referralCode: 'GUEST' + Math.floor(Math.random() * 10000),
                         totalEarned: 0,
+                        todayEarnings: 0,
                         userType: 'browser'
                     };
                     localStorage.setItem('browserUserData', JSON.stringify(userData));
@@ -1154,11 +1664,23 @@
         
         async function init() {
             showLoading(true);
+            
+            // Initialize Ad Network Manager
+            await window.adManager.initialize();
+            
             await initTelegramUser();
             buildGamesGrid();
             setupEventListeners();
             showLoading(false);
             showPage('homePage');
+            
+            // Log configuration
+            console.log('========================================');
+            console.log('🎮 CashReward Premium Initialized');
+            console.log('👤 User:', userData?.name || 'Guest');
+            console.log('🔵 Ad Networks:', window.adManager.adNetworks.map(n => n.name).join(', ') || 'None');
+            console.log('🔄 Rotation:', window.adManager.rotationEnabled ? 'Enabled' : 'Disabled');
+            console.log('========================================');
         }
         
         function setupEventListeners() {
