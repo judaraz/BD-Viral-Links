@@ -17,448 +17,221 @@
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: linear-gradient(135deg, #0a0a1a 0%, #0f0f23 100%);
-            color: #ffffff; 
-            min-height: 100vh;
-        }
-        
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #0a0a1a 0%, #0f0f23 100%); color: #ffffff; min-height: 100vh; }
         .bg-premium-dark { background: linear-gradient(135deg, #0a0a1a 0%, #0f0f23 100%); }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
-            transition: all 0.3s ease;
-        }
+        .glass-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; transition: all 0.3s ease; }
         .glass-card:hover { transform: translateY(-4px); border-color: rgba(255, 215, 0, 0.3); }
-        
         .text-gold { background: linear-gradient(135deg, #FFD700, #FFA500); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            color: #1a1a2e;
-            font-weight: 700;
-            border-radius: 16px;
-            padding: 14px 24px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
-            border: none;
-            width: 100%;
-        }
+        .btn-primary { background: linear-gradient(135deg, #FFD700, #FFA500); color: #1a1a2e; font-weight: 700; border-radius: 16px; padding: 14px 24px; transition: all 0.3s ease; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3); border: none; width: 100%; }
         .btn-primary:hover { transform: scale(1.02); }
         .btn-primary:active { transform: scale(0.98); }
         .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-        
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
-            font-weight: 600;
-            border-radius: 16px;
-            padding: 12px 20px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            width: 100%;
-        }
+        .btn-secondary { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; font-weight: 600; border-radius: 16px; padding: 12px 20px; transition: all 0.3s ease; cursor: pointer; width: 100%; }
         .btn-secondary:hover { background: rgba(255, 255, 255, 0.2); }
-        
-        .btn-bonus {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            font-weight: 700;
-            border-radius: 16px;
-            padding: 12px 20px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-            border: none;
-            width: 100%;
-        }
+        .btn-bonus { background: linear-gradient(135deg, #667eea, #764ba2); color: white; font-weight: 700; border-radius: 16px; padding: 12px 20px; transition: all 0.3s ease; cursor: pointer; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); border: none; width: 100%; }
         .btn-bonus:hover { transform: scale(1.02); }
-        
-        .bottom-nav {
-            background: rgba(15, 15, 35, 0.95);
-            backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(255, 215, 0, 0.2);
-            border-radius: 30px 30px 0 0;
-        }
-        
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            color: #6b7280;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
+        .bottom-nav { background: rgba(15, 15, 35, 0.95); backdrop-filter: blur(20px); border-top: 1px solid rgba(255, 215, 0, 0.2); border-radius: 30px 30px 0 0; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #6b7280; transition: all 0.3s ease; cursor: pointer; }
         .nav-item.active { color: #FFD700; }
         .nav-item i { font-size: 22px; }
         .nav-item span { font-size: 11px; font-weight: 500; }
-        
-        .game-card {
-            background: linear-gradient(145deg, rgba(30, 30, 60, 0.8), rgba(20, 20, 40, 0.9));
-            border-radius: 28px;
-            padding: 20px;
-            border: 1px solid rgba(255, 215, 0, 0.15);
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
+        .game-card { background: linear-gradient(145deg, rgba(30, 30, 60, 0.8), rgba(20, 20, 40, 0.9)); border-radius: 28px; padding: 20px; border: 1px solid rgba(255, 215, 0, 0.15); transition: all 0.3s ease; cursor: pointer; }
         .game-card:hover { transform: translateY(-5px); border-color: rgba(255, 215, 0, 0.4); }
-        
-        .game-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            margin-bottom: 15px;
-        }
-        
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.95);
-            backdrop-filter: blur(20px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 20px;
-        }
-        
-        .modal-content {
-            background: linear-gradient(145deg, rgba(30, 30, 60, 0.98), rgba(20, 20, 40, 0.98));
-            border-radius: 32px;
-            max-width: 400px;
-            width: 100%;
-            padding: 30px;
-            border: 1px solid rgba(255, 215, 0, 0.3);
-            text-align: center;
-        }
-        
-        .ludo-board {
-            width: 280px;
-            height: 280px;
-            background: white;
-            border-radius: 20px;
-            border: 8px solid #2c3e50;
-            position: relative;
-            transform: rotate(45deg);
-            margin: 20px auto;
-        }
-        
-        .ludo-quadrant {
-            position: absolute;
-            width: 50%;
-            height: 50%;
-        }
+        .game-icon { width: 60px; height: 60px; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 28px; margin-bottom: 15px; }
+        .modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(20px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+        .modal-content { background: linear-gradient(145deg, rgba(30, 30, 60, 0.98), rgba(20, 20, 40, 0.98)); border-radius: 32px; max-width: 400px; width: 100%; padding: 30px; border: 1px solid rgba(255, 215, 0, 0.3); text-align: center; }
+        .ludo-board { width: 280px; height: 280px; background: white; border-radius: 20px; border: 8px solid #2c3e50; position: relative; transform: rotate(45deg); margin: 20px auto; }
+        .ludo-quadrant { position: absolute; width: 50%; height: 50%; }
         .ludo-q1 { top: 0; left: 0; background: #ff6b6b; border-bottom-right-radius: 100%; }
         .ludo-q2 { top: 0; right: 0; background: #4ecdc4; border-bottom-left-radius: 100%; }
         .ludo-q3 { bottom: 0; left: 0; background: #ffd93d; border-top-right-radius: 100%; }
         .ludo-q4 { bottom: 0; right: 0; background: #6c5ce7; border-top-left-radius: 100%; }
-        
-        .ludo-center {
-            position: absolute;
-            width: 35%;
-            height: 35%;
-            background: white;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            border-radius: 12px;
-            border: 3px solid #2c3e50;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .dice {
-            width: 70px;
-            height: 70px;
-            background: white;
-            border-radius: 16px;
-            border: 4px solid #2c3e50;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-            font-weight: 900;
-            color: #2c3e50;
-            margin: 20px auto;
-            transform: rotate(-45deg);
-        }
-        
-        .color-option {
-            aspect-ratio: 1;
-            border-radius: 16px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
+        .ludo-center { position: absolute; width: 35%; height: 35%; background: white; top: 50%; left: 50%; transform: translate(-50%, -50%); border-radius: 12px; border: 3px solid #2c3e50; display: flex; align-items: center; justify-content: center; }
+        .dice { width: 70px; height: 70px; background: white; border-radius: 16px; border: 4px solid #2c3e50; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 900; color: #2c3e50; margin: 20px auto; transform: rotate(-45deg); }
+        .color-option { aspect-ratio: 1; border-radius: 16px; cursor: pointer; transition: all 0.2s ease; }
         .color-option:hover { transform: scale(1.05); box-shadow: 0 5px 20px rgba(0,0,0,0.3); }
-        
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 3px solid rgba(255, 215, 0, 0.1);
-            border-top-color: #FFD700;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        
+        .spinner { width: 50px; height: 50px; border: 3px solid rgba(255, 215, 0, 0.1); border-top-color: #FFD700; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        
         .page { display: none; animation: fadeIn 0.3s ease; }
         .page.active { display: block; }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
         ::-webkit-scrollbar-thumb { background: linear-gradient(135deg, #FFD700, #FFA500); border-radius: 10px; }
         
-        /* Ad Container Styles */
-        .ad-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .ad-wrapper {
-            background: white;
-            border-radius: 16px;
-            width: 95%;
-            max-width: 500px;
-            min-height: 450px;
-            padding: 20px;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .ad-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        
-        .ad-badge {
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            color: white;
-        }
-        
-        .ad-badge-rewarded {
-            background: linear-gradient(135deg, #4CAF50, #45a049);
-        }
-        
-        .ad-badge-interstitial {
-            background: linear-gradient(135deg, #FF9800, #F57C00);
-        }
-        
-        .ad-close-btn {
-            width: 30px;
-            height: 30px;
-            background: #ff4444;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .ad-content {
-            flex: 1;
-            min-height: 300px;
-            background: #f5f5f5;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-        
-        .ad-footer {
-            margin-top: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .ad-timer {
-            color: #666;
-            font-size: 14px;
-        }
-        
-        .ad-skip-btn {
-            background: #2196F3;
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        
-        .ad-skip-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-        
-        .ad-loading-container {
-            text-align: center;
-            color: #666;
-        }
-        
-        .ad-loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid #ddd;
-            border-top-color: #2196F3;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
-        }
+        /* Ad Styles */
+        .ad-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.95); z-index: 10000; display: flex; align-items: center; justify-content: center; }
+        .ad-wrapper { background: white; border-radius: 16px; width: 95%; max-width: 500px; min-height: 450px; padding: 20px; position: relative; display: flex; flex-direction: column; }
+        .ad-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .ad-badge { padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; color: white; }
+        .ad-badge-rewarded { background: linear-gradient(135deg, #4CAF50, #45a049); }
+        .ad-badge-interstitial { background: linear-gradient(135deg, #FF9800, #F57C00); }
+        .ad-close-btn { width: 30px; height: 30px; background: #ff4444; color: white; border: none; border-radius: 50%; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
+        .ad-content { flex: 1; min-height: 300px; background: #f5f5f5; border-radius: 12px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+        .ad-footer { margin-top: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .ad-timer { color: #666; font-size: 14px; }
+        .ad-skip-btn { background: #2196F3; color: white; border: none; padding: 8px 20px; border-radius: 20px; cursor: pointer; font-size: 14px; }
+        .ad-skip-btn:disabled { background: #ccc; cursor: not-allowed; }
+        .ad-loading-container { text-align: center; color: #666; }
+        .ad-loading-spinner { width: 40px; height: 40px; border: 3px solid #ddd; border-top-color: #2196F3; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 15px; }
     </style>
 </head>
 <body class="max-w-md mx-auto relative">
 
-    <!-- Loading Overlay -->
     <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-95 flex items-center justify-center z-50" style="display: none;">
-        <div class="text-center">
-            <div class="spinner mx-auto mb-4"></div>
-            <p class="text-gold font-semibold">Loading...</p>
-        </div>
+        <div class="text-center"><div class="spinner mx-auto mb-4"></div><p class="text-gold font-semibold">Loading...</p></div>
     </div>
 
-    <!-- Reward Modal -->
     <div id="rewardModal" class="modal">
         <div class="modal-content">
-            <div class="w-20 h-20 mx-auto rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 flex items-center justify-center mb-4">
-                <i class="fas fa-trophy text-3xl text-black"></i>
-            </div>
+            <div class="w-20 h-20 mx-auto rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 flex items-center justify-center mb-4"><i class="fas fa-trophy text-3xl text-black"></i></div>
             <h3 class="text-2xl font-bold text-gold mb-2" id="rewardModalTitle">You Won!</h3>
             <p class="text-3xl font-bold text-green-400 mb-4" id="rewardAmount">+100 Points</p>
             <p class="text-gray-300 text-sm mb-6" id="rewardMessage">Choose your reward option:</p>
-            
             <div class="space-y-3">
-                <button id="claimBaseBtn" class="btn-primary">
-                    <i class="fas fa-check-circle mr-2"></i> Claim Base Reward
-                </button>
-                <button id="claimBonusBtn" class="btn-bonus">
-                    <i class="fas fa-star mr-2"></i> Watch Ad for 2x Bonus!
-                </button>
+                <button id="claimBaseBtn" class="btn-primary"><i class="fas fa-check-circle mr-2"></i> Claim Base Reward</button>
+                <button id="claimBonusBtn" class="btn-bonus"><i class="fas fa-star mr-2"></i> Watch Ad for 2x Bonus!</button>
             </div>
             <button onclick="closeRewardModal()" class="btn-secondary w-full mt-3">Later</button>
         </div>
     </div>
 
-    <!-- Dice Modal -->
     <div id="diceModal" class="modal">
         <div class="modal-content">
             <div class="dice mx-auto mb-4" id="diceFace">⚀</div>
             <h3 class="text-2xl font-bold text-gold mb-2">Dice Result</h3>
             <p class="text-4xl font-bold text-green-400 mb-2" id="diceWinAmount">0 Points</p>
             <p class="text-gray-300 text-sm mb-6">Choose your reward option:</p>
-            
             <div class="space-y-3">
-                <button id="diceClaimBaseBtn" class="btn-primary">
-                    <i class="fas fa-check-circle mr-2"></i> Claim Base Reward
-                </button>
-                <button id="diceClaimBonusBtn" class="btn-bonus">
-                    <i class="fas fa-star mr-2"></i> Watch Ad for 2x Bonus!
-                </button>
+                <button id="diceClaimBaseBtn" class="btn-primary"><i class="fas fa-check-circle mr-2"></i> Claim Base Reward</button>
+                <button id="diceClaimBonusBtn" class="btn-bonus"><i class="fas fa-star mr-2"></i> Watch Ad for 2x Bonus!</button>
             </div>
             <button onclick="closeDiceModal()" class="btn-secondary w-full mt-3">Later</button>
         </div>
     </div>
 
-    <!-- Main App - kept same as original for brevity -->
     <div id="app" class="min-h-screen flex flex-col">
         <header class="px-5 pt-5 pb-3 bg-premium-dark sticky top-0 z-10">
             <div class="flex justify-between items-center">
                 <div class="flex items-center gap-3">
-                    <img id="profilePic" class="w-12 h-12 rounded-full border-2 border-yellow-400 object-cover" 
-                         src="https://placehold.co/100x100/1e1e1e/facc15?text=U" alt="Profile">
-                    <div>
-                        <h2 class="font-bold text-lg" id="userName">Welcome Back!</h2>
-                        <p class="text-xs text-gray-400">Premium Member</p>
-                    </div>
+                    <img id="profilePic" class="w-12 h-12 rounded-full border-2 border-yellow-400 object-cover" src="https://placehold.co/100x100/1e1e1e/facc15?text=U" alt="Profile">
+                    <div><h2 class="font-bold text-lg" id="userName">Welcome Back!</h2><p class="text-xs text-gray-400">Premium Member</p></div>
                 </div>
-                <div class="glass-card px-4 py-2 flex items-center gap-2">
-                    <i class="fas fa-coins text-yellow-400"></i>
-                    <span class="font-bold text-xl text-gold" id="balance">0</span>
-                </div>
+                <div class="glass-card px-4 py-2 flex items-center gap-2"><i class="fas fa-coins text-yellow-400"></i><span class="font-bold text-xl text-gold" id="balance">0</span></div>
             </div>
         </header>
 
         <main class="flex-1 px-4 py-4 pb-24">
-            <!-- All pages same as original -->
+            <!-- HOME PAGE -->
             <div id="homePage" class="page active">
                 <div class="grid grid-cols-3 gap-3 mb-6">
-                    <div class="glass-card p-3 text-center">
-                        <i class="fas fa-fire text-orange-400 text-xl mb-1"></i>
-                        <p class="text-xs text-gray-400">Today's Earnings</p>
-                        <p class="font-bold text-gold" id="todayEarnings">0</p>
-                    </div>
-                    <div class="glass-card p-3 text-center">
-                        <i class="fas fa-tasks text-blue-400 text-xl mb-1"></i>
-                        <p class="text-xs text-gray-400">Tasks Done</p>
-                        <p class="font-bold text-gold" id="tasksDone">0</p>
-                    </div>
-                    <div class="glass-card p-3 text-center">
-                        <i class="fas fa-chart-line text-green-400 text-xl mb-1"></i>
-                        <p class="text-xs text-gray-400">Level</p>
-                        <p class="font-bold text-gold" id="userLevel">1</p>
-                    </div>
+                    <div class="glass-card p-3 text-center"><i class="fas fa-fire text-orange-400 text-xl mb-1"></i><p class="text-xs text-gray-400">Today's Earnings</p><p class="font-bold text-gold" id="todayEarnings">0</p></div>
+                    <div class="glass-card p-3 text-center"><i class="fas fa-tasks text-blue-400 text-xl mb-1"></i><p class="text-xs text-gray-400">Tasks Done</p><p class="font-bold text-gold" id="tasksDone">0</p></div>
+                    <div class="glass-card p-3 text-center"><i class="fas fa-chart-line text-green-400 text-xl mb-1"></i><p class="text-xs text-gray-400">Level</p><p class="font-bold text-gold" id="userLevel">1</p></div>
                 </div>
                 <h3 class="text-lg font-bold mb-3 text-gold">🎮 Play & Earn</h3>
                 <div class="grid grid-cols-2 gap-4" id="gamesGrid"></div>
             </div>
-            <!-- Other pages same as before... -->
+
+            <!-- LUDO PAGE -->
+            <div id="ludoPage" class="page">
+                <button onclick="showPage('homePage')" class="btn-secondary mb-4 text-sm"><i class="fas fa-arrow-left mr-2"></i> Back</button>
+                <div class="glass-card p-5 text-center mb-6">
+                    <h2 class="text-2xl font-bold text-gold mb-2">🎲 Ludo Dice</h2>
+                    <p class="text-gray-300 text-sm mb-4">Roll the dice and win points!</p>
+                    <div class="bg-black bg-opacity-30 rounded-2xl p-4 mb-4"><p class="text-sm text-gray-400">Game Cost</p><p class="text-2xl font-bold text-gold">10 Points</p></div>
+                    <div class="ludo-board mx-auto"><div class="ludo-quadrant ludo-q1"></div><div class="ludo-quadrant ludo-q2"></div><div class="ludo-quadrant ludo-q3"></div><div class="ludo-quadrant ludo-q4"></div><div class="ludo-center"><span class="text-black font-bold text-xl">LUDO</span></div></div>
+                    <div class="dice mx-auto my-4" id="ludoDice">⚀</div>
+                    <button id="rollDiceBtn" class="btn-primary w-full py-4 text-lg"><i class="fas fa-dice-d6 mr-2"></i> ROLL DICE</button>
+                    <div id="ludoCooldown" class="text-xs text-yellow-400 mt-3 hidden">⏱️ Please wait...</div>
+                </div>
+            </div>
+
+            <!-- COLOR GAME PAGE -->
+            <div id="colorGamePage" class="page">
+                <button onclick="showPage('homePage')" class="btn-secondary mb-4 text-sm"><i class="fas fa-arrow-left mr-2"></i> Back</button>
+                <div class="glass-card p-5 text-center mb-6">
+                    <h2 class="text-2xl font-bold text-gold mb-2">🎨 Color Match</h2>
+                    <p class="text-gray-300 text-sm mb-4">Find the matching color!</p>
+                    <div class="bg-black bg-opacity-30 rounded-2xl p-4 mb-4"><p class="text-sm text-gray-400">Find this color:</p><div id="targetColor" class="w-24 h-16 mx-auto rounded-xl my-3 border-2 border-white"></div><p id="targetRgb" class="font-mono text-sm font-bold text-gold"></p></div>
+                    <div class="grid grid-cols-3 gap-3" id="colorOptions"></div>
+                </div>
+            </div>
+
+            <!-- TRY LUCK PAGE -->
+            <div id="tryLuckPage" class="page">
+                <button onclick="showPage('homePage')" class="btn-secondary mb-4 text-sm"><i class="fas fa-arrow-left mr-2"></i> Back</button>
+                <div class="glass-card p-5 text-center">
+                    <div class="w-20 h-20 mx-auto rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center mb-4"><i class="fas fa-star text-3xl text-white"></i></div>
+                    <h2 class="text-2xl font-bold text-gold mb-2">Try Your Luck!</h2>
+                    <p class="text-gray-300 text-sm mb-4">Get rewards with optional bonus ads!</p>
+                    <div class="bg-black bg-opacity-30 rounded-2xl p-4 mb-6"><p class="text-sm text-gray-400">Base Reward</p><p class="text-2xl font-bold text-green-400" id="tryLuckBaseReward">100 Points</p><p class="text-xs text-gray-500 mt-1">Watch ad for 2x bonus!</p></div>
+                    <button id="startTryLuckBtn" class="btn-primary w-full py-4 text-lg"><i class="fas fa-play mr-2"></i> Start Playing</button>
+                </div>
+            </div>
+
+            <!-- OFFERWALL PAGE -->
+            <div id="offerwallPage" class="page">
+                <button onclick="showPage('homePage')" class="btn-secondary mb-4 text-sm"><i class="fas fa-arrow-left mr-2"></i> Back</button>
+                <div class="glass-card p-5 text-center mb-4">
+                    <div class="w-20 h-20 mx-auto rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center justify-center mb-4"><i class="fas fa-gift text-3xl text-white"></i></div>
+                    <h2 class="text-2xl font-bold text-gold mb-2">OfferWall</h2>
+                    <p class="text-gray-300 text-sm mb-4">Complete offers to earn bonus points!</p>
+                    <div class="grid grid-cols-3 gap-3 mb-6">
+                        <div class="bg-black bg-opacity-30 p-3 rounded-xl"><p class="text-xl font-bold text-purple-400" id="offersCount">5</p><p class="text-xs text-gray-400">Available</p></div>
+                        <div class="bg-black bg-opacity-30 p-3 rounded-xl"><p class="text-xl font-bold text-yellow-400" id="pendingCount">2</p><p class="text-xs text-gray-400">Pending</p></div>
+                        <div class="bg-black bg-opacity-30 p-3 rounded-xl"><p class="text-xl font-bold text-green-400" id="completedCount">3</p><p class="text-xs text-gray-400">Completed</p></div>
+                    </div>
+                    <button onclick="openOfferWall()" class="btn-primary w-full py-3"><i class="fas fa-store mr-2"></i> Browse Offers</button>
+                </div>
+            </div>
+
+            <!-- WALLET PAGE -->
+            <div id="walletPage" class="page">
+                <button onclick="showPage('homePage')" class="btn-secondary mb-4 text-sm"><i class="fas fa-arrow-left mr-2"></i> Back</button>
+                <div class="glass-card p-5 text-center mb-4">
+                    <h2 class="text-2xl font-bold text-gold mb-2">My Wallet</h2>
+                    <div class="bg-black bg-opacity-30 rounded-2xl p-6 mb-4"><p class="text-sm text-gray-400 mb-1">Total Balance</p><p class="text-4xl font-bold text-gold" id="walletBalance">0</p><p class="text-xs text-gray-500 mt-2">1000 Coins = ₹10</p></div>
+                    <div class="text-left mb-4"><label class="text-sm text-gray-400 block mb-2">Withdrawal Method</label><select id="withdrawMethod" class="w-full bg-black bg-opacity-30 border border-gray-700 rounded-xl p-3 text-white"><option value="UPI">UPI</option><option value="Paytm">Paytm</option><option value="PayPal">PayPal</option></select></div>
+                    <div class="text-left mb-4"><label class="text-sm text-gray-400 block mb-2">Payment Details</label><input type="text" id="paymentDetails" placeholder="Enter your UPI ID / Phone / Email" class="w-full bg-black bg-opacity-30 border border-gray-700 rounded-xl p-3 text-white"></div>
+                    <div class="text-left mb-4"><label class="text-sm text-gray-400 block mb-2">Amount (Coins)</label><input type="number" id="withdrawAmount" placeholder="Minimum 1000 coins" class="w-full bg-black bg-opacity-30 border border-gray-700 rounded-xl p-3 text-white"></div>
+                    <button id="withdrawBtn" class="btn-primary w-full py-3"><i class="fas fa-money-bill-wave mr-2"></i> Request Withdrawal</button>
+                </div>
+                <div class="glass-card p-4"><h3 class="font-bold text-gold mb-3">Withdrawal History</h3><div id="withdrawalHistory" class="space-y-2"><div class="text-center text-gray-400 py-4">No withdrawal history</div></div></div>
+            </div>
+
+            <!-- REFER PAGE -->
+            <div id="referPage" class="page">
+                <button onclick="showPage('homePage')" class="btn-secondary mb-4 text-sm"><i class="fas fa-arrow-left mr-2"></i> Back</button>
+                <div class="glass-card p-5 text-center mb-4">
+                    <div class="w-20 h-20 mx-auto rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center mb-4"><i class="fas fa-user-plus text-3xl text-white"></i></div>
+                    <h2 class="text-2xl font-bold text-gold mb-2">Refer & Earn</h2>
+                    <p class="text-gray-300 text-sm mb-4">Invite friends and earn 100 bonus points each!</p>
+                    <div class="bg-black bg-opacity-30 rounded-2xl p-4 mb-4"><p class="text-sm text-gray-400 mb-2">Your Referral Code</p><div class="flex items-center justify-between gap-3"><code class="text-xl font-bold text-gold bg-black bg-opacity-50 px-4 py-2 rounded-lg flex-1" id="referralCode">LOADING</code><button id="copyCodeBtn" class="btn-secondary p-2"><i class="fas fa-copy"></i></button></div></div>
+                    <button id="shareBtn" class="btn-primary w-full py-3"><i class="fas fa-share-alt mr-2"></i> Share & Earn</button>
+                </div>
+                <div class="glass-card p-4"><h3 class="font-bold text-gold mb-2">Have a referral code?</h3><div class="flex gap-2"><input type="text" id="referralInput" placeholder="Enter code" class="flex-1 bg-black bg-opacity-30 border border-gray-700 rounded-xl p-3 text-white"><button id="applyReferralBtn" class="btn-primary px-4">Apply</button></div></div>
+            </div>
+
+            <!-- PROFILE PAGE -->
+            <div id="profilePage" class="page">
+                <button onclick="showPage('homePage')" class="btn-secondary mb-4 text-sm"><i class="fas fa-arrow-left mr-2"></i> Back</button>
+                <div class="glass-card p-5 text-center mb-4">
+                    <img id="profilePagePic" class="w-24 h-24 rounded-full border-4 border-yellow-400 mx-auto mb-4 object-cover" src="https://placehold.co/100x100/1e1e1e/facc15?text=U" alt="Profile">
+                    <h2 class="text-xl font-bold text-gold" id="profileName">User</h2>
+                    <p class="text-gray-400 text-sm mb-4" id="profileEmail">user@example.com</p>
+                    <div class="grid grid-cols-2 gap-3"><div class="bg-black bg-opacity-30 p-3 rounded-xl"><p class="text-xs text-gray-400">Member Since</p><p class="font-bold text-gold" id="memberSince">Today</p></div><div class="bg-black bg-opacity-30 p-3 rounded-xl"><p class="text-xs text-gray-400">Total Earned</p><p class="font-bold text-gold" id="totalEarned">0</p></div></div>
+                </div>
+                <button id="logoutBtn" class="btn-secondary w-full py-3 text-red-400 border-red-400"><i class="fas fa-sign-out-alt mr-2"></i> Close App</button>
+            </div>
         </main>
 
         <nav class="bottom-nav fixed bottom-0 left-0 right-0 max-w-md mx-auto grid grid-cols-5 py-3 px-2">
-            <div class="nav-item active" data-page="homePage">
-                <i class="fas fa-home"></i><span>Home</span>
-            </div>
-            <div class="nav-item" data-page="offerwallPage">
-                <i class="fas fa-gift"></i><span>Offers</span>
-            </div>
-            <div class="nav-item" data-page="tryLuckPage">
-                <i class="fas fa-star"></i><span>Luck</span>
-            </div>
-            <div class="nav-item" data-page="walletPage">
-                <i class="fas fa-wallet"></i><span>Wallet</span>
-            </div>
-            <div class="nav-item" data-page="profilePage">
-                <i class="fas fa-user"></i><span>Profile</span>
-            </div>
+            <div class="nav-item active" data-page="homePage"><i class="fas fa-home"></i><span>Home</span></div>
+            <div class="nav-item" data-page="offerwallPage"><i class="fas fa-gift"></i><span>Offers</span></div>
+            <div class="nav-item" data-page="tryLuckPage"><i class="fas fa-star"></i><span>Luck</span></div>
+            <div class="nav-item" data-page="walletPage"><i class="fas fa-wallet"></i><span>Wallet</span></div>
+            <div class="nav-item" data-page="profilePage"><i class="fas fa-user"></i><span>Profile</span></div>
         </nav>
     </div>
 
@@ -466,9 +239,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
     <script>
-        // ============================================
-        // FIREBASE CONFIG
-        // ============================================
+        // Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyBEvTvWy-hH1HHgjoOhUKkj-Dglm11Oc8U",
             authDomain: "cash-rewards-01-624ae.firebaseapp.com",
@@ -477,22 +248,17 @@
             messagingSenderId: "29119912449",
             appId: "1:29119912449:web:e0c68c1994ff0a71603e00"
         };
-
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // ============================================
-        // ADSGRAM CONFIGURATION
-        // ============================================
+        // Adsgram Config
         const ADSGRAM_CONFIG = {
             rewardedBlockId: "42429",
             interstitialBlockId: "int-27569",
             adTimeout: 30000
         };
 
-        // ============================================
-        // SIMPLE AD MANAGER - GUARANTEED TO SHOW ADS
-        // ============================================
+        // Simple Ad Manager
         class SimpleAdManager {
             constructor() {
                 this.adCallCount = 0;
@@ -500,94 +266,53 @@
                 this.isShowing = false;
                 this.currentResolve = null;
                 this.adContainer = null;
+                this.timerInterval = null;
             }
 
-            // Main method to show an ad
             showAd() {
                 return new Promise((resolve) => {
                     this.currentResolve = resolve;
-                    
-                    // Alternate between rewarded and interstitial
                     this.adCallCount++;
                     this.currentAdType = (this.adCallCount % 2 === 1) ? 'rewarded' : 'interstitial';
-                    
                     console.log(`📺 Showing ${this.currentAdType.toUpperCase()} ad (Call #${this.adCallCount})`);
                     
-                    // Check if Adsgram SDK is loaded
                     if (!window.sad) {
                         console.warn('⚠️ Adsgram SDK not loaded, using demo ad');
                         this.showDemoAd();
                         return;
                     }
-                    
-                    // Show real ad
                     this.showRealAd();
                 });
             }
 
-            // Show real Adsgram ad
             showRealAd() {
                 const isRewarded = this.currentAdType === 'rewarded';
                 const blockId = isRewarded ? ADSGRAM_CONFIG.rewardedBlockId : ADSGRAM_CONFIG.interstitialBlockId;
-                
-                // Create ad UI
                 this.createAdUI(isRewarded);
-                
-                // Get user ID
                 const userId = window.currentUser?.uid || 'guest_user';
                 
                 try {
                     console.log(`🔵 Creating ad with block ID: ${blockId}`);
-                    
                     window.sad.createAd({
                         blockId: blockId,
                         type: isRewarded ? 'rewarded' : 'interstitial',
                         userId: userId,
-                        
-                        onAdLoaded: () => {
-                            console.log('✅ Ad loaded successfully');
-                            this.hideLoading();
-                        },
-                        
-                        onAdStarted: () => {
-                            console.log('▶️ Ad started playing');
-                        },
-                        
-                        onAdCompleted: (data) => {
-                            console.log('🎉 Ad completed:', data);
-                            this.handleAdComplete(true);
-                        },
-                        
-                        onAdError: (error) => {
-                            console.error('❌ Ad error:', error);
-                            this.handleAdError(error);
-                        },
-                        
-                        onAdClosed: () => {
-                            console.log('🔒 Ad closed');
-                            this.handleAdComplete(false);
-                        }
+                        onAdLoaded: () => { console.log('✅ Ad loaded'); this.hideLoading(); },
+                        onAdStarted: () => { console.log('▶️ Ad started'); },
+                        onAdCompleted: (data) => { console.log('🎉 Ad completed:', data); this.handleAdComplete(true); },
+                        onAdError: (error) => { console.error('❌ Ad error:', error); this.handleAdError(error); },
+                        onAdClosed: () => { console.log('🔒 Ad closed'); this.handleAdComplete(false); }
                     });
                     
-                    // Set timeout
-                    setTimeout(() => {
-                        if (this.isShowing) {
-                            console.log('⏰ Ad timeout');
-                            this.handleAdComplete(false);
-                        }
-                    }, ADSGRAM_CONFIG.adTimeout);
-                    
+                    setTimeout(() => { if (this.isShowing) { console.log('⏰ Ad timeout'); this.handleAdComplete(false); } }, ADSGRAM_CONFIG.adTimeout);
                 } catch (error) {
                     console.error('❌ Error creating ad:', error);
                     this.showDemoAd();
                 }
             }
 
-            // Create ad UI overlay
             createAdUI(isRewarded) {
-                // Remove existing ad
                 this.removeAdUI();
-                
                 const adType = isRewarded ? 'Rewarded Ad' : 'Interstitial Ad';
                 const badgeClass = isRewarded ? 'ad-badge-rewarded' : 'ad-badge-interstitial';
                 
@@ -596,43 +321,28 @@
                 overlay.id = 'adOverlay';
                 overlay.innerHTML = `
                     <div class="ad-wrapper">
-                        <div class="ad-header">
-                            <span class="ad-badge ${badgeClass}">🎬 ${adType}</span>
-                            <button class="ad-close-btn" onclick="window.adManager.closeAd()">✕</button>
-                        </div>
+                        <div class="ad-header"><span class="ad-badge ${badgeClass}">🎬 ${adType}</span><button class="ad-close-btn" onclick="window.adManager.closeAd()">✕</button></div>
                         <div class="ad-content" id="adContent">
-                            <div class="ad-loading-container" id="adLoading">
-                                <div class="ad-loading-spinner"></div>
-                                <p>Loading ad...</p>
-                            </div>
+                            <div class="ad-loading-container" id="adLoading"><div class="ad-loading-spinner"></div><p>Loading ad...</p></div>
                             <div id="adUnit" style="width:100%;height:100%;position:absolute;top:0;left:0;"></div>
                         </div>
-                        <div class="ad-footer">
-                            <span class="ad-timer" id="adTimer">⏱️ 0s</span>
-                            <button class="ad-skip-btn" id="adSkipBtn" disabled>Skip in 5s</button>
-                        </div>
+                        <div class="ad-footer"><span class="ad-timer" id="adTimer">⏱️ 0s</span><button class="ad-skip-btn" id="adSkipBtn" disabled>Skip in 5s</button></div>
                     </div>
                 `;
                 
                 document.body.appendChild(overlay);
                 this.adContainer = overlay;
                 this.isShowing = true;
-                
-                // Start timer
-                this.startTimer(isRewarded);
+                this.startTimer();
             }
 
-            // Start ad timer
-            startTimer(isRewarded) {
+            startTimer() {
                 let seconds = 0;
                 const timerEl = document.getElementById('adTimer');
                 const skipBtn = document.getElementById('adSkipBtn');
-                
                 this.timerInterval = setInterval(() => {
                     seconds++;
                     if (timerEl) timerEl.textContent = `⏱️ ${seconds}s`;
-                    
-                    // Enable skip after 5 seconds for interstitial
                     if (seconds >= 5 && skipBtn && skipBtn.disabled) {
                         skipBtn.disabled = false;
                         skipBtn.textContent = 'Skip Ad ⏭️';
@@ -641,77 +351,33 @@
                 }, 1000);
             }
 
-            // Hide loading indicator
-            hideLoading() {
-                const loadingEl = document.getElementById('adLoading');
-                if (loadingEl) loadingEl.style.display = 'none';
-            }
-
-            // Handle ad completion
+            hideLoading() { const el = document.getElementById('adLoading'); if (el) el.style.display = 'none'; }
+            
             handleAdComplete(completed) {
                 this.cleanup();
-                if (this.currentResolve) {
-                    this.currentResolve(completed);
-                    this.currentResolve = null;
-                }
+                if (this.currentResolve) { this.currentResolve(completed); this.currentResolve = null; }
                 this.removeAdUI();
             }
 
-            // Handle ad error
-            handleAdError(error) {
-                console.log('⚠️ Ad error, falling back to demo');
-                this.cleanup();
-                this.removeAdUI();
-                this.showDemoAd();
-            }
+            handleAdError(error) { this.cleanup(); this.removeAdUI(); this.showDemoAd(); }
+            skipAd() { this.handleAdComplete(false); }
+            closeAd() { this.handleAdComplete(false); }
 
-            // Skip ad
-            skipAd() {
-                console.log('⏭️ Ad skipped by user');
-                this.handleAdComplete(false);
-            }
-
-            // Close ad
-            closeAd() {
-                console.log('✕ Ad closed by user');
-                this.handleAdComplete(false);
-            }
-
-            // Show demo ad (fallback)
             showDemoAd() {
                 alert('📺 Demo Ad Completed! You earned bonus rewards!');
-                if (this.currentResolve) {
-                    this.currentResolve(true);
-                    this.currentResolve = null;
-                }
+                if (this.currentResolve) { this.currentResolve(true); this.currentResolve = null; }
                 this.cleanup();
             }
 
-            // Cleanup intervals
-            cleanup() {
-                if (this.timerInterval) {
-                    clearInterval(this.timerInterval);
-                    this.timerInterval = null;
-                }
-                this.isShowing = false;
-            }
-
-            // Remove ad UI
+            cleanup() { if (this.timerInterval) { clearInterval(this.timerInterval); this.timerInterval = null; } this.isShowing = false; }
+            
             removeAdUI() {
-                if (this.adContainer) {
-                    this.adContainer.remove();
-                    this.adContainer = null;
-                }
-                const existingOverlay = document.getElementById('adOverlay');
-                if (existingOverlay) {
-                    existingOverlay.remove();
-                }
+                if (this.adContainer) { this.adContainer.remove(); this.adContainer = null; }
+                const existing = document.getElementById('adOverlay'); if (existing) existing.remove();
             }
         }
 
-        // ============================================
-        // GLOBAL VARIABLES
-        // ============================================
+        // Global Variables
         window.currentUser = null;
         let userData = null;
         let telegramUser = null;
@@ -720,92 +386,44 @@
         let ludoDisabledUntil = 0;
         let colorGameTarget = null;
         let tryLuckBaseReward = 100;
-        
-        // Create ad manager instance (global for access from HTML)
         window.adManager = new SimpleAdManager();
 
-        // ============================================
-        // UTILITY FUNCTIONS
-        // ============================================
-        function showLoading(show) {
-            const overlay = document.getElementById('loadingOverlay');
-            if (overlay) overlay.style.display = show ? 'flex' : 'none';
-        }
-        
-        function showAlert(msg) {
-            alert(msg);
-        }
-        
-        window.closeRewardModal = function() {
-            const modal = document.getElementById('rewardModal');
-            if (modal) modal.style.display = 'none';
-        };
-        
-        window.closeDiceModal = function() {
-            const modal = document.getElementById('diceModal');
-            if (modal) modal.style.display = 'none';
-        };
-        
+        // Utility Functions
+        function showLoading(show) { const el = document.getElementById('loadingOverlay'); if (el) el.style.display = show ? 'flex' : 'none'; }
+        function showAlert(msg) { alert(msg); }
+        window.closeRewardModal = function() { const el = document.getElementById('rewardModal'); if (el) el.style.display = 'none'; };
+        window.closeDiceModal = function() { const el = document.getElementById('diceModal'); if (el) el.style.display = 'none'; };
+
         function showRewardModal(title, amount, msg, onBase, onBonus) {
-            const modal = document.getElementById('rewardModal');
-            if (!modal) return;
-            
             document.getElementById('rewardModalTitle').textContent = title;
             document.getElementById('rewardAmount').textContent = `+${amount} Points`;
             document.getElementById('rewardMessage').textContent = msg;
-            
-            const baseBtn = document.getElementById('claimBaseBtn');
-            const bonusBtn = document.getElementById('claimBonusBtn');
-            
-            if (baseBtn) baseBtn.onclick = () => { closeRewardModal(); onBase(); };
-            if (bonusBtn) bonusBtn.onclick = () => { closeRewardModal(); onBonus(); };
-            
-            modal.style.display = 'flex';
-        }
-        
-        function showDiceModal(amount, onBase, onBonus) {
-            const modal = document.getElementById('diceModal');
-            if (!modal) return;
-            
-            document.getElementById('diceWinAmount').textContent = `${amount} Points`;
-            
-            const baseBtn = document.getElementById('diceClaimBaseBtn');
-            const bonusBtn = document.getElementById('diceClaimBonusBtn');
-            
-            if (baseBtn) baseBtn.onclick = () => { closeDiceModal(); onBase(); };
-            if (bonusBtn) bonusBtn.onclick = () => { closeDiceModal(); onBonus(); };
-            
-            modal.style.display = 'flex';
+            document.getElementById('claimBaseBtn').onclick = () => { closeRewardModal(); onBase(); };
+            document.getElementById('claimBonusBtn').onclick = () => { closeRewardModal(); onBonus(); };
+            document.getElementById('rewardModal').style.display = 'flex';
         }
 
-        // ============================================
-        // SHOW AD FUNCTION
-        // ============================================
+        function showDiceModal(amount, onBase, onBonus) {
+            document.getElementById('diceWinAmount').textContent = `${amount} Points`;
+            document.getElementById('diceClaimBaseBtn').onclick = () => { closeDiceModal(); onBase(); };
+            document.getElementById('diceClaimBonusBtn').onclick = () => { closeDiceModal(); onBonus(); };
+            document.getElementById('diceModal').style.display = 'flex';
+        }
+
         async function showOptionalBonusAd() {
             console.log('🎯 Requesting ad...');
-            
             try {
                 const result = await window.adManager.showAd();
                 console.log('📊 Ad result:', result ? 'COMPLETED ✅' : 'SKIPPED/FAILED ❌');
                 return result;
-            } catch (error) {
-                console.error('❌ Ad error:', error);
-                return false;
-            }
+            } catch (error) { console.error('❌ Ad error:', error); return false; }
         }
-        
-        // ============================================
-        // BALANCE FUNCTIONS
-        // ============================================
+
+        // Balance Functions
         async function updateBalance(amount, reason) {
             if (!userData) return false;
-            
             userData.balance = (userData.balance || 0) + amount;
-            if (amount > 0) {
-                userData.totalEarned = (userData.totalEarned || 0) + amount;
-                userData.todayEarnings = (userData.todayEarnings || 0) + amount;
-            }
-            
+            if (amount > 0) { userData.totalEarned = (userData.totalEarned || 0) + amount; userData.todayEarnings = (userData.todayEarnings || 0) + amount; }
             if (userData.userType === 'telegram' && window.currentUser) {
                 try {
                     await db.collection('users').doc(window.currentUser.uid).update({
@@ -813,70 +431,45 @@
                         totalEarned: firebase.firestore.FieldValue.increment(amount > 0 ? amount : 0),
                         todayEarnings: firebase.firestore.FieldValue.increment(amount > 0 ? amount : 0)
                     });
-                } catch(e) { 
-                    console.log("Firebase update error:", e); 
-                }
-            } else {
-                localStorage.setItem('browserUserData', JSON.stringify(userData));
-            }
-            
+                } catch(e) { console.log("Firebase update error:", e); }
+            } else { localStorage.setItem('browserUserData', JSON.stringify(userData)); }
             updateUI();
             return true;
         }
-        
+
         async function deductBalance(amount) {
             if ((userData?.balance || 0) < amount) return false;
             await updateBalance(-amount, 'game_cost');
             return true;
         }
-        
+
         function updateUI() {
-            if (userData) {
-                const balanceEl = document.getElementById('balance');
-                const walletEl = document.getElementById('walletBalance');
-                const todayEl = document.getElementById('todayEarnings');
-                const levelEl = document.getElementById('userLevel');
-                const totalEl = document.getElementById('totalEarned');
-                
-                if (balanceEl) balanceEl.textContent = (userData.balance || 0).toFixed(0);
-                if (walletEl) walletEl.textContent = (userData.balance || 0).toFixed(0);
-                if (todayEl) todayEl.textContent = (userData.todayEarnings || 0).toFixed(0);
-                
-                const level = Math.floor((userData.totalEarned || 0) / 1000) + 1;
-                if (levelEl) levelEl.textContent = level;
-                if (totalEl) totalEl.textContent = (userData.totalEarned || 0).toFixed(0);
-            }
+            if (!userData) return;
+            const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+            setText('balance', (userData.balance || 0).toFixed(0));
+            setText('walletBalance', (userData.balance || 0).toFixed(0));
+            setText('todayEarnings', (userData.todayEarnings || 0).toFixed(0));
+            setText('userLevel', Math.floor((userData.totalEarned || 0) / 1000) + 1);
+            setText('totalEarned', (userData.totalEarned || 0).toFixed(0));
         }
-        
-        // ============================================
-        // LUDO GAME
-        // ============================================
+
+        // Ludo Game
         async function rollDice() {
             if (isRolling) return;
-            
             const now = Date.now();
-            if (now < ludoDisabledUntil) {
-                showAlert(`Please wait ${Math.ceil((ludoDisabledUntil - now) / 1000)} seconds`);
-                return;
-            }
+            if (now < ludoDisabledUntil) { showAlert(`Please wait ${Math.ceil((ludoDisabledUntil - now) / 1000)} seconds`); return; }
+            if ((userData?.balance || 0) < 10) { showAlert('You need 10 points to play!'); return; }
             
-            const cost = 10;
-            if ((userData?.balance || 0) < cost) {
-                showAlert(`You need ${cost} points to play!`);
-                return;
-            }
-            
-            await deductBalance(cost);
+            await deductBalance(10);
             isRolling = true;
             const rollBtn = document.getElementById('rollDiceBtn');
             if (rollBtn) rollBtn.disabled = true;
             
             let rolls = 0;
-            const totalRolls = 12;
             const diceFaces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
             
             function animate() {
-                if (rolls < totalRolls) {
+                if (rolls < 12) {
                     const diceEl = document.getElementById('ludoDice');
                     if (diceEl) diceEl.textContent = diceFaces[Math.floor(Math.random() * 6)];
                     rolls++;
@@ -887,8 +480,7 @@
                     const diceEl = document.getElementById('ludoDice');
                     if (diceEl) diceEl.textContent = diceFaces[result - 1];
                     
-                    showDiceModal(
-                        currentLudoWin,
+                    showDiceModal(currentLudoWin,
                         async () => {
                             await updateBalance(currentLudoWin, 'ludo_base');
                             showAlert(`🎉 You won ${currentLudoWin} points!`);
@@ -898,19 +490,11 @@
                             showLoading(true);
                             const adWatched = await showOptionalBonusAd();
                             showLoading(false);
-                            
-                            if (adWatched) {
-                                const bonus = currentLudoWin * 2;
-                                await updateBalance(bonus, 'ludo_bonus');
-                                showAlert(`🎉 You won ${bonus} points with 2x bonus!`);
-                            } else {
-                                await updateBalance(currentLudoWin, 'ludo_base');
-                                showAlert(`⚠️ You received ${currentLudoWin} points.`);
-                            }
+                            if (adWatched) { await updateBalance(currentLudoWin * 2, 'ludo_bonus'); showAlert(`🎉 You won ${currentLudoWin * 2} points with 2x bonus!`); }
+                            else { await updateBalance(currentLudoWin, 'ludo_base'); showAlert(`⚠️ You received ${currentLudoWin} points.`); }
                             setCooldown();
                         }
                     );
-                    
                     isRolling = false;
                     if (rollBtn) rollBtn.disabled = false;
                 }
@@ -918,29 +502,18 @@
             
             function setCooldown() {
                 ludoDisabledUntil = Date.now() + 10000;
-                const cooldownEl = document.getElementById('ludoCooldown');
-                if (cooldownEl) {
-                    cooldownEl.classList.remove('hidden');
-                    setTimeout(() => cooldownEl.classList.add('hidden'), 10000);
-                }
+                const el = document.getElementById('ludoCooldown');
+                if (el) { el.classList.remove('hidden'); setTimeout(() => el.classList.add('hidden'), 10000); }
             }
-            
             animate();
         }
-        
-        // ============================================
-        // COLOR GAME
-        // ============================================
+
+        // Color Game
         function initColorGame() {
-            const r = Math.floor(Math.random() * 256);
-            const g = Math.floor(Math.random() * 256);
-            const b = Math.floor(Math.random() * 256);
+            const r = Math.floor(Math.random() * 256), g = Math.floor(Math.random() * 256), b = Math.floor(Math.random() * 256);
             colorGameTarget = `rgb(${r}, ${g}, ${b})`;
-            
-            const targetColorEl = document.getElementById('targetColor');
-            const targetRgbEl = document.getElementById('targetRgb');
-            if (targetColorEl) targetColorEl.style.backgroundColor = colorGameTarget;
-            if (targetRgbEl) targetRgbEl.textContent = colorGameTarget;
+            const tc = document.getElementById('targetColor'); if (tc) tc.style.backgroundColor = colorGameTarget;
+            const tr = document.getElementById('targetRgb'); if (tr) tr.textContent = colorGameTarget;
             
             const options = [colorGameTarget];
             while (options.length < 9) {
@@ -951,7 +524,6 @@
                 const color = `rgb(${r2}, ${g2}, ${b2})`;
                 if (!options.includes(color)) options.push(color);
             }
-            
             options.sort(() => Math.random() - 0.5);
             
             const container = document.getElementById('colorOptions');
@@ -966,94 +538,54 @@
                 });
             }
         }
-        
+
         async function checkColorMatch(selected) {
             const reward = 50;
-            
             if (selected === colorGameTarget) {
-                showRewardModal(
-                    '🎨 Correct!', reward,
-                    'You matched the color!',
-                    async () => {
-                        await updateBalance(reward, 'color_base');
-                        showAlert(`🎉 You earned ${reward} points!`);
-                        initColorGame();
-                    },
+                showRewardModal('🎨 Correct!', reward, 'You matched the color!',
+                    async () => { await updateBalance(reward, 'color_base'); showAlert(`🎉 You earned ${reward} points!`); initColorGame(); },
                     async () => {
                         showLoading(true);
                         const adWatched = await showOptionalBonusAd();
                         showLoading(false);
-                        
-                        if (adWatched) {
-                            const bonus = reward * 2;
-                            await updateBalance(bonus, 'color_bonus');
-                            showAlert(`🎉 You earned ${bonus} points with 2x bonus!`);
-                        } else {
-                            await updateBalance(reward, 'color_base');
-                            showAlert(`⚠️ You received ${reward} points.`);
-                        }
+                        if (adWatched) { await updateBalance(reward * 2, 'color_bonus'); showAlert(`🎉 You earned ${reward * 2} points with 2x bonus!`); }
+                        else { await updateBalance(reward, 'color_base'); showAlert(`⚠️ You received ${reward} points.`); }
                         initColorGame();
                     }
                 );
-            } else {
-                showAlert('❌ Wrong color! Try again!');
-                initColorGame();
-            }
+            } else { showAlert('❌ Wrong color! Try again!'); initColorGame(); }
         }
-        
-        // ============================================
-        // TRY YOUR LUCK
-        // ============================================
-        function initTryLuck() {
-            tryLuckBaseReward = 100;
-            const rewardEl = document.getElementById('tryLuckBaseReward');
-            if (rewardEl) rewardEl.textContent = `${tryLuckBaseReward} Points`;
-        }
+
+        // Try Luck
+        function initTryLuck() { tryLuckBaseReward = 100; const el = document.getElementById('tryLuckBaseReward'); if (el) el.textContent = `${tryLuckBaseReward} Points`; }
         
         async function startTryLuck() {
-            showRewardModal(
-                '🎰 Try Your Luck!', tryLuckBaseReward,
-                'Get your reward!',
-                async () => {
-                    await updateBalance(tryLuckBaseReward, 'tryluck_base');
-                    showAlert(`🎉 You earned ${tryLuckBaseReward} points!`);
-                },
+            showRewardModal('🎰 Try Your Luck!', tryLuckBaseReward, 'Get your reward!',
+                async () => { await updateBalance(tryLuckBaseReward, 'tryluck_base'); showAlert(`🎉 You earned ${tryLuckBaseReward} points!`); },
                 async () => {
                     showLoading(true);
                     const adWatched = await showOptionalBonusAd();
                     showLoading(false);
-                    
-                    if (adWatched) {
-                        const bonus = tryLuckBaseReward * 2;
-                        await updateBalance(bonus, 'tryluck_bonus');
-                        showAlert(`🎉 You earned ${bonus} points with 2x bonus!`);
-                    } else {
-                        await updateBalance(tryLuckBaseReward, 'tryluck_base');
-                        showAlert(`⚠️ You received ${tryLuckBaseReward} points.`);
-                    }
+                    if (adWatched) { await updateBalance(tryLuckBaseReward * 2, 'tryluck_bonus'); showAlert(`🎉 You earned ${tryLuckBaseReward * 2} points with 2x bonus!`); }
+                    else { await updateBalance(tryLuckBaseReward, 'tryluck_base'); showAlert(`⚠️ You received ${tryLuckBaseReward} points.`); }
                 }
             );
         }
-        
-        // ============================================
-        // NAVIGATION
-        // ============================================
+
+        // OfferWall
+        window.openOfferWall = function() { showAlert("📋 OfferWall: Complete offers to earn bonus points!"); };
+
+        // Navigation
         window.showPage = function(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             const page = document.getElementById(pageId);
             if (page) page.classList.add('active');
-            
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.toggle('active', item.dataset.page === pageId);
-            });
-            
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.toggle('active', item.dataset.page === pageId));
             if (pageId === 'colorGamePage') initColorGame();
             if (pageId === 'tryLuckPage') initTryLuck();
         };
-        
-        // ============================================
-        // GAMES GRID
-        // ============================================
+
+        // Games Grid
         function buildGamesGrid() {
             const games = [
                 { id: 'ludoPage', name: '🎲 Ludo Dice', desc: 'Roll & Win!', icon: 'fa-dice-d6', color: 'from-yellow-400 to-orange-500' },
@@ -1061,122 +593,60 @@
                 { id: 'tryLuckPage', name: '🎰 Try Luck', desc: 'Bonus Rewards', icon: 'fa-star', color: 'from-purple-400 to-pink-500' },
                 { id: 'offerwallPage', name: '🎁 Offers', desc: 'Earn More', icon: 'fa-gift', color: 'from-blue-400 to-cyan-500' }
             ];
-            
             const container = document.getElementById('gamesGrid');
-            if (container) {
-                container.innerHTML = games.map(game => `
-                    <div onclick="showPage('${game.id}')" class="game-card text-center cursor-pointer">
-                        <div class="game-icon bg-gradient-to-r ${game.color} mx-auto">
-                            <i class="fas ${game.icon} text-white"></i>
-                        </div>
-                        <h4 class="font-bold text-sm">${game.name}</h4>
-                        <p class="text-xs text-gray-400">${game.desc}</p>
-                    </div>
-                `).join('');
-            }
+            if (container) container.innerHTML = games.map(g => `<div onclick="showPage('${g.id}')" class="game-card text-center cursor-pointer"><div class="game-icon bg-gradient-to-r ${g.color} mx-auto"><i class="fas ${g.icon} text-white"></i></div><h4 class="font-bold text-sm">${g.name}</h4><p class="text-xs text-gray-400">${g.desc}</p></div>`).join('');
         }
-        
-        // ============================================
-        // INITIALIZATION
-        // ============================================
+
+        // Init
         async function initTelegramUser() {
             if (window.Telegram?.WebApp) {
                 const tg = window.Telegram.WebApp;
-                tg.ready();
-                tg.expand();
+                tg.ready(); tg.expand();
                 telegramUser = tg.initDataUnsafe?.user;
             }
-            
             if (telegramUser) {
                 const userId = `tg_${telegramUser.id}`;
                 try {
                     const userSnap = await db.collection('users').doc(userId).get();
-                    
-                    if (userSnap.exists) {
-                        userData = userSnap.data();
-                    } else {
-                        const referralCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-                        userData = {
-                            uid: userId,
-                            name: telegramUser.first_name || 'Telegram User',
-                            email: `${telegramUser.id}@telegram.user`,
-                            balance: 100,
-                            referralCode: referralCode,
-                            referredBy: null,
-                            createdAt: new Date(),
-                            totalEarned: 0,
-                            todayEarnings: 0,
-                            userType: 'telegram'
-                        };
+                    if (userSnap.exists) { userData = userSnap.data(); }
+                    else {
+                        const refCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+                        userData = { uid: userId, name: telegramUser.first_name || 'Telegram User', email: `${telegramUser.id}@telegram.user`, balance: 100, referralCode: refCode, referredBy: null, createdAt: new Date(), totalEarned: 0, todayEarnings: 0, userType: 'telegram' };
                         await db.collection('users').doc(userId).set(userData);
                     }
                     window.currentUser = { uid: userId };
                 } catch(e) {
-                    console.log("Using local storage fallback");
-                    userData = {
-                        name: telegramUser.first_name || 'Telegram User',
-                        balance: 100,
-                        referralCode: 'DEMO123',
-                        totalEarned: 0,
-                        todayEarnings: 0,
-                        userType: 'telegram'
-                    };
+                    userData = { name: telegramUser.first_name || 'Telegram User', balance: 100, referralCode: 'DEMO123', totalEarned: 0, todayEarnings: 0, userType: 'telegram' };
                     window.currentUser = { uid: userId };
                 }
             } else {
                 const saved = localStorage.getItem('browserUserData');
-                if (saved) {
-                    userData = JSON.parse(saved);
-                } else {
-                    userData = {
-                        name: 'Guest User',
-                        email: 'guest@user.com',
-                        balance: 100,
-                        referralCode: 'GUEST' + Math.floor(Math.random() * 10000),
-                        totalEarned: 0,
-                        todayEarnings: 0,
-                        userType: 'browser'
-                    };
+                if (saved) { userData = JSON.parse(saved); }
+                else {
+                    userData = { name: 'Guest User', email: 'guest@user.com', balance: 100, referralCode: 'GUEST' + Math.floor(Math.random() * 10000), totalEarned: 0, todayEarnings: 0, userType: 'browser' };
                     localStorage.setItem('browserUserData', JSON.stringify(userData));
                 }
                 window.currentUser = { uid: 'browser_user' };
             }
-            
-            const userNameEl = document.getElementById('userName');
-            if (userNameEl) userNameEl.textContent = `Hi, ${(userData.name || 'User').split(' ')[0]}`;
+            const nameEl = document.getElementById('userName');
+            if (nameEl) nameEl.textContent = `Hi, ${(userData.name || 'User').split(' ')[0]}`;
             updateUI();
         }
-        
+
         async function init() {
             showLoading(true);
-            
-            console.log('========================================');
-            console.log('🎮 CashReward Premium');
-            console.log('🔵 Adsgram SDK:', window.sad ? 'Loaded ✅' : 'Not Loaded ❌');
-            console.log('🎁 Rewarded ID: 42429 | 📢 Interstitial ID: int-27569');
-            console.log('🔄 Mode: Alternating Ads');
-            console.log('========================================');
-            
+            console.log('🎮 CashReward Premium | Adsgram: ' + (window.sad ? 'Loaded ✅' : 'Not Loaded ❌'));
             await initTelegramUser();
             buildGamesGrid();
-            setupEventListeners();
+            
+            document.getElementById('rollDiceBtn')?.addEventListener('click', rollDice);
+            document.getElementById('startTryLuckBtn')?.addEventListener('click', startTryLuck);
+            document.querySelectorAll('.nav-item').forEach(item => item.addEventListener('click', () => showPage(item.dataset.page)));
+            
             showLoading(false);
             showPage('homePage');
         }
-        
-        function setupEventListeners() {
-            const rollBtn = document.getElementById('rollDiceBtn');
-            const luckBtn = document.getElementById('startTryLuckBtn');
-            
-            if (rollBtn) rollBtn.addEventListener('click', rollDice);
-            if (luckBtn) luckBtn.addEventListener('click', startTryLuck);
-            
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.addEventListener('click', () => showPage(item.dataset.page));
-            });
-        }
-        
-        // Start the app
+
         init();
     </script>
 </body>
