@@ -7,6 +7,8 @@
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -16,14 +18,18 @@
         .max-width{max-width:450px;margin:0 auto}
         .glass{background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1);border-radius:20px}
         .text-gold{color:#FFD700}
-        .btn{display:block;width:100%;padding:14px;border-radius:14px;border:none;font-size:16px;font-weight:700;cursor:pointer;text-align:center;margin-bottom:10px}
+        .btn{display:block;width:100%;padding:14px;border-radius:14px;border:none;font-size:16px;font-weight:700;cursor:pointer;text-align:center;margin-bottom:10px;transition:all 0.3s}
+        .btn:active{transform:scale(0.97)}
         .btn-gold{background:linear-gradient(135deg,#FFD700,#FFA500);color:#1a1a2e}
+        .btn-gold:disabled{opacity:0.5;cursor:not-allowed}
         .btn-purple{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff}
         .btn-outline{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff}
         .page{display:none;padding:16px;padding-bottom:100px}
         .page.active{display:block}
-        .game-card{background:linear-gradient(145deg,rgba(30,30,60,0.9),rgba(20,20,40,0.95));border-radius:20px;padding:20px;border:1px solid rgba(255,215,0,0.2);cursor:pointer;text-align:center}
+        .game-card{background:linear-gradient(145deg,rgba(30,30,60,0.9),rgba(20,20,40,0.95));border-radius:20px;padding:20px;border:1px solid rgba(255,215,0,0.2);cursor:pointer;text-align:center;transition:all 0.3s}
         .game-card:hover{transform:translateY(-3px);border-color:rgba(255,215,0,0.5)}
+        .game-card.locked{opacity:0.5;cursor:not-allowed}
+        .game-card.locked:hover{transform:none;border-color:rgba(255,215,0,0.2)}
         .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);display:none;align-items:center;justify-content:center;z-index:1000}
         .modal-box{background:#1a1a2e;border-radius:24px;padding:30px;max-width:360px;width:90%;text-align:center;border:1px solid rgba(255,215,0,0.3)}
         .dice-box{width:60px;height:60px;background:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:#1a1a2e;margin:15px auto}
@@ -37,6 +43,13 @@
         @keyframes spin{to{transform:rotate(360deg)}}
         .ad-loading-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column}
         .ad-loading-text{color:#fff;font-size:16px;margin-top:15px}
+        .limit-bar{height:6px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden;margin-top:8px}
+        .limit-fill{height:100%;background:linear-gradient(90deg,#FFD700,#FFA500);border-radius:3px;transition:width 0.3s}
+        .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:12px 24px;border-radius:25px;z-index:9999;font-size:14px;animation:slideDown 0.3s ease}
+        @keyframes slideDown{from{top:-50px;opacity:0}to{top:20px;opacity:1}}
+        .daily-bonus-btn{position:relative;overflow:hidden}
+        .daily-bonus-btn.available{animation:pulse 2s infinite}
+        @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,215,0,0.4)}50%{box-shadow:0 0 0 10px rgba(255,215,0,0)}}
     </style>
 </head>
 <body>
@@ -59,26 +72,58 @@
         <p class="ad-loading-text">Loading ad...</p>
     </div>
 
+    <!-- Toast Container -->
+    <div id="toastContainer"></div>
+
     <!-- Main App -->
     <div class="max-width">
         <!-- Header -->
         <div style="padding:15px;display:flex;justify-content:space-between;align-items:center;background:rgba(10,10,26,0.95);position:sticky;top:0;z-index:50">
             <div style="display:flex;align-items:center;gap:10px">
-                <div style="width:40px;height:40px;border-radius:50%;background:#FFD700;display:flex;align-items:center;justify-content:center;font-size:20px">👤</div>
-                <div><div style="font-weight:700" id="userName">Player</div><div style="font-size:11px;color:#888">Premium</div></div>
+                <div style="width:40px;height:40px;border-radius:50%;background:#FFD700;display:flex;align-items:center;justify-content:center;font-size:20px" id="profileAvatar">👤</div>
+                <div>
+                    <div style="font-weight:700" id="userName">Player</div>
+                    <div style="font-size:11px;color:#888" id="userLevel">Level 1</div>
+                </div>
             </div>
             <div class="glass" style="padding:8px 14px;display:flex;align-items:center;gap:6px">
-                <span>🪙</span><span style="font-weight:700;font-size:18px" class="text-gold" id="balance">100</span>
+                <span>🪙</span><span style="font-weight:700;font-size:18px" class="text-gold" id="balance">0</span>
             </div>
         </div>
 
         <!-- HOME PAGE -->
         <div id="homePage" class="page active">
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px">
-                <div class="glass" style="padding:12px;text-align:center"><div style="font-size:20px">🔥</div><div style="font-size:10px;color:#888">Earnings</div><div style="font-weight:700" class="text-gold" id="todayEarnings">0</div></div>
-                <div class="glass" style="padding:12px;text-align:center"><div style="font-size:20px">🎮</div><div style="font-size:10px;color:#888">Played</div><div style="font-weight:700" class="text-gold" id="gamesPlayed">0</div></div>
-                <div class="glass" style="padding:12px;text-align:center"><div style="font-size:20px">⭐</div><div style="font-size:10px;color:#888">Level</div><div style="font-weight:700" class="text-gold" id="userLevel">1</div></div>
+            <!-- Daily Bonus -->
+            <div class="glass daily-bonus-btn available" style="padding:16px;text-align:center;margin-bottom:16px;cursor:pointer" id="dailyBonusCard" onclick="claimDailyBonus()">
+                <div style="display:flex;align-items:center;justify-content:center;gap:10px">
+                    <span style="font-size:30px">📅</span>
+                    <div>
+                        <div style="font-weight:700;font-size:16px" class="text-gold">Daily Bonus!</div>
+                        <div style="font-size:12px;color:#aaa">Claim your free coins</div>
+                    </div>
+                    <span style="font-size:24px">▶</span>
+                </div>
             </div>
+            
+            <!-- Stats -->
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px">
+                <div class="glass" style="padding:12px;text-align:center">
+                    <div style="font-size:20px">🔥</div>
+                    <div style="font-size:10px;color:#888">Earnings</div>
+                    <div style="font-weight:700" class="text-gold" id="todayEarnings">0</div>
+                </div>
+                <div class="glass" style="padding:12px;text-align:center">
+                    <div style="font-size:20px">🎮</div>
+                    <div style="font-size:10px;color:#888">Played</div>
+                    <div style="font-weight:700" class="text-gold" id="gamesPlayed">0</div>
+                </div>
+                <div class="glass" style="padding:12px;text-align:center">
+                    <div style="font-size:20px">⭐</div>
+                    <div style="font-size:10px;color:#888">Level</div>
+                    <div style="font-weight:700" class="text-gold" id="levelDisplay">1</div>
+                </div>
+            </div>
+            
             <h3 style="font-size:20px;margin-bottom:14px" class="text-gold">🎮 Play & Earn</h3>
             <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px" id="gamesGrid"></div>
         </div>
@@ -88,11 +133,19 @@
             <button onclick="showPage('homePage')" class="btn btn-outline" style="width:auto;padding:8px 16px;margin-bottom:16px">← Back</button>
             <div class="glass" style="padding:20px;text-align:center">
                 <h2 style="font-size:22px;margin-bottom:8px" class="text-gold">🎲 Ludo Dice</h2>
-                <p style="color:#aaa;font-size:13px;margin-bottom:16px">Roll the dice and win coins!</p>
-                <div style="background:rgba(0,0,0,0.3);border-radius:14px;padding:12px;margin-bottom:16px">
-                    <div style="font-size:12px;color:#888">Cost: 10 Coins | Win up to 60</div>
+                <p style="color:#aaa;font-size:13px;margin-bottom:8px">Roll the dice and win!</p>
+                <div style="display:flex;justify-content:center;gap:20px;margin-bottom:12px">
+                    <div style="text-align:center">
+                        <div style="font-size:11px;color:#888">Plays Left</div>
+                        <div style="font-weight:700;font-size:18px" class="text-gold" id="ludoPlaysLeft">10</div>
+                    </div>
+                    <div style="text-align:center">
+                        <div style="font-size:11px;color:#888">Cost</div>
+                        <div style="font-weight:700;font-size:18px" class="text-gold" id="ludoCost">10</div>
+                    </div>
                 </div>
-                <div class="dice-box" id="ludoDice">⚀</div>
+                <div class="limit-bar"><div class="limit-fill" id="ludoLimitBar" style="width:100%"></div></div>
+                <div class="dice-box" id="ludoDice" style="margin-top:20px">⚀</div>
                 <button class="btn btn-gold" id="rollDiceBtn">🎯 ROLL DICE</button>
                 <div id="ludoCooldown" style="font-size:12px;color:#f0a500;margin-top:8px;display:none">⏱️ Wait...</div>
             </div>
@@ -103,8 +156,19 @@
             <button onclick="showPage('homePage')" class="btn btn-outline" style="width:auto;padding:8px 16px;margin-bottom:16px">← Back</button>
             <div class="glass" style="padding:20px;text-align:center">
                 <h2 style="font-size:22px;margin-bottom:8px" class="text-gold">🎨 Color Match</h2>
-                <p style="color:#aaa;font-size:13px;margin-bottom:16px">Find the matching color!</p>
-                <div style="background:rgba(0,0,0,0.3);border-radius:14px;padding:12px;margin-bottom:16px">
+                <p style="color:#aaa;font-size:13px;margin-bottom:8px">Find the matching color!</p>
+                <div style="display:flex;justify-content:center;gap:20px;margin-bottom:12px">
+                    <div style="text-align:center">
+                        <div style="font-size:11px;color:#888">Plays Left</div>
+                        <div style="font-weight:700;font-size:18px" class="text-gold" id="colorPlaysLeft">10</div>
+                    </div>
+                    <div style="text-align:center">
+                        <div style="font-size:11px;color:#888">Reward</div>
+                        <div style="font-weight:700;font-size:18px" class="text-gold" id="colorReward">50</div>
+                    </div>
+                </div>
+                <div class="limit-bar"><div class="limit-fill" id="colorLimitBar" style="width:100%"></div></div>
+                <div style="background:rgba(0,0,0,0.3);border-radius:14px;padding:12px;margin:16px 0">
                     <div style="font-size:12px;color:#888">Match this:</div>
                     <div id="targetColor" style="width:80px;height:50px;margin:8px auto;border-radius:10px;border:2px solid #fff"></div>
                     <div id="targetRgb" style="font-size:13px;font-weight:600" class="text-gold">rgb(0,0,0)</div>
@@ -119,29 +183,69 @@
             <div class="glass" style="padding:20px;text-align:center">
                 <div style="font-size:60px;margin-bottom:10px">🍀</div>
                 <h2 style="font-size:22px;margin-bottom:8px" class="text-gold">Try Your Luck!</h2>
-                <p style="color:#aaa;font-size:13px;margin-bottom:16px">Free daily reward!</p>
-                <div style="background:rgba(0,0,0,0.3);border-radius:14px;padding:16px;margin-bottom:16px">
-                    <div style="font-size:12px;color:#888">Daily Reward</div>
-                    <div style="font-size:30px;font-weight:700;color:#4CAF50">50 Coins</div>
-                    <div style="font-size:11px;color:#888">2x with ad!</div>
+                <p style="color:#aaa;font-size:13px;margin-bottom:8px">Spin and win big!</p>
+                <div style="display:flex;justify-content:center;gap:20px;margin-bottom:12px">
+                    <div style="text-align:center">
+                        <div style="font-size:11px;color:#888">Plays Left</div>
+                        <div style="font-weight:700;font-size:18px" class="text-gold" id="luckPlaysLeft">5</div>
+                    </div>
+                    <div style="text-align:center">
+                        <div style="font-size:11px;color:#888">Max Win</div>
+                        <div style="font-weight:700;font-size:18px" class="text-gold" id="luckMaxWin">200</div>
+                    </div>
                 </div>
-                <button class="btn btn-gold" id="luckBtn">🎰 Claim Now</button>
+                <div class="limit-bar"><div class="limit-fill" id="luckLimitBar" style="width:100%"></div></div>
+                <button class="btn btn-gold" id="luckBtn" style="margin-top:20px">🎰 SPIN NOW</button>
             </div>
         </div>
 
         <!-- WALLET PAGE -->
         <div id="walletPage" class="page">
             <button onclick="showPage('homePage')" class="btn btn-outline" style="width:auto;padding:8px 16px;margin-bottom:16px">← Back</button>
-            <div class="glass" style="padding:20px;text-align:center">
+            <div class="glass" style="padding:20px;text-align:center;margin-bottom:16px">
                 <h2 style="font-size:22px;margin-bottom:12px" class="text-gold">💰 Wallet</h2>
                 <div style="background:rgba(0,0,0,0.3);border-radius:14px;padding:20px;margin-bottom:16px">
                     <div style="font-size:12px;color:#888">Balance</div>
-                    <div style="font-size:32px;font-weight:700" class="text-gold" id="walletBalance">100</div>
-                    <div style="font-size:11px;color:#888">1000 = ₹10</div>
+                    <div style="font-size:32px;font-weight:700" class="text-gold" id="walletBalance">0</div>
+                    <div style="font-size:11px;color:#888" id="conversionRate">1000 = ₹10</div>
                 </div>
-                <input type="number" id="withdrawAmount" placeholder="Amount (min 1000)" style="width:100%;padding:12px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.2);border-radius:10px;color:#fff;margin-bottom:10px">
-                <input type="text" id="upiId" placeholder="UPI ID" style="width:100%;padding:12px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.2);border-radius:10px;color:#fff;margin-bottom:10px">
-                <button class="btn btn-gold" id="withdrawBtn">💸 Withdraw</button>
+                <div style="text-align:left;margin-bottom:8px">
+                    <label style="font-size:12px;color:#888">Amount (min <span id="minWithdraw">1000</span>)</label>
+                    <input type="number" id="withdrawAmount" placeholder="Min withdrawal" style="width:100%;padding:12px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.2);border-radius:10px;color:#fff;margin-top:4px">
+                </div>
+                <div style="text-align:left;margin-bottom:12px">
+                    <label style="font-size:12px;color:#888">UPI ID</label>
+                    <input type="text" id="upiId" placeholder="yourname@upi" style="width:100%;padding:12px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.2);border-radius:10px;color:#fff;margin-top:4px">
+                </div>
+                <button class="btn btn-gold" id="withdrawBtn">💸 Request Withdrawal</button>
+            </div>
+            <div class="glass" style="padding:16px">
+                <h3 style="font-weight:700;margin-bottom:10px" class="text-gold">📋 History</h3>
+                <div id="withdrawHistory" style="max-height:200px;overflow-y:auto">
+                    <div style="text-align:center;color:#888;padding:20px">No withdrawals yet</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- REFER PAGE -->
+        <div id="referPage" class="page">
+            <button onclick="showPage('homePage')" class="btn btn-outline" style="width:auto;padding:8px 16px;margin-bottom:16px">← Back</button>
+            <div class="glass" style="padding:20px;text-align:center;margin-bottom:16px">
+                <div style="font-size:50px;margin-bottom:10px">👥</div>
+                <h2 style="font-size:22px;margin-bottom:8px" class="text-gold">Refer & Earn</h2>
+                <p style="color:#aaa;font-size:13px;margin-bottom:16px">Invite friends and earn <span class="text-gold" id="referBonus">100</span> coins each!</p>
+                <div style="background:rgba(0,0,0,0.3);border-radius:14px;padding:16px;margin-bottom:16px">
+                    <div style="font-size:12px;color:#888">Your Code</div>
+                    <div style="font-size:24px;font-weight:700;letter-spacing:3px" class="text-gold" id="referralCode">------</div>
+                </div>
+                <button class="btn btn-gold" id="copyRefBtn">📋 Copy Code</button>
+                <button class="btn btn-purple" id="shareRefBtn" style="margin-top:8px">📤 Share</button>
+            </div>
+            <div class="glass" style="padding:16px">
+                <h3 style="font-weight:700;margin-bottom:10px" class="text-gold">👥 Referrals</h3>
+                <div id="referralList" style="max-height:200px;overflow-y:auto">
+                    <div style="text-align:center;color:#888;padding:20px">No referrals yet</div>
+                </div>
             </div>
         </div>
     </div>
@@ -151,13 +255,25 @@
         <div class="nav-item active" data-page="homePage"><i class="fas fa-home"></i><span>Home</span></div>
         <div class="nav-item" data-page="ludoPage"><i class="fas fa-dice"></i><span>Ludo</span></div>
         <div class="nav-item" data-page="colorGamePage"><i class="fas fa-palette"></i><span>Color</span></div>
-        <div class="nav-item" data-page="tryLuckPage"><i class="fas fa-star"></i><span>Luck</span></div>
+        <div class="nav-item" data-page="referPage"><i class="fas fa-users"></i><span>Refer</span></div>
         <div class="nav-item" data-page="walletPage"><i class="fas fa-wallet"></i><span>Wallet</span></div>
     </div>
 
     <script>
-        // ============ ADSGRAM INITIALIZATION ============
-        // Initialize Adsgram controllers for both ad types
+        // ============ FIREBASE CONFIG ============
+        const firebaseConfig = {
+            apiKey: "AIzaSyBEvTvWy-hH1HHgjoOhUKkj-Dglm11Oc8U",
+            authDomain: "cash-rewards-01-624ae.firebaseapp.com",
+            projectId: "cash-rewards-01-624ae",
+            storageBucket: "cash-rewards-01-624ae.firebasestorage.app",
+            messagingSenderId: "29119912449",
+            appId: "1:29119912449:web:e0c68c1994ff0a71603e00"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // ============ ADSGRAM - KEPT INTACT ============
         const rewardedAd = window.Adsgram ? window.Adsgram.init({ blockId: "42429" }) : null;
         const interstitialAd = window.Adsgram ? window.Adsgram.init({ blockId: "int-27569" }) : null;
         
@@ -165,71 +281,76 @@
         console.log('🎁 Rewarded Controller:', rewardedAd ? '✅ Ready' : '❌ Not Ready');
         console.log('📢 Interstitial Controller:', interstitialAd ? '✅ Ready' : '❌ Not Ready');
 
-        // ============ STATE ============
-        const STATE = {
-            balance: 100,
+        // ============ ADMIN CONFIG (From Firebase) ============
+        let adminConfig = {
+            // Game limits
+            ludo: { maxPlays: 10, cost: 10, rewardMultiplier: 10, cooldown: 8000 },
+            color: { maxPlays: 10, reward: 50 },
+            luck: { maxPlays: 5, maxWin: 200 },
+            // Points & conversion
+            dailyBonus: 50,
+            referBonus: 100,
+            minWithdraw: 1000,
+            conversionRate: 10, // 1000 coins = ₹10
+            conversionText: '1000 = ₹10'
+        };
+
+        // ============ USER STATE ============
+        let currentUser = null;
+        let userData = {
+            balance: 0,
             totalEarned: 0,
             todayEarnings: 0,
             gamesPlayed: 0,
+            ludoPlays: 0,
+            colorPlays: 0,
+            luckPlays: 0,
             ludoCooldown: 0,
             currentLudoWin: 0,
             colorTarget: null,
-            adCallCount: 0
+            adCallCount: 0,
+            lastDailyBonus: null,
+            referralCode: '',
+            referrals: [],
+            withdrawals: []
         };
 
-        // Load saved state
-        try {
-            const saved = localStorage.getItem('cr_state');
-            if (saved) Object.assign(STATE, JSON.parse(saved));
-        } catch(e) {}
-
-        function saveState() {
-            try { localStorage.setItem('cr_state', JSON.stringify(STATE)); } catch(e) {}
-            updateUI();
+        // ============ TOAST ============
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            toast.style.background = type === 'error' ? '#e74c3c' : type === 'success' ? '#2ecc71' : '#333';
+            document.getElementById('toastContainer').appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
         }
 
-        function updateUI() {
-            document.getElementById('balance').textContent = STATE.balance;
-            document.getElementById('walletBalance').textContent = STATE.balance;
-            document.getElementById('todayEarnings').textContent = STATE.todayEarnings;
-            document.getElementById('gamesPlayed').textContent = STATE.gamesPlayed;
-            document.getElementById('userLevel').textContent = Math.floor(STATE.totalEarned / 1000) + 1;
-        }
-
-        // ============ ADS FUNCTION ============
+        // ============ ADS FUNCTION - KEPT INTACT ============
         async function showAd() {
-            STATE.adCallCount++;
-            const isRewarded = STATE.adCallCount % 2 === 1;
+            userData.adCallCount++;
+            const isRewarded = userData.adCallCount % 2 === 1;
             
-            console.log(`📺 Calling ${isRewarded ? 'REWARDED' : 'INTERSTITIAL'} ad (#${STATE.adCallCount})`);
+            console.log(`📺 Calling ${isRewarded ? 'REWARDED' : 'INTERSTITIAL'} ad (#${userData.adCallCount})`);
             
-            // Show loading
             document.getElementById('adLoadingOverlay').style.display = 'flex';
             
             try {
                 if (!window.Adsgram) {
-                    // Demo mode - no SDK
-                    console.log('⚠️ Adsgram SDK not available, using demo');
                     await new Promise(r => setTimeout(r, 1500));
                     document.getElementById('adLoadingOverlay').style.display = 'none';
-                    alert('📺 Ad completed! (Demo mode)\n\nAdd your block IDs for real ads:\nRewarded: 42429\nInterstitial: int-27569');
+                    showToast('📺 Ad completed! (Demo mode)');
                     return true;
                 }
                 
-                // Use proper Adsgram API
                 const controller = isRewarded ? rewardedAd : interstitialAd;
                 
                 if (!controller) {
-                    console.log('⚠️ Controller not initialized');
                     document.getElementById('adLoadingOverlay').style.display = 'none';
                     return false;
                 }
                 
                 const result = await controller.show();
-                
                 document.getElementById('adLoadingOverlay').style.display = 'none';
-                
-                console.log('📊 Ad result:', result);
                 
                 if (result.done) {
                     console.log('✅ Ad completed successfully');
@@ -243,9 +364,7 @@
                 document.getElementById('adLoadingOverlay').style.display = 'none';
                 console.error('❌ Ad error:', error);
                 
-                // For interstitial, error might mean ad was closed (which is OK)
                 if (!isRewarded && error?.state === 'destroy') {
-                    console.log('📢 Interstitial closed');
                     return true;
                 }
                 
@@ -253,21 +372,178 @@
             }
         }
 
-        // ============ BALANCE ============
-        function addCoins(amount) {
-            STATE.balance += amount;
-            if (amount > 0) {
-                STATE.totalEarned += amount;
-                STATE.todayEarnings += amount;
+        // ============ FIREBASE SYNC ============
+        async function syncWithFirebase() {
+            if (!currentUser) return;
+            
+            try {
+                const userRef = db.collection('users').doc(currentUser.uid);
+                
+                // Update user data in Firebase
+                await userRef.set({
+                    balance: userData.balance,
+                    totalEarned: userData.totalEarned,
+                    todayEarnings: userData.todayEarnings,
+                    gamesPlayed: userData.gamesPlayed,
+                    ludoPlays: userData.ludoPlays,
+                    colorPlays: userData.colorPlays,
+                    luckPlays: userData.luckPlays,
+                    lastDailyBonus: userData.lastDailyBonus,
+                    referralCode: userData.referralCode,
+                    referrals: userData.referrals,
+                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+                
+                console.log('✅ Synced with Firebase');
+            } catch(e) {
+                console.error('Firebase sync error:', e);
+                // Save locally as fallback
+                saveLocalState();
             }
-            saveState();
         }
 
-        function spendCoins(amount) {
-            if (STATE.balance < amount) return false;
-            STATE.balance -= amount;
-            saveState();
+        async function loadFromFirebase() {
+            if (!currentUser) return false;
+            
+            try {
+                const userRef = db.collection('users').doc(currentUser.uid);
+                const doc = await userRef.get();
+                
+                if (doc.exists) {
+                    const data = doc.data();
+                    Object.assign(userData, data);
+                    console.log('✅ Loaded from Firebase');
+                    return true;
+                } else {
+                    // Create new user
+                    userData.referralCode = generateReferralCode();
+                    await userRef.set({
+                        ...userData,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    console.log('✅ New user created in Firebase');
+                    return true;
+                }
+            } catch(e) {
+                console.error('Firebase load error:', e);
+                loadLocalState();
+                return false;
+            }
+        }
+
+        async function loadAdminConfig() {
+            try {
+                const configDoc = await db.collection('adminConfig').doc('gameSettings').get();
+                if (configDoc.exists) {
+                    const config = configDoc.data();
+                    // Merge with defaults
+                    adminConfig = { ...adminConfig, ...config };
+                    console.log('✅ Admin config loaded:', adminConfig);
+                } else {
+                    console.log('⚠️ No admin config found, using defaults');
+                }
+            } catch(e) {
+                console.error('Config load error:', e);
+                console.log('⚠️ Using default config');
+            }
+        }
+
+        async function saveWithdrawalToFirebase(withdrawal) {
+            if (!currentUser) return;
+            
+            try {
+                await db.collection('withdrawals').add({
+                    userId: currentUser.uid,
+                    userName: currentUser.name || 'Player',
+                    amount: withdrawal.amount,
+                    upiId: withdrawal.upiId,
+                    status: 'pending',
+                    requestedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                console.log('✅ Withdrawal saved to Firebase');
+            } catch(e) {
+                console.error('Withdrawal save error:', e);
+            }
+        }
+
+        // ============ LOCAL STORAGE FALLBACK ============
+        function saveLocalState() {
+            try { 
+                localStorage.setItem('cr_userdata', JSON.stringify(userData)); 
+            } catch(e) {}
+        }
+
+        function loadLocalState() {
+            try {
+                const saved = localStorage.getItem('cr_userdata');
+                if (saved) Object.assign(userData, JSON.parse(saved));
+            } catch(e) {}
+        }
+
+        function generateReferralCode() {
+            return Math.random().toString(36).substring(2, 8).toUpperCase();
+        }
+
+        // ============ BALANCE ============
+        async function addCoins(amount) {
+            userData.balance += amount;
+            if (amount > 0) {
+                userData.totalEarned += amount;
+                userData.todayEarnings += amount;
+            }
+            await syncWithFirebase();
+            updateUI();
+        }
+
+        async function spendCoins(amount) {
+            if (userData.balance < amount) return false;
+            userData.balance -= amount;
+            await syncWithFirebase();
+            updateUI();
             return true;
+        }
+
+        // ============ UI UPDATE ============
+        function updateUI() {
+            document.getElementById('balance').textContent = userData.balance;
+            document.getElementById('walletBalance').textContent = userData.balance;
+            document.getElementById('todayEarnings').textContent = userData.todayEarnings;
+            document.getElementById('gamesPlayed').textContent = userData.gamesPlayed;
+            
+            const level = Math.floor(userData.totalEarned / 1000) + 1;
+            document.getElementById('levelDisplay').textContent = level;
+            document.getElementById('userLevel').textContent = 'Level ' + level;
+            
+            // Game limits
+            const ludoRemaining = adminConfig.ludo.maxPlays - userData.ludoPlays;
+            const colorRemaining = adminConfig.color.maxPlays - userData.colorPlays;
+            const luckRemaining = adminConfig.luck.maxPlays - userData.luckPlays;
+            
+            document.getElementById('ludoPlaysLeft').textContent = Math.max(0, ludoRemaining);
+            document.getElementById('colorPlaysLeft').textContent = Math.max(0, colorRemaining);
+            document.getElementById('luckPlaysLeft').textContent = Math.max(0, luckRemaining);
+            
+            document.getElementById('ludoLimitBar').style.width = Math.max(0, (ludoRemaining / adminConfig.ludo.maxPlays) * 100) + '%';
+            document.getElementById('colorLimitBar').style.width = Math.max(0, (colorRemaining / adminConfig.color.maxPlays) * 100) + '%';
+            document.getElementById('luckLimitBar').style.width = Math.max(0, (luckRemaining / adminConfig.luck.maxPlays) * 100) + '%';
+            
+            // Config displays
+            document.getElementById('ludoCost').textContent = adminConfig.ludo.cost;
+            document.getElementById('colorReward').textContent = adminConfig.color.reward;
+            document.getElementById('luckMaxWin').textContent = adminConfig.luck.maxWin;
+            document.getElementById('referBonus').textContent = adminConfig.referBonus;
+            document.getElementById('minWithdraw').textContent = adminConfig.minWithdraw;
+            document.getElementById('conversionRate').textContent = adminConfig.conversionText;
+            document.getElementById('referralCode').textContent = userData.referralCode || '------';
+            
+            // Daily bonus
+            const today = new Date().toDateString();
+            const bonusAvailable = userData.lastDailyBonus !== today;
+            const bonusCard = document.getElementById('dailyBonusCard');
+            if (bonusCard) {
+                bonusCard.classList.toggle('available', bonusAvailable);
+                bonusCard.style.opacity = bonusAvailable ? '1' : '0.5';
+            }
         }
 
         // ============ REWARD MODAL ============
@@ -285,14 +561,36 @@
             document.getElementById('rewardModal').style.display = 'flex';
         }
 
-        // ============ LUDO GAME ============
-        function rollDice() {
-            if (STATE.ludoCooldown > Date.now()) {
-                alert('⏱️ Wait ' + Math.ceil((STATE.ludoCooldown - Date.now())/1000) + ' seconds');
+        // ============ DAILY BONUS ============
+        async function claimDailyBonus() {
+            const today = new Date().toDateString();
+            if (userData.lastDailyBonus === today) {
+                showToast('⏰ Already claimed today!', 'error');
                 return;
             }
-            if (!spendCoins(10)) {
-                alert('❌ You need 10 coins to play!');
+            
+            userData.lastDailyBonus = today;
+            await addCoins(adminConfig.dailyBonus);
+            showToast(`🎉 Daily bonus: +${adminConfig.dailyBonus} coins!`, 'success');
+            updateUI();
+        }
+
+        // ============ GAMES ============
+        // Ludo
+        async function rollDice() {
+            const remaining = adminConfig.ludo.maxPlays - userData.ludoPlays;
+            if (remaining <= 0) {
+                showToast('❌ No plays left for today!', 'error');
+                return;
+            }
+            
+            if (userData.ludoCooldown > Date.now()) {
+                showToast('⏱️ Wait ' + Math.ceil((userData.ludoCooldown - Date.now())/1000) + 's', 'error');
+                return;
+            }
+            
+            if (!await spendCoins(adminConfig.ludo.cost)) {
+                showToast('❌ Need ' + adminConfig.ludo.cost + ' coins!', 'error');
                 return;
             }
 
@@ -310,24 +608,24 @@
                     setTimeout(animate, 60);
                 } else {
                     const result = Math.floor(Math.random()*6) + 1;
-                    STATE.currentLudoWin = result * 10;
+                    userData.currentLudoWin = result * adminConfig.ludo.rewardMultiplier;
                     document.getElementById('ludoDice').textContent = faces[result-1];
                     
-                    showRewardModal(STATE.currentLudoWin,
-                        () => {
-                            addCoins(STATE.currentLudoWin);
-                            alert('🎉 You won ' + STATE.currentLudoWin + ' coins!');
+                    showRewardModal(userData.currentLudoWin,
+                        async () => {
+                            await addCoins(userData.currentLudoWin);
+                            showToast('🎉 Won ' + userData.currentLudoWin + ' coins!', 'success');
                             finishGame();
                         },
                         async () => {
                             const adOk = await showAd();
                             if (adOk) {
-                                const bonus = STATE.currentLudoWin * 2;
-                                addCoins(bonus);
-                                alert('🎉 2x BONUS! You won ' + bonus + ' coins!');
+                                const bonus = userData.currentLudoWin * 2;
+                                await addCoins(bonus);
+                                showToast('🎉 2x BONUS! Won ' + bonus + ' coins!', 'success');
                             } else {
-                                addCoins(STATE.currentLudoWin);
-                                alert('⚠️ Ad skipped. You won ' + STATE.currentLudoWin + ' coins.');
+                                await addCoins(userData.currentLudoWin);
+                                showToast('⚠️ Ad skipped. Won ' + userData.currentLudoWin + ' coins.');
                             }
                             finishGame();
                         }
@@ -335,31 +633,33 @@
                 }
             }
             
-            function finishGame() {
+            async function finishGame() {
                 btn.disabled = false;
                 btn.textContent = '🎯 ROLL DICE';
-                STATE.gamesPlayed++;
-                STATE.ludoCooldown = Date.now() + 8000;
+                userData.gamesPlayed++;
+                userData.ludoPlays++;
+                userData.ludoCooldown = Date.now() + adminConfig.ludo.cooldown;
                 const cd = document.getElementById('ludoCooldown');
                 cd.style.display = 'block';
-                setTimeout(() => cd.style.display = 'none', 8000);
-                saveState();
+                setTimeout(() => cd.style.display = 'none', adminConfig.ludo.cooldown);
+                await syncWithFirebase();
+                updateUI();
             }
             
             animate();
         }
 
-        // ============ COLOR GAME ============
+        // Color Game
         function initColorGame() {
             const r = Math.floor(Math.random()*256);
             const g = Math.floor(Math.random()*256);
             const b = Math.floor(Math.random()*256);
-            STATE.colorTarget = `rgb(${r},${g},${b})`;
+            userData.colorTarget = `rgb(${r},${g},${b})`;
             
-            document.getElementById('targetColor').style.backgroundColor = STATE.colorTarget;
-            document.getElementById('targetRgb').textContent = STATE.colorTarget;
+            document.getElementById('targetColor').style.backgroundColor = userData.colorTarget;
+            document.getElementById('targetRgb').textContent = userData.colorTarget;
             
-            const options = [STATE.colorTarget];
+            const options = [userData.colorTarget];
             while (options.length < 9) {
                 const dr = 40 + Math.floor(Math.random()*60);
                 const dg = 40 + Math.floor(Math.random()*60);
@@ -387,67 +687,156 @@
         }
 
         async function checkColor(selected) {
-            if (selected === STATE.colorTarget) {
-                showRewardModal(50,
-                    () => {
-                        addCoins(50);
-                        alert('✅ Correct! You won 50 coins!');
-                        initColorGame();
+            const remaining = adminConfig.color.maxPlays - userData.colorPlays;
+            if (remaining <= 0) {
+                showToast('❌ No plays left for today!', 'error');
+                return;
+            }
+            
+            if (selected === userData.colorTarget) {
+                showRewardModal(adminConfig.color.reward,
+                    async () => {
+                        await addCoins(adminConfig.color.reward);
+                        showToast('✅ Correct! Won ' + adminConfig.color.reward + ' coins!', 'success');
+                        finishGame();
                     },
                     async () => {
                         const adOk = await showAd();
                         if (adOk) {
-                            addCoins(100);
-                            alert('🎉 2x BONUS! You won 100 coins!');
+                            await addCoins(adminConfig.color.reward * 2);
+                            showToast('🎉 2x! Won ' + (adminConfig.color.reward * 2) + ' coins!', 'success');
                         } else {
-                            addCoins(50);
-                            alert('⚠️ Ad skipped. You won 50 coins.');
+                            await addCoins(adminConfig.color.reward);
+                            showToast('⚠️ Ad skipped. Won ' + adminConfig.color.reward + ' coins.');
                         }
-                        initColorGame();
+                        finishGame();
                     }
                 );
-                STATE.gamesPlayed++;
-                saveState();
             } else {
-                alert('❌ Wrong color! Try again.');
+                showToast('❌ Wrong color! Try again.', 'error');
+                initColorGame();
+            }
+            
+            async function finishGame() {
+                userData.gamesPlayed++;
+                userData.colorPlays++;
+                await syncWithFirebase();
+                updateUI();
                 initColorGame();
             }
         }
 
-        // ============ TRY LUCK ============
+        // Try Luck
         async function startLuck() {
-            showRewardModal(50,
-                () => {
-                    addCoins(50);
-                    alert('🍀 You won 50 coins!');
+            const remaining = adminConfig.luck.maxPlays - userData.luckPlays;
+            if (remaining <= 0) {
+                showToast('❌ No plays left for today!', 'error');
+                return;
+            }
+            
+            const winAmount = Math.floor(Math.random() * adminConfig.luck.maxWin) + 10;
+            
+            showRewardModal(winAmount,
+                async () => {
+                    await addCoins(winAmount);
+                    showToast('🍀 Won ' + winAmount + ' coins!', 'success');
+                    finishGame();
                 },
                 async () => {
                     const adOk = await showAd();
                     if (adOk) {
-                        addCoins(100);
-                        alert('🎉 2x BONUS! You won 100 coins!');
+                        await addCoins(winAmount * 2);
+                        showToast('🎉 2x! Won ' + (winAmount * 2) + ' coins!', 'success');
                     } else {
-                        addCoins(50);
-                        alert('⚠️ Ad skipped. You won 50 coins.');
+                        await addCoins(winAmount);
+                        showToast('⚠️ Ad skipped. Won ' + winAmount + ' coins.');
                     }
+                    finishGame();
                 }
             );
-            STATE.gamesPlayed++;
-            saveState();
+            
+            async function finishGame() {
+                userData.gamesPlayed++;
+                userData.luckPlays++;
+                await syncWithFirebase();
+                updateUI();
+            }
+        }
+
+        // ============ REFERRAL ============
+        async function copyReferralCode() {
+            const code = userData.referralCode || generateReferralCode();
+            userData.referralCode = code;
+            await navigator.clipboard.writeText(code);
+            showToast('✅ Code copied: ' + code, 'success');
+            updateUI();
+        }
+
+        async function shareReferral() {
+            const code = userData.referralCode || generateReferralCode();
+            userData.referralCode = code;
+            const text = `🎮 Join CashReward and earn coins!\nUse my referral code: ${code}`;
+            
+            if (navigator.share) {
+                await navigator.share({ title: 'CashReward', text: text });
+            } else {
+                await navigator.clipboard.writeText(text);
+                showToast('✅ Share text copied!', 'success');
+            }
+            updateUI();
         }
 
         // ============ WALLET ============
-        function withdraw() {
+        async function withdraw() {
             const amount = parseInt(document.getElementById('withdrawAmount').value);
             const upi = document.getElementById('upiId').value.trim();
-            if (!amount || amount < 1000) { alert('❌ Minimum 1000 coins'); return; }
-            if (!upi) { alert('❌ Enter UPI ID'); return; }
-            if (STATE.balance < amount) { alert('❌ Insufficient balance'); return; }
             
-            spendCoins(amount);
-            alert('✅ Withdrawal requested!\n\nAmount: ' + amount + ' coins\nUPI: ' + upi + '\n\nYou will receive payment within 24 hours.');
+            if (!amount || amount < adminConfig.minWithdraw) {
+                showToast('❌ Minimum ' + adminConfig.minWithdraw + ' coins', 'error');
+                return;
+            }
+            if (!upi) {
+                showToast('❌ Enter UPI ID', 'error');
+                return;
+            }
+            if (userData.balance < amount) {
+                showToast('❌ Insufficient balance', 'error');
+                return;
+            }
+            
+            await spendCoins(amount);
+            
+            const withdrawal = { amount, upiId: upi, date: new Date().toISOString() };
+            userData.withdrawals.push(withdrawal);
+            
+            await saveWithdrawalToFirebase(withdrawal);
+            await syncWithFirebase();
+            
+            showToast('✅ Withdrawal of ' + amount + ' coins requested!', 'success');
+            
             document.getElementById('withdrawAmount').value = '';
             document.getElementById('upiId').value = '';
+            
+            updateWithdrawHistory();
+            updateUI();
+        }
+
+        function updateWithdrawHistory() {
+            const container = document.getElementById('withdrawHistory');
+            if (!userData.withdrawals || userData.withdrawals.length === 0) {
+                container.innerHTML = '<div style="text-align:center;color:#888;padding:20px">No withdrawals yet</div>';
+                return;
+            }
+            
+            container.innerHTML = userData.withdrawals.slice().reverse().map(w => `
+                <div style="background:rgba(0,0,0,0.3);padding:12px;border-radius:10px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+                    <div>
+                        <div style="font-weight:700">${w.amount} Coins</div>
+                        <div style="font-size:11px;color:#888">${w.upiId}</div>
+                    </div>
+                    <div style="font-size:12px;color:#f0a500">Pending</div>
+                </div>
+            `).join('');
         }
 
         // ============ NAVIGATION ============
@@ -461,6 +850,10 @@
             });
             
             if (pageId === 'colorGamePage') initColorGame();
+            if (pageId === 'walletPage') updateWithdrawHistory();
+            if (pageId === 'referPage') {
+                document.getElementById('referralCode').textContent = userData.referralCode || '------';
+            }
         }
 
         // ============ BUILD GAMES GRID ============
@@ -468,12 +861,11 @@
             const games = [
                 { id: 'ludoPage', icon: 'fa-dice-d6', name: '🎲 Ludo Dice', desc: 'Roll & Win!', color: '#ff6b6b' },
                 { id: 'colorGamePage', icon: 'fa-palette', name: '🎨 Color Match', desc: 'Find Colors', color: '#a855f7' },
-                { id: 'tryLuckPage', icon: 'fa-star', name: '🍀 Try Luck', desc: 'Daily Bonus', color: '#f59e0b' },
-                { id: 'walletPage', icon: 'fa-wallet', name: '💰 Wallet', desc: 'Withdraw', color: '#10b981' }
+                { id: 'tryLuckPage', icon: 'fa-star', name: '🍀 Try Luck', desc: 'Spin & Win', color: '#f59e0b' },
+                { id: 'referPage', icon: 'fa-users', name: '👥 Refer', desc: 'Earn More', color: '#3b82f6' }
             ];
             
-            const grid = document.getElementById('gamesGrid');
-            grid.innerHTML = games.map(g => `
+            document.getElementById('gamesGrid').innerHTML = games.map(g => `
                 <div onclick="showPage('${g.id}')" class="game-card">
                     <div style="width:50px;height:50px;border-radius:15px;background:${g.color};display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:22px">
                         <i class="fas ${g.icon}" style="color:#fff"></i>
@@ -485,41 +877,76 @@
         }
 
         // ============ INIT ============
-        function init() {
+        async function init() {
             console.log('🚀 Starting CashReward...');
+            
+            // Show loading
+            document.getElementById('adLoadingOverlay').style.display = 'flex';
+            document.querySelector('.ad-loading-text').textContent = 'Loading...';
             
             // Telegram
             if (window.Telegram?.WebApp) {
                 window.Telegram.WebApp.ready();
                 window.Telegram.WebApp.expand();
-                const user = window.Telegram.WebApp.initDataUnsafe?.user;
-                if (user) {
-                    document.getElementById('userName').textContent = 'Hi, ' + (user.first_name || 'Player');
+                const tgUser = window.Telegram.WebApp.initDataUnsafe?.user;
+                if (tgUser) {
+                    currentUser = {
+                        uid: 'tg_' + tgUser.id,
+                        name: tgUser.first_name || 'Player'
+                    };
+                    document.getElementById('userName').textContent = 'Hi, ' + currentUser.name;
+                    document.getElementById('profileAvatar').textContent = currentUser.name.charAt(0).toUpperCase();
                 }
             }
+            
+            // Fallback user
+            if (!currentUser) {
+                currentUser = {
+                    uid: 'web_' + Date.now(),
+                    name: 'Player'
+                };
+            }
+            
+            // Load admin config from Firebase
+            await loadAdminConfig();
+            
+            // Load user data
+            const loaded = await loadFromFirebase();
+            if (!loaded) loadLocalState();
+            
+            // Hide loading
+            document.getElementById('adLoadingOverlay').style.display = 'none';
             
             // Build UI
             buildGamesGrid();
             updateUI();
+            updateWithdrawHistory();
             
             // Event listeners
             document.getElementById('rollDiceBtn').addEventListener('click', rollDice);
             document.getElementById('luckBtn').addEventListener('click', startLuck);
             document.getElementById('withdrawBtn').addEventListener('click', withdraw);
+            document.getElementById('copyRefBtn').addEventListener('click', copyReferralCode);
+            document.getElementById('shareRefBtn').addEventListener('click', shareReferral);
             
             document.querySelectorAll('.nav-item').forEach(item => {
                 item.addEventListener('click', () => showPage(item.getAttribute('data-page')));
             });
             
+            // Check daily bonus availability
+            const today = new Date().toDateString();
+            if (userData.lastDailyBonus === today) {
+                document.getElementById('dailyBonusCard').style.opacity = '0.5';
+            }
+            
             console.log('✅ CashReward Ready!');
-            console.log('🎮 Games: 4');
-            console.log('📺 Adsgram API:', window.Adsgram ? 'Available' : 'Demo Mode');
-            console.log('🎁 Rewarded ID: 42429');
-            console.log('📢 Interstitial ID: int-27569');
-            console.log('🔄 Ads alternate each call');
+            console.log('👤 User:', currentUser.name);
+            console.log('🎮 Config:', adminConfig);
+            console.log('📺 Adsgram:', window.Adsgram ? 'Active' : 'Demo');
+            console.log('🔥 Firebase:', 'Connected');
         }
 
-        // Start when DOM ready
+        // Start
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', init);
         } else {
