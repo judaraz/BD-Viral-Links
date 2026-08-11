@@ -23,30 +23,20 @@
         .page{display:none;padding:16px;padding-bottom:100px}
         .page.active{display:block}
         .game-card{background:linear-gradient(145deg,rgba(30,30,60,0.9),rgba(20,20,40,0.95));border-radius:20px;padding:20px;border:1px solid rgba(255,215,0,0.2);cursor:pointer;text-align:center}
+        .game-card:hover{transform:translateY(-3px);border-color:rgba(255,215,0,0.5)}
         .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);display:none;align-items:center;justify-content:center;z-index:1000}
         .modal-box{background:#1a1a2e;border-radius:24px;padding:30px;max-width:360px;width:90%;text-align:center;border:1px solid rgba(255,215,0,0.3)}
-        .dice{width:60px;height:60px;background:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:#1a1a2e;margin:15px auto}
-        .color-box{width:100%;aspect-ratio:1;border-radius:12px;cursor:pointer;min-height:60px}
+        .dice-box{width:60px;height:60px;background:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:#1a1a2e;margin:15px auto}
+        .color-box{width:100%;aspect-ratio:1;border-radius:12px;cursor:pointer;min-height:60px;transition:transform 0.2s}
+        .color-box:hover{transform:scale(1.1)}
         .bottom-nav{position:fixed;bottom:0;left:0;right:0;max-width:450px;margin:0 auto;background:rgba(10,10,26,0.98);display:grid;grid-template-columns:repeat(5,1fr);padding:8px 4px 12px;z-index:100;border-top:1px solid rgba(255,215,0,0.2)}
-        .nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;color:#666;cursor:pointer;font-size:12px}
+        .nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;color:#666;cursor:pointer;font-size:12px;transition:color 0.3s}
         .nav-item.active{color:#FFD700}
         .nav-item i{font-size:20px}
-        .spinner{width:40px;height:40px;border:3px solid rgba(255,215,0,0.2);border-top-color:#FFD700;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto}
+        .spinner{width:40px;height:40px;border:3px solid rgba(255,215,0,0.2);border-top-color:#FFD700;border-radius:50%;animation:spin 0.8s linear infinite;margin:20px auto}
         @keyframes spin{to{transform:rotate(360deg)}}
-        
-        /* Ad overlay */
-        .ad-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.97);z-index:9999;display:flex;align-items:center;justify-content:center}
-        .ad-box{background:#fff;border-radius:16px;width:92%;max-width:400px;padding:16px;color:#333}
-        .ad-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-        .ad-badge{padding:5px 12px;border-radius:15px;font-size:11px;font-weight:700;color:#fff}
-        .ad-badge-r{background:#4CAF50}
-        .ad-badge-i{background:#FF9800}
-        .ad-close-btn{width:28px;height:28px;background:#e74c3c;color:#fff;border:none;border-radius:50%;cursor:pointer;font-size:14px;font-weight:700}
-        .ad-body{background:#eee;border-radius:10px;min-height:250px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
-        .ad-footer{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
-        .ad-timer{color:#666;font-size:13px;font-weight:600}
-        .ad-skip-btn{background:#2196F3;color:#fff;border:none;padding:7px 16px;border-radius:15px;cursor:pointer;font-size:12px;font-weight:600}
-        .ad-skip-btn:disabled{background:#bbb;cursor:not-allowed}
+        .ad-loading-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column}
+        .ad-loading-text{color:#fff;font-size:16px;margin-top:15px}
     </style>
 </head>
 <body>
@@ -63,13 +53,19 @@
         </div>
     </div>
 
+    <!-- Ad Loading Overlay -->
+    <div id="adLoadingOverlay" class="ad-loading-overlay" style="display:none">
+        <div class="spinner"></div>
+        <p class="ad-loading-text">Loading ad...</p>
+    </div>
+
     <!-- Main App -->
     <div class="max-width">
         <!-- Header -->
         <div style="padding:15px;display:flex;justify-content:space-between;align-items:center;background:rgba(10,10,26,0.95);position:sticky;top:0;z-index:50">
             <div style="display:flex;align-items:center;gap:10px">
                 <div style="width:40px;height:40px;border-radius:50%;background:#FFD700;display:flex;align-items:center;justify-content:center;font-size:20px">👤</div>
-                <div><div style="font-weight:700">Player</div><div style="font-size:11px;color:#888">Premium</div></div>
+                <div><div style="font-weight:700" id="userName">Player</div><div style="font-size:11px;color:#888">Premium</div></div>
             </div>
             <div class="glass" style="padding:8px 14px;display:flex;align-items:center;gap:6px">
                 <span>🪙</span><span style="font-weight:700;font-size:18px" class="text-gold" id="balance">100</span>
@@ -84,9 +80,7 @@
                 <div class="glass" style="padding:12px;text-align:center"><div style="font-size:20px">⭐</div><div style="font-size:10px;color:#888">Level</div><div style="font-weight:700" class="text-gold" id="userLevel">1</div></div>
             </div>
             <h3 style="font-size:20px;margin-bottom:14px" class="text-gold">🎮 Play & Earn</h3>
-            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px" id="gamesGrid">
-                <!-- Games will be inserted here by JavaScript -->
-            </div>
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px" id="gamesGrid"></div>
         </div>
 
         <!-- LUDO PAGE -->
@@ -94,12 +88,11 @@
             <button onclick="showPage('homePage')" class="btn btn-outline" style="width:auto;padding:8px 16px;margin-bottom:16px">← Back</button>
             <div class="glass" style="padding:20px;text-align:center">
                 <h2 style="font-size:22px;margin-bottom:8px" class="text-gold">🎲 Ludo Dice</h2>
-                <p style="color:#aaa;font-size:13px;margin-bottom:16px">Roll the dice and win!</p>
+                <p style="color:#aaa;font-size:13px;margin-bottom:16px">Roll the dice and win coins!</p>
                 <div style="background:rgba(0,0,0,0.3);border-radius:14px;padding:12px;margin-bottom:16px">
-                    <div style="font-size:12px;color:#888">Cost: 10 Coins</div>
-                    <div style="font-size:13px;color:#4CAF50">Win up to 60 Coins!</div>
+                    <div style="font-size:12px;color:#888">Cost: 10 Coins | Win up to 60</div>
                 </div>
-                <div class="dice" id="ludoDice">⚀</div>
+                <div class="dice-box" id="ludoDice">⚀</div>
                 <button class="btn btn-gold" id="rollDiceBtn">🎯 ROLL DICE</button>
                 <div id="ludoCooldown" style="font-size:12px;color:#f0a500;margin-top:8px;display:none">⏱️ Wait...</div>
             </div>
@@ -163,6 +156,15 @@
     </div>
 
     <script>
+        // ============ ADSGRAM INITIALIZATION ============
+        // Initialize Adsgram controllers for both ad types
+        const rewardedAd = window.Adsgram ? window.Adsgram.init({ blockId: "42429" }) : null;
+        const interstitialAd = window.Adsgram ? window.Adsgram.init({ blockId: "int-27569" }) : null;
+        
+        console.log('📺 Adsgram SDK:', window.Adsgram ? '✅ Loaded' : '❌ Not Loaded');
+        console.log('🎁 Rewarded Controller:', rewardedAd ? '✅ Ready' : '❌ Not Ready');
+        console.log('📢 Interstitial Controller:', interstitialAd ? '✅ Ready' : '❌ Not Ready');
+
         // ============ STATE ============
         const STATE = {
             balance: 100,
@@ -194,95 +196,61 @@
             document.getElementById('userLevel').textContent = Math.floor(STATE.totalEarned / 1000) + 1;
         }
 
-        // ============ ADS ============
-        function showAd() {
-            return new Promise((resolve) => {
-                STATE.adCallCount++;
-                const isRewarded = STATE.adCallCount % 2 === 1;
-                const blockId = isRewarded ? "42429" : "int-27569";
-                
-                console.log('📺 Showing ' + (isRewarded?'Rewarded':'Interstitial') + ' ad | ID: ' + blockId);
-                
-                // Create overlay
-                const overlay = document.createElement('div');
-                overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.97);z-index:9999;display:flex;align-items:center;justify-content:center';
-                overlay.innerHTML = `
-                    <div style="background:#fff;border-radius:16px;width:92%;max-width:400px;padding:16px;color:#333">
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-                            <span style="padding:5px 12px;border-radius:15px;font-size:11px;font-weight:700;color:#fff;background:${isRewarded?'#4CAF50':'#FF9800'}">${isRewarded?'🎁 Rewarded':'📢 Interstitial'}</span>
-                            <button id="adCloseBtn" style="width:28px;height:28px;background:#e74c3c;color:#fff;border:none;border-radius:50%;cursor:pointer;font-size:14px;font-weight:700">✕</button>
-                        </div>
-                        <div style="background:#eee;border-radius:10px;min-height:250px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden">
-                            <div id="adLoading" style="text-align:center">
-                                <div class="spinner"></div>
-                                <p style="color:#888;margin-top:10px">Loading ad...</p>
-                            </div>
-                            <div id="adUnit" style="width:100%;height:100%;position:absolute;top:0;left:0"></div>
-                        </div>
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
-                            <span id="adTimer" style="color:#666;font-size:13px;font-weight:600">⏱ 0s</span>
-                            <button id="adSkipBtn" style="background:#2196F3;color:#fff;border:none;padding:7px 16px;border-radius:15px;cursor:pointer;font-size:12px;font-weight:600" disabled>Skip in 5s</button>
-                        </div>
-                    </div>
-                `;
-                document.body.appendChild(overlay);
-
-                let resolved = false;
-                let timerSec = 0;
-                const timerEl = overlay.querySelector('#adTimer');
-                const skipBtn = overlay.querySelector('#adSkipBtn');
-                
-                const timer = setInterval(() => {
-                    timerSec++;
-                    if (timerEl) timerEl.textContent = '⏱ ' + timerSec + 's';
-                    if (timerSec >= 5 && skipBtn && skipBtn.disabled) {
-                        skipBtn.disabled = false;
-                        skipBtn.textContent = 'Skip ⏭';
-                    }
-                }, 1000);
-
-                const cleanup = (result) => {
-                    if (resolved) return;
-                    resolved = true;
-                    clearInterval(timer);
-                    if (overlay.parentNode) overlay.remove();
-                    resolve(result);
-                };
-
-                overlay.querySelector('#adCloseBtn').onclick = () => cleanup(false);
-                skipBtn.onclick = () => cleanup(false);
-
-                // Try real ad
-                if (typeof window.sad !== 'undefined') {
-                    try {
-                        window.sad.createAd({
-                            blockId: blockId,
-                            type: isRewarded ? 'rewarded' : 'interstitial',
-                            userId: 'user_' + Date.now(),
-                            onAdLoaded: () => {
-                                const loadEl = overlay.querySelector('#adLoading');
-                                if (loadEl) loadEl.style.display = 'none';
-                            },
-                            onAdCompleted: () => cleanup(true),
-                            onAdError: () => cleanup(false),
-                            onAdClosed: () => cleanup(false)
-                        });
-                    } catch(e) {
-                        console.log('Ad error, using demo');
-                        setTimeout(() => cleanup(true), 500);
-                    }
-                } else {
-                    // Demo mode
-                    console.log('SDK not loaded, demo mode');
-                    setTimeout(() => {
-                        alert('📺 Ad completed! (Demo)');
-                        cleanup(true);
-                    }, 1000);
+        // ============ ADS FUNCTION ============
+        async function showAd() {
+            STATE.adCallCount++;
+            const isRewarded = STATE.adCallCount % 2 === 1;
+            
+            console.log(`📺 Calling ${isRewarded ? 'REWARDED' : 'INTERSTITIAL'} ad (#${STATE.adCallCount})`);
+            
+            // Show loading
+            document.getElementById('adLoadingOverlay').style.display = 'flex';
+            
+            try {
+                if (!window.Adsgram) {
+                    // Demo mode - no SDK
+                    console.log('⚠️ Adsgram SDK not available, using demo');
+                    await new Promise(r => setTimeout(r, 1500));
+                    document.getElementById('adLoadingOverlay').style.display = 'none';
+                    alert('📺 Ad completed! (Demo mode)\n\nAdd your block IDs for real ads:\nRewarded: 42429\nInterstitial: int-27569');
+                    return true;
                 }
-
-                // Timeout
-                setTimeout(() => { if (!resolved) cleanup(false); }, 25000);
-            });
+                
+                // Use proper Adsgram API
+                const controller = isRewarded ? rewardedAd : interstitialAd;
+                
+                if (!controller) {
+                    console.log('⚠️ Controller not initialized');
+                    document.getElementById('adLoadingOverlay').style.display = 'none';
+                    return false;
+                }
+                
+                const result = await controller.show();
+                
+                document.getElementById('adLoadingOverlay').style.display = 'none';
+                
+                console.log('📊 Ad result:', result);
+                
+                if (result.done) {
+                    console.log('✅ Ad completed successfully');
+                    return true;
+                } else {
+                    console.log('❌ Ad not completed:', result.description);
+                    return false;
+                }
+                
+            } catch (error) {
+                document.getElementById('adLoadingOverlay').style.display = 'none';
+                console.error('❌ Ad error:', error);
+                
+                // For interstitial, error might mean ad was closed (which is OK)
+                if (!isRewarded && error?.state === 'destroy') {
+                    console.log('📢 Interstitial closed');
+                    return true;
+                }
+                
+                return false;
+            }
         }
 
         // ============ BALANCE ============
@@ -302,8 +270,9 @@
             return true;
         }
 
-        // ============ MODAL ============
+        // ============ REWARD MODAL ============
         function showRewardModal(amount, onBase, onBonus) {
+            document.getElementById('modalTitle').textContent = 'You Won!';
             document.getElementById('modalAmount').textContent = '+' + amount;
             document.getElementById('modalBaseBtn').onclick = () => {
                 document.getElementById('rewardModal').style.display = 'none';
@@ -316,18 +285,20 @@
             document.getElementById('rewardModal').style.display = 'flex';
         }
 
-        // ============ GAMES ============
-        // Ludo
-        window.rollDice = function() {
+        // ============ LUDO GAME ============
+        function rollDice() {
             if (STATE.ludoCooldown > Date.now()) {
-                alert('Wait ' + Math.ceil((STATE.ludoCooldown - Date.now())/1000) + 's');
+                alert('⏱️ Wait ' + Math.ceil((STATE.ludoCooldown - Date.now())/1000) + ' seconds');
                 return;
             }
-            if (!spendCoins(10)) { alert('Need 10 coins!'); return; }
+            if (!spendCoins(10)) {
+                alert('❌ You need 10 coins to play!');
+                return;
+            }
 
             const btn = document.getElementById('rollDiceBtn');
             btn.disabled = true;
-            btn.textContent = 'Rolling...';
+            btn.textContent = '🎲 Rolling...';
             
             const faces = ['⚀','⚁','⚂','⚃','⚄','⚅'];
             let count = 0;
@@ -345,45 +316,45 @@
                     showRewardModal(STATE.currentLudoWin,
                         () => {
                             addCoins(STATE.currentLudoWin);
-                            alert('Won ' + STATE.currentLudoWin + ' coins!');
-                            setCooldown();
+                            alert('🎉 You won ' + STATE.currentLudoWin + ' coins!');
+                            finishGame();
                         },
                         async () => {
                             const adOk = await showAd();
                             if (adOk) {
-                                addCoins(STATE.currentLudoWin * 2);
-                                alert('🎉 2x Bonus! Won ' + (STATE.currentLudoWin * 2) + ' coins!');
+                                const bonus = STATE.currentLudoWin * 2;
+                                addCoins(bonus);
+                                alert('🎉 2x BONUS! You won ' + bonus + ' coins!');
                             } else {
                                 addCoins(STATE.currentLudoWin);
-                                alert('Won ' + STATE.currentLudoWin + ' coins.');
+                                alert('⚠️ Ad skipped. You won ' + STATE.currentLudoWin + ' coins.');
                             }
-                            setCooldown();
+                            finishGame();
                         }
                     );
-                    
-                    btn.disabled = false;
-                    btn.textContent = '🎯 ROLL DICE';
-                    STATE.gamesPlayed++;
-                    saveState();
                 }
             }
             
-            function setCooldown() {
+            function finishGame() {
+                btn.disabled = false;
+                btn.textContent = '🎯 ROLL DICE';
+                STATE.gamesPlayed++;
                 STATE.ludoCooldown = Date.now() + 8000;
                 const cd = document.getElementById('ludoCooldown');
                 cd.style.display = 'block';
                 setTimeout(() => cd.style.display = 'none', 8000);
+                saveState();
             }
             
             animate();
-        };
+        }
 
-        // Color Game
-        window.initColorGame = function() {
+        // ============ COLOR GAME ============
+        function initColorGame() {
             const r = Math.floor(Math.random()*256);
             const g = Math.floor(Math.random()*256);
             const b = Math.floor(Math.random()*256);
-            STATE.colorTarget = 'rgb(' + r + ',' + g + ',' + b + ')';
+            STATE.colorTarget = `rgb(${r},${g},${b})`;
             
             document.getElementById('targetColor').style.backgroundColor = STATE.colorTarget;
             document.getElementById('targetRgb').textContent = STATE.colorTarget;
@@ -393,10 +364,13 @@
                 const dr = 40 + Math.floor(Math.random()*60);
                 const dg = 40 + Math.floor(Math.random()*60);
                 const db = 40 + Math.floor(Math.random()*60);
-                const c = 'rgb(' + 
-                    Math.min(255,Math.max(0,r+(Math.random()>0.5?dr:-dr))) + ',' +
-                    Math.min(255,Math.max(0,g+(Math.random()>0.5?dg:-dg))) + ',' +
-                    Math.min(255,Math.max(0,b+(Math.random()>0.5?db:-db))) + ')';
+                const c = `rgb(${
+                    Math.min(255,Math.max(0,r+(Math.random()>0.5?dr:-dr)))
+                },${
+                    Math.min(255,Math.max(0,g+(Math.random()>0.5?dg:-dg)))
+                },${
+                    Math.min(255,Math.max(0,b+(Math.random()>0.5?db:-db)))
+                })`;
                 if (!options.includes(c)) options.push(c);
             }
             options.sort(() => Math.random() - 0.5);
@@ -410,24 +384,24 @@
                 div.onclick = () => checkColor(c);
                 container.appendChild(div);
             });
-        };
+        }
 
-        window.checkColor = function(selected) {
+        async function checkColor(selected) {
             if (selected === STATE.colorTarget) {
                 showRewardModal(50,
                     () => {
                         addCoins(50);
-                        alert('✅ Won 50 coins!');
+                        alert('✅ Correct! You won 50 coins!');
                         initColorGame();
                     },
                     async () => {
                         const adOk = await showAd();
                         if (adOk) {
                             addCoins(100);
-                            alert('🎉 2x! Won 100 coins!');
+                            alert('🎉 2x BONUS! You won 100 coins!');
                         } else {
                             addCoins(50);
-                            alert('Won 50 coins.');
+                            alert('⚠️ Ad skipped. You won 50 coins.');
                         }
                         initColorGame();
                     }
@@ -435,35 +409,49 @@
                 STATE.gamesPlayed++;
                 saveState();
             } else {
-                alert('❌ Wrong! Try again.');
+                alert('❌ Wrong color! Try again.');
                 initColorGame();
             }
-        };
+        }
 
-        // Try Luck
-        window.startLuck = function() {
+        // ============ TRY LUCK ============
+        async function startLuck() {
             showRewardModal(50,
                 () => {
                     addCoins(50);
-                    alert('🍀 Won 50 coins!');
+                    alert('🍀 You won 50 coins!');
                 },
                 async () => {
                     const adOk = await showAd();
                     if (adOk) {
                         addCoins(100);
-                        alert('🎉 2x! Won 100 coins!');
+                        alert('🎉 2x BONUS! You won 100 coins!');
                     } else {
                         addCoins(50);
-                        alert('Won 50 coins.');
+                        alert('⚠️ Ad skipped. You won 50 coins.');
                     }
                 }
             );
             STATE.gamesPlayed++;
             saveState();
-        };
+        }
+
+        // ============ WALLET ============
+        function withdraw() {
+            const amount = parseInt(document.getElementById('withdrawAmount').value);
+            const upi = document.getElementById('upiId').value.trim();
+            if (!amount || amount < 1000) { alert('❌ Minimum 1000 coins'); return; }
+            if (!upi) { alert('❌ Enter UPI ID'); return; }
+            if (STATE.balance < amount) { alert('❌ Insufficient balance'); return; }
+            
+            spendCoins(amount);
+            alert('✅ Withdrawal requested!\n\nAmount: ' + amount + ' coins\nUPI: ' + upi + '\n\nYou will receive payment within 24 hours.');
+            document.getElementById('withdrawAmount').value = '';
+            document.getElementById('upiId').value = '';
+        }
 
         // ============ NAVIGATION ============
-        window.showPage = function(pageId) {
+        function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             const page = document.getElementById(pageId);
             if (page) page.classList.add('active');
@@ -473,20 +461,18 @@
             });
             
             if (pageId === 'colorGamePage') initColorGame();
-        };
+        }
 
         // ============ BUILD GAMES GRID ============
         function buildGamesGrid() {
             const games = [
-                { id: 'ludoPage', icon: 'fa-dice-d6', name: '🎲 Ludo', desc: 'Roll & Win', color: '#ff6b6b' },
-                { id: 'colorGamePage', icon: 'fa-palette', name: '🎨 Color', desc: 'Match Colors', color: '#a855f7' },
-                { id: 'tryLuckPage', icon: 'fa-star', name: '🍀 Luck', desc: 'Daily Bonus', color: '#f59e0b' },
+                { id: 'ludoPage', icon: 'fa-dice-d6', name: '🎲 Ludo Dice', desc: 'Roll & Win!', color: '#ff6b6b' },
+                { id: 'colorGamePage', icon: 'fa-palette', name: '🎨 Color Match', desc: 'Find Colors', color: '#a855f7' },
+                { id: 'tryLuckPage', icon: 'fa-star', name: '🍀 Try Luck', desc: 'Daily Bonus', color: '#f59e0b' },
                 { id: 'walletPage', icon: 'fa-wallet', name: '💰 Wallet', desc: 'Withdraw', color: '#10b981' }
             ];
             
             const grid = document.getElementById('gamesGrid');
-            if (!grid) { console.error('gamesGrid not found!'); return; }
-            
             grid.innerHTML = games.map(g => `
                 <div onclick="showPage('${g.id}')" class="game-card">
                     <div style="width:50px;height:50px;border-radius:15px;background:${g.color};display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:22px">
@@ -500,46 +486,40 @@
 
         // ============ INIT ============
         function init() {
-            console.log('🚀 Initializing CashReward...');
+            console.log('🚀 Starting CashReward...');
             
             // Telegram
             if (window.Telegram?.WebApp) {
                 window.Telegram.WebApp.ready();
                 window.Telegram.WebApp.expand();
+                const user = window.Telegram.WebApp.initDataUnsafe?.user;
+                if (user) {
+                    document.getElementById('userName').textContent = 'Hi, ' + (user.first_name || 'Player');
+                }
             }
             
-            // Build games
+            // Build UI
             buildGamesGrid();
-            
-            // Update UI
             updateUI();
             
             // Event listeners
-            document.getElementById('rollDiceBtn')?.addEventListener('click', rollDice);
-            document.getElementById('luckBtn')?.addEventListener('click', startLuck);
-            document.getElementById('withdrawBtn')?.addEventListener('click', () => {
-                const amount = parseInt(document.getElementById('withdrawAmount').value);
-                const upi = document.getElementById('upiId').value.trim();
-                if (!amount || amount < 1000) { alert('Min 1000 coins'); return; }
-                if (!upi) { alert('Enter UPI ID'); return; }
-                if (STATE.balance < amount) { alert('Insufficient balance'); return; }
-                spendCoins(amount);
-                alert('✅ Withdrawal of ' + amount + ' coins to ' + upi);
-                document.getElementById('withdrawAmount').value = '';
-                document.getElementById('upiId').value = '';
-            });
+            document.getElementById('rollDiceBtn').addEventListener('click', rollDice);
+            document.getElementById('luckBtn').addEventListener('click', startLuck);
+            document.getElementById('withdrawBtn').addEventListener('click', withdraw);
             
-            // Navigation
             document.querySelectorAll('.nav-item').forEach(item => {
                 item.addEventListener('click', () => showPage(item.getAttribute('data-page')));
             });
             
             console.log('✅ CashReward Ready!');
-            console.log('📺 Adsgram:', typeof window.sad !== 'undefined' ? 'Loaded' : 'Demo Mode');
-            console.log('🎮 Games:', document.querySelectorAll('.game-card').length);
+            console.log('🎮 Games: 4');
+            console.log('📺 Adsgram API:', window.Adsgram ? 'Available' : 'Demo Mode');
+            console.log('🎁 Rewarded ID: 42429');
+            console.log('📢 Interstitial ID: int-27569');
+            console.log('🔄 Ads alternate each call');
         }
 
-        // Start when DOM is ready
+        // Start when DOM ready
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', init);
         } else {
