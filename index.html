@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>CashReward - Play & Earn</title>
-    
+    <title>Gram Miner - Mine GRAM</title>
+    <link rel="icon" href="https://i.postimg.cc/vH5NxzxP/11419.png">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -13,945 +13,802 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
+        :root {
+            --bg: #060b14;
+            --card: #0d1321;
+            --surface: #141c2b;
+            --gold: #f0b90b;
+            --blue: #0088cc;
+            --green: #00d4aa;
+            --red: #ff4444;
+            --text: #e6edf3;
+            --muted: #8b949e;
+            --border: rgba(255,255,255,0.06);
+        }
         *{margin:0;padding:0;box-sizing:border-box}
-        body{font-family:Arial,sans-serif;background:#0a0a1a;color:#fff;min-height:100vh}
-        .max-width{max-width:450px;margin:0 auto}
-        .glass{background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1);border-radius:20px}
-        .text-gold{color:#FFD700}
-        .btn{display:block;width:100%;padding:14px;border-radius:14px;border:none;font-size:16px;font-weight:700;cursor:pointer;text-align:center;margin-bottom:10px;transition:all 0.3s}
-        .btn:active{transform:scale(0.97)}
-        .btn-gold{background:linear-gradient(135deg,#FFD700,#FFA500);color:#1a1a2e}
-        .btn-gold:disabled{opacity:0.5;cursor:not-allowed}
-        .btn-purple{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff}
-        .btn-outline{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff}
-        .page{display:none;padding:16px;padding-bottom:100px}
-        .page.active{display:block}
-        .game-card{background:linear-gradient(145deg,rgba(30,30,60,0.9),rgba(20,20,40,0.95));border-radius:20px;padding:20px;border:1px solid rgba(255,215,0,0.2);cursor:pointer;text-align:center;transition:all 0.3s}
-        .game-card:hover{transform:translateY(-3px);border-color:rgba(255,215,0,0.5)}
-        .game-card.locked{opacity:0.5;cursor:not-allowed}
-        .game-card.locked:hover{transform:none;border-color:rgba(255,215,0,0.2)}
-        .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);display:none;align-items:center;justify-content:center;z-index:1000}
-        .modal-box{background:#1a1a2e;border-radius:24px;padding:30px;max-width:360px;width:90%;text-align:center;border:1px solid rgba(255,215,0,0.3)}
-        .dice-box{width:60px;height:60px;background:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:#1a1a2e;margin:15px auto}
-        .color-box{width:100%;aspect-ratio:1;border-radius:12px;cursor:pointer;min-height:60px;transition:transform 0.2s}
-        .color-box:hover{transform:scale(1.1)}
-        .bottom-nav{position:fixed;bottom:0;left:0;right:0;max-width:450px;margin:0 auto;background:rgba(10,10,26,0.98);display:grid;grid-template-columns:repeat(5,1fr);padding:8px 4px 12px;z-index:100;border-top:1px solid rgba(255,215,0,0.2)}
-        .nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;color:#666;cursor:pointer;font-size:12px;transition:color 0.3s}
-        .nav-item.active{color:#FFD700}
-        .nav-item i{font-size:20px}
-        .spinner{width:40px;height:40px;border:3px solid rgba(255,215,0,0.2);border-top-color:#FFD700;border-radius:50%;animation:spin 0.8s linear infinite;margin:20px auto}
+        body{
+            font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+            background:var(--bg);
+            color:var(--text);
+            min-height:100vh;
+            overflow-x:hidden;
+            -webkit-tap-highlight-color:transparent;
+            user-select:none;
+            -webkit-user-select:none;
+            -webkit-font-smoothing:antialiased;
+        }
+        .app{max-width:448px;margin:0 auto;position:relative;min-height:100vh;background:var(--bg)}
+        
+        /* Cards */
+        .card{background:var(--card);border-radius:18px;padding:18px;border:1px solid var(--border);margin-bottom:10px;transition:all 0.25s}
+        .card-gold{border:1px solid rgba(240,185,11,0.2);box-shadow:0 0 30px rgba(240,185,11,0.04)}
+        .card-accent{border-left:3px solid var(--gold)}
+        
+        /* Buttons */
+        .btn{
+            display:flex;align-items:center;justify-content:center;gap:8px;
+            width:100%;padding:15px 20px;border-radius:14px;border:none;
+            font-size:15px;font-weight:600;cursor:pointer;text-align:center;
+            transition:all 0.15s;position:relative;overflow:hidden;letter-spacing:0.3px;
+            -webkit-tap-highlight-color:transparent;
+        }
+        .btn:active{transform:scale(0.97);opacity:0.9}
+        .btn:disabled{opacity:0.4;cursor:not-allowed;transform:none}
+        .btn-gold{background:linear-gradient(135deg,#f0b90b,#d4a30a);color:#000;font-weight:700;box-shadow:0 4px 20px rgba(240,185,11,0.2)}
+        .btn-blue{background:linear-gradient(135deg,#0088cc,#005f8c);color:#fff;box-shadow:0 4px 20px rgba(0,136,204,0.2)}
+        .btn-green{background:linear-gradient(135deg,#00d4aa,#00a884);color:#000;font-weight:700}
+        .btn-outline{background:transparent;border:2px solid rgba(255,255,255,0.12);color:var(--text)}
+        .btn-ghost{background:rgba(255,255,255,0.04);color:var(--text)}
+        .btn-sm{padding:10px 16px;font-size:13px;border-radius:10px;width:auto}
+        
+        /* Text */
+        .text-gold{color:var(--gold)}
+        .text-green{color:var(--green)}
+        .text-muted{color:var(--muted)}
+        
+        /* Animations */
+        @keyframes breathe{0%,100%{transform:scale(1);box-shadow:0 0 30px rgba(240,185,11,0.3)}50%{transform:scale(1.03);box-shadow:0 0 50px rgba(240,185,11,0.5)}}
+        @keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes fadeIn{from{opacity:0}to{opacity:1}}
         @keyframes spin{to{transform:rotate(360deg)}}
-        .ad-loading-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column}
-        .ad-loading-text{color:#fff;font-size:16px;margin-top:15px}
-        .limit-bar{height:6px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden;margin-top:8px}
-        .limit-fill{height:100%;background:linear-gradient(90deg,#FFD700,#FFA500);border-radius:3px;transition:width 0.3s}
-        .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:12px 24px;border-radius:25px;z-index:9999;font-size:14px;animation:slideDown 0.3s ease}
-        @keyframes slideDown{from{top:-50px;opacity:0}to{top:20px;opacity:1}}
-        .daily-bonus-btn{position:relative;overflow:hidden}
-        .daily-bonus-btn.available{animation:pulse 2s infinite}
-        @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,215,0,0.4)}50%{box-shadow:0 0 0 10px rgba(255,215,0,0)}}
+        @keyframes pulse-ring{0%{transform:scale(0.9);opacity:0.6}100%{transform:scale(1.4);opacity:0}}
+        @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+        @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+        @keyframes ripple{0%{transform:scale(0);opacity:1}100%{transform:scale(4);opacity:0}}
+        @keyframes numberPop{0%{transform:scale(1)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
+        
+        .anim-breathe{animation:breathe 3s ease-in-out infinite}
+        .anim-slide{animation:slideUp 0.35s ease}
+        .anim-fade{animation:fadeIn 0.3s ease}
+        .anim-float{animation:float 3s ease-in-out infinite}
+        .anim-spin{animation:spin 20s linear infinite}
+        
+        /* Mining Rig */
+        .miner-container{position:relative;width:140px;height:140px;margin:0 auto;display:flex;align-items:center;justify-content:center}
+        .miner-core{
+            width:80px;height:80px;border-radius:22px;
+            background:linear-gradient(135deg,#1a2235,#252d40);
+            display:flex;align-items:center;justify-content:center;
+            position:relative;z-index:2;
+            border:2px solid rgba(240,185,11,0.3);
+            box-shadow:0 0 40px rgba(240,185,11,0.15);
+            transition:all 0.5s;
+        }
+        .miner-core.active{background:linear-gradient(135deg,#1a2a1a,#1a3020);border-color:rgba(0,212,170,0.4);box-shadow:0 0 50px rgba(0,212,170,0.2)}
+        .miner-ring{
+            position:absolute;width:110px;height:110px;
+            border:2px solid rgba(240,185,11,0.15);border-radius:50%;
+            animation:spin 5s linear infinite;
+        }
+        .miner-ring:nth-child(2){width:125px;height:125px;animation-duration:8s;animation-direction:reverse;border-color:rgba(240,185,11,0.08)}
+        .miner-particle{
+            position:absolute;width:7px;height:7px;background:var(--gold);
+            border-radius:50%;animation:float 2s ease-in-out infinite;box-shadow:0 0 10px rgba(240,185,11,0.5);
+        }
+        
+        /* Pulse ring for boost */
+        .pulse-container{position:relative}
+        .pulse-ring{
+            position:absolute;top:50%;left:50%;width:60%;height:60%;
+            border-radius:50%;border:3px solid var(--gold);
+            animation:pulse-ring 2s ease-out infinite;
+            transform:translate(-50%,-50%);pointer-events:none;
+        }
+        
+        /* Progress */
+        .progress{height:8px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden}
+        .progress-fill{height:100%;border-radius:4px;transition:width 0.5s ease}
+        .progress-gold{background:linear-gradient(90deg,#f0b90b,#d4a30a)}
+        .progress-green{background:linear-gradient(90deg,#00d4aa,#00a884)}
+        
+        /* Modal */
+        .modal-overlay{
+            position:fixed;top:0;left:0;width:100%;height:100%;
+            background:rgba(0,0,0,0.92);z-index:1000;
+            display:none;align-items:center;justify-content:center;
+            backdrop-filter:blur(8px);
+        }
+        .modal-overlay.show{display:flex}
+        .modal-box{
+            background:var(--card);border-radius:22px;padding:26px;
+            max-width:400px;width:92%;max-height:85vh;overflow-y:auto;
+            border:1px solid var(--border);animation:slideUp 0.3s ease;
+        }
+        
+        /* Pages */
+        .page{display:none;padding:14px 14px 100px;animation:slideUp 0.3s ease}
+        .page.active{display:block}
+        
+        /* Bottom Nav */
+        .bottom-nav{
+            position:fixed;bottom:0;left:0;right:0;max-width:448px;margin:0 auto;
+            background:rgba(6,11,20,0.98);backdrop-filter:blur(25px);
+            display:grid;grid-template-columns:repeat(5,1fr);
+            padding:8px 4px 14px;z-index:100;
+            border-top:1px solid var(--border);border-radius:20px 20px 0 0;
+        }
+        .nav-item{
+            display:flex;flex-direction:column;align-items:center;gap:4px;
+            color:var(--muted);cursor:pointer;font-size:10px;font-weight:600;
+            transition:all 0.25s;position:relative;padding:4px 0;
+        }
+        .nav-item.active{color:var(--gold)}
+        .nav-item i{font-size:20px;transition:transform 0.25s}
+        .nav-item.active i{transform:translateY(-2px)}
+        .nav-dot{
+            position:absolute;top:-5px;width:5px;height:5px;
+            background:var(--gold);border-radius:50%;opacity:0;transition:opacity 0.25s;
+        }
+        .nav-item.active .nav-dot{opacity:1}
+        
+        /* Toast */
+        .toast{
+            position:fixed;top:16px;left:50%;transform:translateX(-50%);
+            background:var(--surface);color:var(--text);padding:12px 22px;
+            border-radius:30px;z-index:9999;font-size:13px;font-weight:600;
+            border:1px solid var(--border);box-shadow:0 8px 32px rgba(0,0,0,0.5);
+            animation:slideUp 0.3s ease;white-space:nowrap;
+        }
+        
+        /* Ad overlay */
+        .ad-overlay{
+            position:fixed;top:0;left:0;width:100%;height:100%;
+            background:rgba(0,0,0,0.96);z-index:9999;
+            display:none;align-items:center;justify-content:center;flex-direction:column;
+        }
+        .ad-spinner{
+            width:44px;height:44px;
+            border:3px solid rgba(240,185,11,0.15);
+            border-top-color:var(--gold);border-radius:50%;
+            animation:spin 0.7s linear infinite;
+        }
+        
+        /* Stats grid */
+        .stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+        .stat-box{
+            background:var(--surface);border-radius:14px;padding:14px;
+            text-align:center;border:1px solid rgba(255,255,255,0.03);
+        }
+        
+        /* Plan cards */
+        .plan-card{
+            border-radius:16px;padding:16px;background:var(--surface);
+            border:1px solid var(--border);cursor:pointer;transition:all 0.2s;text-align:center;
+        }
+        .plan-card:hover{border-color:rgba(240,185,11,0.3);transform:translateY(-2px)}
+        .plan-card.active{border:2px solid var(--gold);background:rgba(240,185,11,0.05)}
+        
+        /* Input */
+        .input-field{
+            width:100%;padding:13px 16px;background:var(--surface);
+            border:2px solid var(--border);border-radius:12px;
+            color:var(--text);font-size:14px;transition:border-color 0.2s;font-family:monospace;
+        }
+        .input-field:focus{outline:none;border-color:var(--gold)}
+        .input-field::placeholder{color:var(--muted)}
+        
+        /* Boost badge */
+        .boost-badge{
+            display:inline-flex;align-items:center;gap:6px;
+            background:rgba(240,185,11,0.1);color:var(--gold);
+            padding:8px 16px;border-radius:20px;font-size:13px;font-weight:700;
+            animation:breathe 2s ease-in-out infinite;
+        }
+        
+        /* Logo */
+        .logo-img{width:38px;height:38px;border-radius:10px;object-fit:cover}
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar{width:3px}
+        ::-webkit-scrollbar-track{background:transparent}
+        ::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:2px}
+        
+        /* Ripple effect */
+        .ripple-effect{position:absolute;border-radius:50%;background:rgba(255,255,255,0.2);animation:ripple 0.6s ease-out;pointer-events:none}
+        
+        /* Number animation */
+        .number-pop{animation:numberPop 0.4s ease}
     </style>
 </head>
 <body>
 
-    <!-- Reward Modal -->
-    <div id="rewardModal" class="modal">
-        <div class="modal-box">
-            <div style="font-size:50px">🏆</div>
-            <h3 style="font-size:22px;margin:10px 0" class="text-gold" id="modalTitle">You Won!</h3>
-            <p style="font-size:28px;font-weight:700;color:#4CAF50;margin:10px 0" id="modalAmount">+100</p>
-            <button class="btn btn-gold" id="modalBaseBtn">✅ Claim Base Reward</button>
-            <button class="btn btn-purple" id="modalBonusBtn">📺 Watch Ad for 2x!</button>
-            <button class="btn btn-outline" onclick="document.getElementById('rewardModal').style.display='none'">Close</button>
-        </div>
-    </div>
-
-    <!-- Ad Loading Overlay -->
-    <div id="adLoadingOverlay" class="ad-loading-overlay" style="display:none">
-        <div class="spinner"></div>
-        <p class="ad-loading-text">Loading ad...</p>
+    <!-- Ad Overlay -->
+    <div class="ad-overlay" id="adOverlay">
+        <div class="ad-spinner"></div>
+        <p style="margin-top:16px;font-weight:600;color:var(--text);font-size:14px">Loading Ad...</p>
     </div>
 
     <!-- Toast Container -->
     <div id="toastContainer"></div>
 
+    <!-- Modal -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+        <div class="modal-box" id="modalContent" onclick="event.stopPropagation()"></div>
+    </div>
+
     <!-- Main App -->
-    <div class="max-width">
+    <div class="app">
+        
         <!-- Header -->
-        <div style="padding:15px;display:flex;justify-content:space-between;align-items:center;background:rgba(10,10,26,0.95);position:sticky;top:0;z-index:50">
+        <header style="padding:12px 14px;display:flex;justify-content:space-between;align-items:center;background:rgba(6,11,20,0.95);position:sticky;top:0;z-index:50;backdrop-filter:blur(20px);border-bottom:1px solid var(--border)">
             <div style="display:flex;align-items:center;gap:10px">
-                <div style="width:40px;height:40px;border-radius:50%;background:#FFD700;display:flex;align-items:center;justify-content:center;font-size:20px" id="profileAvatar">👤</div>
+                <img src="https://i.postimg.cc/vH5NxzxP/11419.png" alt="Logo" class="logo-img">
                 <div>
-                    <div style="font-weight:700" id="userName">Player</div>
-                    <div style="font-size:11px;color:#888" id="userLevel">Level 1</div>
+                    <div style="font-weight:700;font-size:15px;color:var(--text)">GRAM MINER</div>
+                    <div style="font-size:10px;color:var(--muted);font-weight:500">Level <span id="hLevel">1</span> • <span id="hPlan">Free</span></div>
                 </div>
             </div>
-            <div class="glass" style="padding:8px 14px;display:flex;align-items:center;gap:6px">
-                <span>🪙</span><span style="font-weight:700;font-size:18px" class="text-gold" id="balance">0</span>
+            <div style="display:flex;align-items:center;gap:6px;background:var(--surface);padding:8px 14px;border-radius:24px">
+                <span style="font-size:14px">💎</span>
+                <span style="font-weight:700;font-size:13px;color:var(--gold);font-family:monospace" id="hBalance">0.0000</span>
             </div>
-        </div>
+        </header>
 
-        <!-- HOME PAGE -->
-        <div id="homePage" class="page active">
-            <!-- Daily Bonus -->
-            <div class="glass daily-bonus-btn available" style="padding:16px;text-align:center;margin-bottom:16px;cursor:pointer" id="dailyBonusCard" onclick="claimDailyBonus()">
-                <div style="display:flex;align-items:center;justify-content:center;gap:10px">
-                    <span style="font-size:30px">📅</span>
-                    <div>
-                        <div style="font-weight:700;font-size:16px" class="text-gold">Daily Bonus!</div>
-                        <div style="font-size:12px;color:#aaa">Claim your free coins</div>
-                    </div>
-                    <span style="font-size:24px">▶</span>
-                </div>
-            </div>
+        <!-- MINE PAGE -->
+        <div id="minePage" class="page active">
             
-            <!-- Stats -->
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px">
-                <div class="glass" style="padding:12px;text-align:center">
-                    <div style="font-size:20px">🔥</div>
-                    <div style="font-size:10px;color:#888">Earnings</div>
-                    <div style="font-weight:700" class="text-gold" id="todayEarnings">0</div>
+            <!-- BOOST BUTTON - Always visible at top -->
+            <button class="btn btn-gold anim-breathe pulse-container" id="boostBtn" onclick="activateBoost()" style="margin-bottom:12px;font-size:15px;padding:16px">
+                <span style="position:relative;z-index:1;display:flex;align-items:center;gap:8px">
+                    <span style="font-size:22px">⚡</span>
+                    <span>BOOST 2x HASH POWER</span>
+                </span>
+                <span style="font-size:11px;opacity:0.7;position:relative;z-index:1">Watch Ad • 10 Minutes</span>
+            </button>
+            <div id="boostActiveBar" style="display:none;text-align:center;margin-bottom:12px;padding:12px;background:rgba(240,185,11,0.08);border-radius:14px;border:1px solid rgba(240,185,11,0.15)">
+                <span class="boost-badge">⚡ 2x BOOST ACTIVE • <span id="boostTimer">10:00</span></span>
+            </div>
+
+            <!-- Mining Rig Card -->
+            <div class="card card-gold" style="text-align:center;padding:24px 20px">
+                <div class="miner-container" style="margin-bottom:20px">
+                    <div class="miner-ring"></div>
+                    <div class="miner-ring"></div>
+                    <div class="miner-core" id="minerCore">
+                        <img src="https://i.postimg.cc/vH5NxzxP/11419.png" style="width:42px;height:42px;border-radius:10px">
+                    </div>
+                    <div class="miner-particle" style="top:8px;left:25px;animation-delay:0s"></div>
+                    <div class="miner-particle" style="top:20px;right:18px;animation-delay:0.4s"></div>
+                    <div class="miner-particle" style="bottom:15px;left:22px;animation-delay:0.8s"></div>
+                    <div class="miner-particle" style="bottom:10px;right:25px;animation-delay:1.2s"></div>
                 </div>
-                <div class="glass" style="padding:12px;text-align:center">
-                    <div style="font-size:20px">🎮</div>
-                    <div style="font-size:10px;color:#888">Played</div>
-                    <div style="font-weight:700" class="text-gold" id="gamesPlayed">0</div>
+                
+                <div style="font-size:30px;font-weight:800;color:var(--gold);font-family:monospace;margin-bottom:2px" id="todayMined">0.0000</div>
+                <div style="font-size:11px;color:var(--muted);margin-bottom:10px">GRAM mined today</div>
+                
+                <div class="progress" style="margin-bottom:6px">
+                    <div class="progress-fill progress-gold" id="dailyProgress" style="width:0%"></div>
                 </div>
-                <div class="glass" style="padding:12px;text-align:center">
-                    <div style="font-size:20px">⭐</div>
-                    <div style="font-size:10px;color:#888">Level</div>
-                    <div style="font-weight:700" class="text-gold" id="levelDisplay">1</div>
+                <div style="font-size:10px;color:var(--muted)">24h mining progress</div>
+            </div>
+
+            <!-- Hash Rate Stats -->
+            <div class="stats-grid" style="margin-bottom:12px">
+                <div class="stat-box">
+                    <div style="font-size:22px;margin-bottom:4px">⛏️</div>
+                    <div style="font-size:10px;color:var(--muted);margin-bottom:2px">Hash Rate</div>
+                    <div style="font-weight:700;font-size:16px;color:var(--gold)" id="hashRate">1.0 H/s</div>
+                </div>
+                <div class="stat-box">
+                    <div style="font-size:22px;margin-bottom:4px">💎</div>
+                    <div style="font-size:10px;color:var(--muted);margin-bottom:2px">Total Mined</div>
+                    <div style="font-weight:700;font-size:16px;color:var(--green);font-family:monospace" id="totalMined">0.0000</div>
                 </div>
             </div>
+
+            <!-- Start Mining Button -->
+            <button class="btn btn-blue" id="startMineBtn" onclick="startMining()" style="font-size:16px">
+                <span id="mineIcon">▶️</span> <span id="mineText">START MINING</span>
+            </button>
+
+            <!-- Info -->
+            <div style="text-align:center;margin-top:10px;padding:10px;background:var(--surface);border-radius:12px">
+                <p style="font-size:10px;color:var(--muted)">
+                    💡 Mining runs 24/7 • Boost doubles power for 10 minutes<br>
+                    Upgrade plan to increase hash rate & earnings
+                </p>
+            </div>
+        </div>
+
+        <!-- PLANS PAGE -->
+        <div id="plansPage" class="page">
+            <h3 style="font-size:18px;font-weight:700;margin-bottom:4px;color:var(--text)">💎 Upgrade Plans</h3>
+            <p style="font-size:12px;color:var(--muted);margin-bottom:14px">Deposit GRAM to increase hash rate</p>
             
-            <h3 style="font-size:20px;margin-bottom:14px" class="text-gold">🎮 Play & Earn</h3>
-            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px" id="gamesGrid"></div>
-        </div>
-
-        <!-- LUDO PAGE -->
-        <div id="ludoPage" class="page">
-            <button onclick="showPage('homePage')" class="btn btn-outline" style="width:auto;padding:8px 16px;margin-bottom:16px">← Back</button>
-            <div class="glass" style="padding:20px;text-align:center">
-                <h2 style="font-size:22px;margin-bottom:8px" class="text-gold">🎲 Ludo Dice</h2>
-                <p style="color:#aaa;font-size:13px;margin-bottom:8px">Roll the dice and win!</p>
-                <div style="display:flex;justify-content:center;gap:20px;margin-bottom:12px">
-                    <div style="text-align:center">
-                        <div style="font-size:11px;color:#888">Plays Left</div>
-                        <div style="font-weight:700;font-size:18px" class="text-gold" id="ludoPlaysLeft">10</div>
-                    </div>
-                    <div style="text-align:center">
-                        <div style="font-size:11px;color:#888">Cost</div>
-                        <div style="font-weight:700;font-size:18px" class="text-gold" id="ludoCost">10</div>
-                    </div>
+            <div style="display:flex;flex-direction:column;gap:10px" id="plansList"></div>
+            
+            <div class="card card-accent" style="margin-top:14px">
+                <h4 style="font-weight:700;margin-bottom:4px;color:var(--gold)">📥 Deposit GRAM</h4>
+                <p style="font-size:11px;color:var(--muted);margin-bottom:12px">Send GRAM (TON Network) to upgrade</p>
+                
+                <div style="background:var(--surface);border-radius:12px;padding:14px;margin-bottom:12px;text-align:center">
+                    <div style="font-size:10px;color:var(--muted);margin-bottom:4px">DEPOSIT ADDRESS</div>
+                    <div style="font-weight:600;font-size:11px;font-family:monospace;color:var(--gold);word-break:break-all;margin-bottom:8px">UQCvo1QqWh9Vpwz8dMPs72r395eLSKo5QwulERg_BIo7EECu</div>
+                    <button class="btn btn-ghost btn-sm" onclick="copyAddress()" style="margin:0 auto">📋 Copy</button>
                 </div>
-                <div class="limit-bar"><div class="limit-fill" id="ludoLimitBar" style="width:100%"></div></div>
-                <div class="dice-box" id="ludoDice" style="margin-top:20px">⚀</div>
-                <button class="btn btn-gold" id="rollDiceBtn">🎯 ROLL DICE</button>
-                <div id="ludoCooldown" style="font-size:12px;color:#f0a500;margin-top:8px;display:none">⏱️ Wait...</div>
+                
+                <div style="margin-bottom:10px">
+                    <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">Transaction ID (required)</label>
+                    <input type="text" class="input-field" id="txId" placeholder="Enter transaction hash">
+                </div>
+                
+                <div style="margin-bottom:10px">
+                    <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">Select Plan</label>
+                    <select class="input-field" id="depositPlan" style="font-family:inherit">
+                        <option value="">Choose plan...</option>
+                    </select>
+                </div>
+                
+                <button class="btn btn-gold" onclick="submitDeposit()">✅ CONFIRM DEPOSIT</button>
+                <p style="font-size:9px;color:var(--muted);margin-top:8px;text-align:center">Admin verifies within 24 hours</p>
             </div>
         </div>
 
-        <!-- COLOR GAME PAGE -->
-        <div id="colorGamePage" class="page">
-            <button onclick="showPage('homePage')" class="btn btn-outline" style="width:auto;padding:8px 16px;margin-bottom:16px">← Back</button>
-            <div class="glass" style="padding:20px;text-align:center">
-                <h2 style="font-size:22px;margin-bottom:8px" class="text-gold">🎨 Color Match</h2>
-                <p style="color:#aaa;font-size:13px;margin-bottom:8px">Find the matching color!</p>
-                <div style="display:flex;justify-content:center;gap:20px;margin-bottom:12px">
-                    <div style="text-align:center">
-                        <div style="font-size:11px;color:#888">Plays Left</div>
-                        <div style="font-weight:700;font-size:18px" class="text-gold" id="colorPlaysLeft">10</div>
-                    </div>
-                    <div style="text-align:center">
-                        <div style="font-size:11px;color:#888">Reward</div>
-                        <div style="font-weight:700;font-size:18px" class="text-gold" id="colorReward">50</div>
-                    </div>
-                </div>
-                <div class="limit-bar"><div class="limit-fill" id="colorLimitBar" style="width:100%"></div></div>
-                <div style="background:rgba(0,0,0,0.3);border-radius:14px;padding:12px;margin:16px 0">
-                    <div style="font-size:12px;color:#888">Match this:</div>
-                    <div id="targetColor" style="width:80px;height:50px;margin:8px auto;border-radius:10px;border:2px solid #fff"></div>
-                    <div id="targetRgb" style="font-size:13px;font-weight:600" class="text-gold">rgb(0,0,0)</div>
-                </div>
-                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px" id="colorOptions"></div>
-            </div>
-        </div>
-
-        <!-- TRY LUCK PAGE -->
-        <div id="tryLuckPage" class="page">
-            <button onclick="showPage('homePage')" class="btn btn-outline" style="width:auto;padding:8px 16px;margin-bottom:16px">← Back</button>
-            <div class="glass" style="padding:20px;text-align:center">
-                <div style="font-size:60px;margin-bottom:10px">🍀</div>
-                <h2 style="font-size:22px;margin-bottom:8px" class="text-gold">Try Your Luck!</h2>
-                <p style="color:#aaa;font-size:13px;margin-bottom:8px">Spin and win big!</p>
-                <div style="display:flex;justify-content:center;gap:20px;margin-bottom:12px">
-                    <div style="text-align:center">
-                        <div style="font-size:11px;color:#888">Plays Left</div>
-                        <div style="font-weight:700;font-size:18px" class="text-gold" id="luckPlaysLeft">5</div>
-                    </div>
-                    <div style="text-align:center">
-                        <div style="font-size:11px;color:#888">Max Win</div>
-                        <div style="font-weight:700;font-size:18px" class="text-gold" id="luckMaxWin">200</div>
-                    </div>
-                </div>
-                <div class="limit-bar"><div class="limit-fill" id="luckLimitBar" style="width:100%"></div></div>
-                <button class="btn btn-gold" id="luckBtn" style="margin-top:20px">🎰 SPIN NOW</button>
+        <!-- GAMES PAGE -->
+        <div id="gamesPage" class="page">
+            <h3 style="font-size:18px;font-weight:700;margin-bottom:4px;color:var(--text)">🎮 Mining Games</h3>
+            <p style="font-size:12px;color:var(--muted);margin-bottom:14px">Play to earn extra GRAM</p>
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
+                <div class="card" style="text-align:center;cursor:pointer" onclick="playDice()"><div style="font-size:36px">🎲</div><div style="font-weight:600;font-size:14px">Dice Roll</div><div style="font-size:10px;color:var(--muted)">5x Win</div></div>
+                <div class="card" style="text-align:center;cursor:pointer" onclick="playCrash()"><div style="font-size:36px">📈</div><div style="font-weight:600;font-size:14px">Crash</div><div style="font-size:10px;color:var(--muted)">Cash Out</div></div>
+                <div class="card" style="text-align:center;cursor:pointer" onclick="playWheel()"><div style="font-size:36px">🎰</div><div style="font-weight:600;font-size:14px">Lucky Spin</div><div style="font-size:10px;color:var(--muted)">Win Big</div></div>
+                <div class="card" style="text-align:center;cursor:pointer" onclick="playMemory()"><div style="font-size:36px">🧠</div><div style="font-weight:600;font-size:14px">Memory</div><div style="font-size:10px;color:var(--muted)">Match & Earn</div></div>
             </div>
         </div>
 
         <!-- WALLET PAGE -->
         <div id="walletPage" class="page">
-            <button onclick="showPage('homePage')" class="btn btn-outline" style="width:auto;padding:8px 16px;margin-bottom:16px">← Back</button>
-            <div class="glass" style="padding:20px;text-align:center;margin-bottom:16px">
-                <h2 style="font-size:22px;margin-bottom:12px" class="text-gold">💰 Wallet</h2>
-                <div style="background:rgba(0,0,0,0.3);border-radius:14px;padding:20px;margin-bottom:16px">
-                    <div style="font-size:12px;color:#888">Balance</div>
-                    <div style="font-size:32px;font-weight:700" class="text-gold" id="walletBalance">0</div>
-                    <div style="font-size:11px;color:#888" id="conversionRate">1000 = ₹10</div>
-                </div>
-                <div style="text-align:left;margin-bottom:8px">
-                    <label style="font-size:12px;color:#888">Amount (min <span id="minWithdraw">1000</span>)</label>
-                    <input type="number" id="withdrawAmount" placeholder="Min withdrawal" style="width:100%;padding:12px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.2);border-radius:10px;color:#fff;margin-top:4px">
+            <div class="card card-gold" style="text-align:center">
+                <h3 style="font-size:18px;font-weight:700;margin-bottom:4px;color:var(--gold)">💎 GRAM Wallet</h3>
+                <div style="background:var(--surface);border-radius:16px;padding:20px;margin:16px 0">
+                    <div style="font-size:11px;color:var(--muted)">Available Balance</div>
+                    <div style="font-size:32px;font-weight:800;color:var(--gold);font-family:monospace" id="wBalance">0.0000</div>
+                    <div style="font-size:10px;color:var(--muted)">GRAM • TON Network</div>
                 </div>
                 <div style="text-align:left;margin-bottom:12px">
-                    <label style="font-size:12px;color:#888">UPI ID</label>
-                    <input type="text" id="upiId" placeholder="yourname@upi" style="width:100%;padding:12px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.2);border-radius:10px;color:#fff;margin-top:4px">
+                    <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px;font-weight:600">💳 Withdrawal Address</label>
+                    <input type="text" class="input-field" id="wAddress" placeholder="Your GRAM wallet address">
                 </div>
-                <button class="btn btn-gold" id="withdrawBtn">💸 Request Withdrawal</button>
+                <div style="text-align:left;margin-bottom:12px">
+                    <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px;font-weight:600">📊 Amount (min 0.5 GRAM)</label>
+                    <input type="number" class="input-field" id="wAmount" placeholder="0.5" step="0.1" style="font-family:inherit">
+                </div>
+                <button class="btn btn-gold" onclick="requestWithdraw()">💸 WITHDRAW</button>
+                <p style="font-size:9px;color:var(--muted);margin-top:8px">⚠️ Complete 5 ads to process withdrawal</p>
             </div>
-            <div class="glass" style="padding:16px">
-                <h3 style="font-weight:700;margin-bottom:10px" class="text-gold">📋 History</h3>
-                <div id="withdrawHistory" style="max-height:200px;overflow-y:auto">
-                    <div style="text-align:center;color:#888;padding:20px">No withdrawals yet</div>
-                </div>
+            <div class="card" style="margin-top:10px">
+                <h4 style="font-weight:600;margin-bottom:8px;color:var(--gold)">📋 History</h4>
+                <div id="wHistory"><div style="text-align:center;color:var(--muted);padding:16px;font-size:13px">No withdrawals</div></div>
             </div>
         </div>
 
-        <!-- REFER PAGE -->
-        <div id="referPage" class="page">
-            <button onclick="showPage('homePage')" class="btn btn-outline" style="width:auto;padding:8px 16px;margin-bottom:16px">← Back</button>
-            <div class="glass" style="padding:20px;text-align:center;margin-bottom:16px">
-                <div style="font-size:50px;margin-bottom:10px">👥</div>
-                <h2 style="font-size:22px;margin-bottom:8px" class="text-gold">Refer & Earn</h2>
-                <p style="color:#aaa;font-size:13px;margin-bottom:16px">Invite friends and earn <span class="text-gold" id="referBonus">100</span> coins each!</p>
-                <div style="background:rgba(0,0,0,0.3);border-radius:14px;padding:16px;margin-bottom:16px">
-                    <div style="font-size:12px;color:#888">Your Code</div>
-                    <div style="font-size:24px;font-weight:700;letter-spacing:3px" class="text-gold" id="referralCode">------</div>
+        <!-- REFERRAL PAGE -->
+        <div id="referralPage" class="page">
+            <div class="card card-gold" style="text-align:center">
+                <div style="font-size:48px;margin-bottom:8px">👥</div>
+                <h3 style="font-size:18px;font-weight:700;color:var(--gold)">Refer & Earn</h3>
+                <p style="font-size:12px;color:var(--muted);margin-bottom:12px">+10% of referrals' mining</p>
+                <div style="background:var(--surface);border-radius:12px;padding:12px;margin-bottom:12px">
+                    <div style="font-size:10px;color:var(--muted)">Your Code</div>
+                    <div style="font-size:22px;font-weight:800;color:var(--gold);letter-spacing:2px;font-family:monospace" id="refCode">------</div>
                 </div>
-                <button class="btn btn-gold" id="copyRefBtn">📋 Copy Code</button>
-                <button class="btn btn-purple" id="shareRefBtn" style="margin-top:8px">📤 Share</button>
+                <button class="btn btn-gold" id="copyRefBtn" style="width:100%">📋 Copy Link</button>
+                <button class="btn btn-ghost" id="shareRefBtn" style="width:100%;margin-top:6px">📤 Share</button>
             </div>
-            <div class="glass" style="padding:16px">
-                <h3 style="font-weight:700;margin-bottom:10px" class="text-gold">👥 Referrals</h3>
-                <div id="referralList" style="max-height:200px;overflow-y:auto">
-                    <div style="text-align:center;color:#888;padding:20px">No referrals yet</div>
-                </div>
+            <div class="card" style="margin-top:10px">
+                <h4 style="font-weight:600;margin-bottom:8px;color:var(--gold)">👥 Your Referrals</h4>
+                <div id="refList"><div style="text-align:center;color:var(--muted);padding:16px;font-size:13px">No referrals yet</div></div>
             </div>
         </div>
     </div>
 
-    <!-- Bottom Nav -->
+    <!-- Bottom Navigation -->
     <div class="bottom-nav">
-        <div class="nav-item active" data-page="homePage"><i class="fas fa-home"></i><span>Home</span></div>
-        <div class="nav-item" data-page="ludoPage"><i class="fas fa-dice"></i><span>Ludo</span></div>
-        <div class="nav-item" data-page="colorGamePage"><i class="fas fa-palette"></i><span>Color</span></div>
-        <div class="nav-item" data-page="referPage"><i class="fas fa-users"></i><span>Refer</span></div>
-        <div class="nav-item" data-page="walletPage"><i class="fas fa-wallet"></i><span>Wallet</span></div>
+        <div class="nav-item active" data-page="minePage">
+            <i class="fas fa-hammer"></i><span>Mine</span><div class="nav-dot"></div>
+        </div>
+        <div class="nav-item" data-page="plansPage">
+            <i class="fas fa-gem"></i><span>Plans</span><div class="nav-dot"></div>
+        </div>
+        <div class="nav-item" data-page="gamesPage">
+            <i class="fas fa-gamepad"></i><span>Games</span><div class="nav-dot"></div>
+        </div>
+        <div class="nav-item" data-page="referralPage">
+            <i class="fas fa-users"></i><span>Refer</span><div class="nav-dot"></div>
+        </div>
+        <div class="nav-item" data-page="walletPage">
+            <i class="fas fa-wallet"></i><span>Wallet</span><div class="nav-dot"></div>
+        </div>
     </div>
 
     <script>
-        // ============ FIREBASE CONFIG ============
-        const firebaseConfig = {
+        // ============ FIREBASE ============
+        firebase.initializeApp({
             apiKey: "AIzaSyBEvTvWy-hH1HHgjoOhUKkj-Dglm11Oc8U",
             authDomain: "cash-rewards-01-624ae.firebaseapp.com",
             projectId: "cash-rewards-01-624ae",
             storageBucket: "cash-rewards-01-624ae.firebasestorage.app",
             messagingSenderId: "29119912449",
             appId: "1:29119912449:web:e0c68c1994ff0a71603e00"
-        };
-
-        firebase.initializeApp(firebaseConfig);
+        });
         const db = firebase.firestore();
 
-        // ============ ADSGRAM - KEPT INTACT ============
+        // ============ ADSGRAM ============
         const rewardedAd = window.Adsgram ? window.Adsgram.init({ blockId: "42429" }) : null;
-        const interstitialAd = window.Adsgram ? window.Adsgram.init({ blockId: "int-27569" }) : null;
-        
-        console.log('📺 Adsgram SDK:', window.Adsgram ? '✅ Loaded' : '❌ Not Loaded');
-        console.log('🎁 Rewarded Controller:', rewardedAd ? '✅ Ready' : '❌ Not Ready');
-        console.log('📢 Interstitial Controller:', interstitialAd ? '✅ Ready' : '❌ Not Ready');
 
-        // ============ ADMIN CONFIG (From Firebase) ============
-        let adminConfig = {
-            // Game limits
-            ludo: { maxPlays: 10, cost: 10, rewardMultiplier: 10, cooldown: 8000 },
-            color: { maxPlays: 10, reward: 50 },
-            luck: { maxPlays: 5, maxWin: 200 },
-            // Points & conversion
-            dailyBonus: 50,
-            referBonus: 100,
-            minWithdraw: 1000,
-            conversionRate: 10, // 1000 coins = ₹10
-            conversionText: '1000 = ₹10'
-        };
+        // ============ DEVICE ID ============
+        const DEVICE_ID = (() => {
+            let d = localStorage.getItem('gm_device');
+            if (!d) { d = 'gm_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6); localStorage.setItem('gm_device', d); }
+            return d;
+        })();
 
-        // ============ USER STATE ============
-        let currentUser = null;
-        let userData = {
-            balance: 0,
-            totalEarned: 0,
-            todayEarnings: 0,
-            gamesPlayed: 0,
-            ludoPlays: 0,
-            colorPlays: 0,
-            luckPlays: 0,
-            ludoCooldown: 0,
-            currentLudoWin: 0,
-            colorTarget: null,
-            adCallCount: 0,
-            lastDailyBonus: null,
-            referralCode: '',
-            referrals: [],
-            withdrawals: []
+        // ============ PLANS ============
+        const PLANS = [
+            { id: 'free', name: 'Free', deposit: 0, hashRate: 1, dailyGram: 0.0001, roi: '-', color: '#8b949e' },
+            { id: 'bronze', name: 'Bronze', deposit: 1, hashRate: 10, dailyGram: 0.011, roi: '10%', color: '#cd7f32' },
+            { id: 'silver', name: 'Silver', deposit: 5, hashRate: 50, dailyGram: 0.06, roi: '20%', color: '#c0c0c0' },
+            { id: 'gold', name: 'Gold', deposit: 10, hashRate: 120, dailyGram: 0.13, roi: '30%', color: '#f0b90b' },
+            { id: 'platinum', name: 'Platinum', deposit: 50, hashRate: 600, dailyGram: 0.70, roi: '40%', color: '#e5e4e2' },
+            { id: 'diamond', name: 'Diamond', deposit: 100, hashRate: 1500, dailyGram: 1.80, roi: '80%', color: '#00d4aa' }
+        ];
+
+        // ============ STATE ============
+        let state = {
+            balance: 0, totalMined: 0, todayMined: 0,
+            hashRate: 1, planId: 'free', level: 1,
+            isMining: false, miningStart: null,
+            boostActive: false, boostEnd: 0,
+            streak: 0, lastDaily: null,
+            referralCode: '', referrals: [],
+            withdrawals: [], deposits: [],
+            adCount: 0, wAdsDone: 0, wAdsNeed: 5,
+            pendingW: null, deviceId: DEVICE_ID,
+            todayReset: new Date().toDateString()
         };
 
         // ============ TOAST ============
-        function showToast(message, type = 'info') {
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.textContent = message;
-            toast.style.background = type === 'error' ? '#e74c3c' : type === 'success' ? '#2ecc71' : '#333';
-            document.getElementById('toastContainer').appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
+        function toast(m, t = 'info') {
+            const c = document.createElement('div'); c.className = 'toast'; c.textContent = m;
+            c.style.background = t === 'error' ? 'var(--red)' : t === 'success' ? 'var(--green)' : 'var(--surface)';
+            document.getElementById('toastContainer').appendChild(c);
+            setTimeout(() => c.remove(), 2800);
         }
 
-        // ============ ADS FUNCTION - KEPT INTACT ============
+        // ============ MODAL ============
+        function showModal(h) { document.getElementById('modalContent').innerHTML = h; document.getElementById('modalOverlay').classList.add('show'); }
+        function closeModal(e) { if (!e || e.target === document.getElementById('modalOverlay')) document.getElementById('modalOverlay').classList.remove('show'); }
+
+        // ============ ADS ============
         async function showAd() {
-            userData.adCallCount++;
-            const isRewarded = userData.adCallCount % 2 === 1;
-            
-            console.log(`📺 Calling ${isRewarded ? 'REWARDED' : 'INTERSTITIAL'} ad (#${userData.adCallCount})`);
-            
-            document.getElementById('adLoadingOverlay').style.display = 'flex';
-            
+            state.adCount++;
+            document.getElementById('adOverlay').style.display = 'flex';
             try {
-                if (!window.Adsgram) {
-                    await new Promise(r => setTimeout(r, 1500));
-                    document.getElementById('adLoadingOverlay').style.display = 'none';
-                    showToast('📺 Ad completed! (Demo mode)');
-                    return true;
-                }
-                
-                const controller = isRewarded ? rewardedAd : interstitialAd;
-                
-                if (!controller) {
-                    document.getElementById('adLoadingOverlay').style.display = 'none';
-                    return false;
-                }
-                
-                const result = await controller.show();
-                document.getElementById('adLoadingOverlay').style.display = 'none';
-                
-                if (result.done) {
-                    console.log('✅ Ad completed successfully');
-                    return true;
-                } else {
-                    console.log('❌ Ad not completed:', result.description);
-                    return false;
-                }
-                
-            } catch (error) {
-                document.getElementById('adLoadingOverlay').style.display = 'none';
-                console.error('❌ Ad error:', error);
-                
-                if (!isRewarded && error?.state === 'destroy') {
-                    return true;
-                }
-                
-                return false;
-            }
+                if (!window.Adsgram || !rewardedAd) { await new Promise(r => setTimeout(r, 1800)); document.getElementById('adOverlay').style.display = 'none'; return true; }
+                const r = await rewardedAd.show();
+                document.getElementById('adOverlay').style.display = 'none';
+                return r.done;
+            } catch (e) { document.getElementById('adOverlay').style.display = 'none'; return false; }
         }
 
-        // ============ FIREBASE SYNC ============
-        async function syncWithFirebase() {
-            if (!currentUser) return;
-            
-            try {
-                const userRef = db.collection('users').doc(currentUser.uid);
-                
-                // Update user data in Firebase
-                await userRef.set({
-                    balance: userData.balance,
-                    totalEarned: userData.totalEarned,
-                    todayEarnings: userData.todayEarnings,
-                    gamesPlayed: userData.gamesPlayed,
-                    ludoPlays: userData.ludoPlays,
-                    colorPlays: userData.colorPlays,
-                    luckPlays: userData.luckPlays,
-                    lastDailyBonus: userData.lastDailyBonus,
-                    referralCode: userData.referralCode,
-                    referrals: userData.referrals,
-                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-                }, { merge: true });
-                
-                console.log('✅ Synced with Firebase');
-            } catch(e) {
-                console.error('Firebase sync error:', e);
-                // Save locally as fallback
-                saveLocalState();
-            }
+        // ============ MINING ============
+        async function startMining() {
+            if (state.isMining) { toast('Already mining!'); return; }
+            const adOk = await showAd();
+            if (!adOk) { toast('Ad required to start mining', 'error'); return; }
+            state.isMining = true; state.miningStart = Date.now();
+            document.getElementById('mineText').textContent = 'MINING ACTIVE';
+            document.getElementById('mineIcon').textContent = '⛏️';
+            document.getElementById('startMineBtn').classList.add('btn-green');
+            document.getElementById('minerCore').classList.add('active');
+            toast('⛏️ Mining started!', 'success'); save(); updateUI();
         }
 
-        async function loadFromFirebase() {
-            if (!currentUser) return false;
-            
-            try {
-                const userRef = db.collection('users').doc(currentUser.uid);
-                const doc = await userRef.get();
-                
-                if (doc.exists) {
-                    const data = doc.data();
-                    Object.assign(userData, data);
-                    console.log('✅ Loaded from Firebase');
-                    return true;
-                } else {
-                    // Create new user
-                    userData.referralCode = generateReferralCode();
-                    await userRef.set({
-                        ...userData,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    console.log('✅ New user created in Firebase');
-                    return true;
-                }
-            } catch(e) {
-                console.error('Firebase load error:', e);
-                loadLocalState();
-                return false;
-            }
+        async function activateBoost() {
+            if (state.boostActive && Date.now() < state.boostEnd) { toast('Boost already active!'); return; }
+            const adOk = await showAd();
+            if (!adOk) { toast('Ad required for boost', 'error'); return; }
+            state.boostActive = true; state.boostEnd = Date.now() + 600000;
+            toast('⚡ 2x Boost for 10 min!', 'success'); save(); updateUI();
         }
 
-        async function loadAdminConfig() {
-            try {
-                const configDoc = await db.collection('adminConfig').doc('gameSettings').get();
-                if (configDoc.exists) {
-                    const config = configDoc.data();
-                    // Merge with defaults
-                    adminConfig = { ...adminConfig, ...config };
-                    console.log('✅ Admin config loaded:', adminConfig);
-                } else {
-                    console.log('⚠️ No admin config found, using defaults');
-                }
-            } catch(e) {
-                console.error('Config load error:', e);
-                console.log('⚠️ Using default config');
-            }
-        }
-
-        async function saveWithdrawalToFirebase(withdrawal) {
-            if (!currentUser) return;
-            
-            try {
-                await db.collection('withdrawals').add({
-                    userId: currentUser.uid,
-                    userName: currentUser.name || 'Player',
-                    amount: withdrawal.amount,
-                    upiId: withdrawal.upiId,
-                    status: 'pending',
-                    requestedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                console.log('✅ Withdrawal saved to Firebase');
-            } catch(e) {
-                console.error('Withdrawal save error:', e);
-            }
-        }
-
-        // ============ LOCAL STORAGE FALLBACK ============
-        function saveLocalState() {
-            try { 
-                localStorage.setItem('cr_userdata', JSON.stringify(userData)); 
-            } catch(e) {}
-        }
-
-        function loadLocalState() {
-            try {
-                const saved = localStorage.getItem('cr_userdata');
-                if (saved) Object.assign(userData, JSON.parse(saved));
-            } catch(e) {}
-        }
-
-        function generateReferralCode() {
-            return Math.random().toString(36).substring(2, 8).toUpperCase();
+        function getHashRate() {
+            let h = state.hashRate;
+            if (state.boostActive && Date.now() < state.boostEnd) h *= 2;
+            return h;
         }
 
         // ============ BALANCE ============
-        async function addCoins(amount) {
-            userData.balance += amount;
-            if (amount > 0) {
-                userData.totalEarned += amount;
-                userData.todayEarnings += amount;
+        function addBalance(a) {
+            state.balance += a; state.totalMined += a; state.todayMined += a;
+            const nl = Math.floor(state.totalMined / 10) + 1;
+            if (nl > state.level) { state.level = nl; toast('🎉 Level ' + nl + '!', 'success'); }
+        }
+
+        // ============ DEPOSIT ============
+        function submitDeposit() {
+            const tx = document.getElementById('txId').value.trim();
+            const planId = document.getElementById('depositPlan').value;
+            if (!tx) { toast('Enter transaction ID', 'error'); return; }
+            if (!planId) { toast('Select a plan', 'error'); return; }
+            const plan = PLANS.find(p => p.id === planId);
+            if (!plan || plan.id === 'free') { toast('Select a paid plan', 'error'); return; }
+
+            state.deposits.push({ txId: tx, planId: plan.id, amount: plan.deposit, status: 'pending', date: new Date().toISOString() });
+
+            if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
+                const uid = 'tg_' + window.Telegram.WebApp.initDataUnsafe.user.id;
+                db.collection('deposits').add({ userId: uid, deviceId: DEVICE_ID, txId: tx, planId: plan.id, amount: plan.deposit, status: 'pending', createdAt: firebase.firestore.FieldValue.serverTimestamp() }).catch(() => { });
             }
-            await syncWithFirebase();
-            updateUI();
+            document.getElementById('txId').value = '';
+            toast('✅ Deposit submitted! Admin will verify.', 'success'); save();
         }
 
-        async function spendCoins(amount) {
-            if (userData.balance < amount) return false;
-            userData.balance -= amount;
-            await syncWithFirebase();
-            updateUI();
-            return true;
+        async function copyAddress() {
+            await navigator.clipboard.writeText('UQCvo1QqWh9Vpwz8dMPs72r395eLSKo5QwulERg_BIo7EECu');
+            toast('✅ Address copied!');
         }
 
-        // ============ UI UPDATE ============
-        function updateUI() {
-            document.getElementById('balance').textContent = userData.balance;
-            document.getElementById('walletBalance').textContent = userData.balance;
-            document.getElementById('todayEarnings').textContent = userData.todayEarnings;
-            document.getElementById('gamesPlayed').textContent = userData.gamesPlayed;
-            
-            const level = Math.floor(userData.totalEarned / 1000) + 1;
-            document.getElementById('levelDisplay').textContent = level;
-            document.getElementById('userLevel').textContent = 'Level ' + level;
-            
-            // Game limits
-            const ludoRemaining = adminConfig.ludo.maxPlays - userData.ludoPlays;
-            const colorRemaining = adminConfig.color.maxPlays - userData.colorPlays;
-            const luckRemaining = adminConfig.luck.maxPlays - userData.luckPlays;
-            
-            document.getElementById('ludoPlaysLeft').textContent = Math.max(0, ludoRemaining);
-            document.getElementById('colorPlaysLeft').textContent = Math.max(0, colorRemaining);
-            document.getElementById('luckPlaysLeft').textContent = Math.max(0, luckRemaining);
-            
-            document.getElementById('ludoLimitBar').style.width = Math.max(0, (ludoRemaining / adminConfig.ludo.maxPlays) * 100) + '%';
-            document.getElementById('colorLimitBar').style.width = Math.max(0, (colorRemaining / adminConfig.color.maxPlays) * 100) + '%';
-            document.getElementById('luckLimitBar').style.width = Math.max(0, (luckRemaining / adminConfig.luck.maxPlays) * 100) + '%';
-            
-            // Config displays
-            document.getElementById('ludoCost').textContent = adminConfig.ludo.cost;
-            document.getElementById('colorReward').textContent = adminConfig.color.reward;
-            document.getElementById('luckMaxWin').textContent = adminConfig.luck.maxWin;
-            document.getElementById('referBonus').textContent = adminConfig.referBonus;
-            document.getElementById('minWithdraw').textContent = adminConfig.minWithdraw;
-            document.getElementById('conversionRate').textContent = adminConfig.conversionText;
-            document.getElementById('referralCode').textContent = userData.referralCode || '------';
-            
-            // Daily bonus
-            const today = new Date().toDateString();
-            const bonusAvailable = userData.lastDailyBonus !== today;
-            const bonusCard = document.getElementById('dailyBonusCard');
-            if (bonusCard) {
-                bonusCard.classList.toggle('available', bonusAvailable);
-                bonusCard.style.opacity = bonusAvailable ? '1' : '0.5';
+        // ============ WITHDRAWAL ============
+        function requestWithdraw() {
+            const addr = document.getElementById('wAddress').value.trim();
+            const amt = parseFloat(document.getElementById('wAmount').value);
+            if (!addr || addr.length < 10) { toast('Enter valid address', 'error'); return; }
+            if (!amt || amt < 0.5) { toast('Min 0.5 GRAM', 'error'); return; }
+            if (state.balance < amt) { toast('Insufficient balance', 'error'); return; }
+            state.pendingW = { address: addr, amount: amt }; state.wAdsDone = 0;
+            showWithdrawAdModal();
+        }
+
+        function showWithdrawAdModal() {
+            let dots = '';
+            for (let i = 0; i < state.wAdsNeed; i++) {
+                dots += `<span style="display:inline-block;width:16px;height:16px;border-radius:50%;margin:2px;background:${i < state.wAdsDone ? 'var(--green)' : i === state.wAdsDone ? 'var(--gold)' : 'rgba(255,255,255,0.08)'};transition:all 0.3s"></span>`;
             }
+            showModal(`
+                <h3 style="font-weight:700;color:var(--gold);margin-bottom:4px">📺 Complete Ads</h3>
+                <p style="font-size:12px;color:var(--muted);margin-bottom:16px">${state.wAdsDone}/${state.wAdsNeed} ads to process withdrawal</p>
+                <div style="text-align:center;margin-bottom:16px">${dots}</div>
+                <button class="btn btn-gold" id="wAdBtn" onclick="watchWAd()" style="margin-bottom:8px">📺 Watch Ad (${state.wAdsDone + 1}/${state.wAdsNeed})</button>
+                <button class="btn btn-ghost btn-sm" onclick="closeModal()" style="width:100%">Cancel</button>
+            `);
         }
 
-        // ============ REWARD MODAL ============
-        function showRewardModal(amount, onBase, onBonus) {
-            document.getElementById('modalTitle').textContent = 'You Won!';
-            document.getElementById('modalAmount').textContent = '+' + amount;
-            document.getElementById('modalBaseBtn').onclick = () => {
-                document.getElementById('rewardModal').style.display = 'none';
-                onBase();
-            };
-            document.getElementById('modalBonusBtn').onclick = () => {
-                document.getElementById('rewardModal').style.display = 'none';
-                onBonus();
-            };
-            document.getElementById('rewardModal').style.display = 'flex';
+        async function watchWAd() {
+            const adOk = await showAd();
+            if (adOk) {
+                state.wAdsDone++;
+                if (state.wAdsDone >= state.wAdsNeed) { closeModal(); await processWithdraw(); }
+                else showWithdrawAdModal();
+            } else toast('Ad not completed', 'error');
         }
 
-        // ============ DAILY BONUS ============
-        async function claimDailyBonus() {
-            const today = new Date().toDateString();
-            if (userData.lastDailyBonus === today) {
-                showToast('⏰ Already claimed today!', 'error');
-                return;
+        async function processWithdraw() {
+            const w = state.pendingW; if (!w) return;
+            state.balance -= w.amount;
+            state.withdrawals.push({ ...w, date: new Date().toISOString(), status: 'pending' });
+            state.pendingW = null;
+            if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
+                const uid = 'tg_' + window.Telegram.WebApp.initDataUnsafe.user.id;
+                db.collection('withdrawals').add({ userId: uid, deviceId: DEVICE_ID, ...w, status: 'pending', adsCompleted: state.wAdsNeed, requestedAt: firebase.firestore.FieldValue.serverTimestamp() }).catch(() => { });
             }
-            
-            userData.lastDailyBonus = today;
-            await addCoins(adminConfig.dailyBonus);
-            showToast(`🎉 Daily bonus: +${adminConfig.dailyBonus} coins!`, 'success');
-            updateUI();
+            document.getElementById('wAddress').value = ''; document.getElementById('wAmount').value = '';
+            toast('✅ Withdrawal requested!', 'success'); save(); updateUI(); updateWHistory();
         }
 
         // ============ GAMES ============
-        // Ludo
-        async function rollDice() {
-            const remaining = adminConfig.ludo.maxPlays - userData.ludoPlays;
-            if (remaining <= 0) {
-                showToast('❌ No plays left for today!', 'error');
-                return;
-            }
-            
-            if (userData.ludoCooldown > Date.now()) {
-                showToast('⏱️ Wait ' + Math.ceil((userData.ludoCooldown - Date.now())/1000) + 's', 'error');
-                return;
-            }
-            
-            if (!await spendCoins(adminConfig.ludo.cost)) {
-                showToast('❌ Need ' + adminConfig.ludo.cost + ' coins!', 'error');
-                return;
-            }
+        function playDice() {
+            const bet = 0.001; if (state.balance < bet) { toast('Need 0.001 GRAM', 'error'); return; }
+            state.balance -= bet; const roll = Math.floor(Math.random() * 6) + 1; const dice = ['', '⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+            let won = false; if (roll >= 4) { won = true; state.balance += bet * 3; }
+            showModal(`<h3 style="font-weight:700;color:var(--gold)">🎲 Dice Roll</h3><div style="font-size:60px;margin:16px 0">${dice[roll]}</div><p style="font-size:18px;font-weight:700;color:${won ? 'var(--green)' : 'var(--red)'}">${won ? '🎉 Won ' + (bet * 3).toFixed(4) + ' GRAM!' : '❌ Lost ' + bet.toFixed(4) + ' GRAM'}</p><button class="btn btn-gold" onclick="closeModal();playDice()">🎲 Roll Again</button><button class="btn btn-ghost btn-sm" style="width:100%;margin-top:6px" onclick="closeModal()">Close</button>`);
+            save(); updateUI();
+        }
 
-            const btn = document.getElementById('rollDiceBtn');
-            btn.disabled = true;
-            btn.textContent = '🎲 Rolling...';
-            
-            const faces = ['⚀','⚁','⚂','⚃','⚄','⚅'];
-            let count = 0;
-            
-            function animate() {
-                if (count < 15) {
-                    document.getElementById('ludoDice').textContent = faces[Math.floor(Math.random()*6)];
-                    count++;
-                    setTimeout(animate, 60);
-                } else {
-                    const result = Math.floor(Math.random()*6) + 1;
-                    userData.currentLudoWin = result * adminConfig.ludo.rewardMultiplier;
-                    document.getElementById('ludoDice').textContent = faces[result-1];
-                    
-                    showRewardModal(userData.currentLudoWin,
-                        async () => {
-                            await addCoins(userData.currentLudoWin);
-                            showToast('🎉 Won ' + userData.currentLudoWin + ' coins!', 'success');
-                            finishGame();
-                        },
-                        async () => {
-                            const adOk = await showAd();
-                            if (adOk) {
-                                const bonus = userData.currentLudoWin * 2;
-                                await addCoins(bonus);
-                                showToast('🎉 2x BONUS! Won ' + bonus + ' coins!', 'success');
-                            } else {
-                                await addCoins(userData.currentLudoWin);
-                                showToast('⚠️ Ad skipped. Won ' + userData.currentLudoWin + ' coins.');
-                            }
-                            finishGame();
-                        }
-                    );
+        function playCrash() {
+            const bet = 0.001; if (state.balance < bet) { toast('Need 0.001 GRAM', 'error'); return; }
+            state.balance -= bet; let mult = 1; const cp = 1 + Math.random() * 4;
+            let html = `<h3 style="font-weight:700;color:var(--gold)">📈 Crash</h3><div style="font-size:44px;font-weight:800;margin:12px 0;color:var(--gold)" id="cMult">1.00x</div><div style="font-size:13px;color:var(--muted)">Potential: <span style="color:var(--gold)" id="cPot">${bet.toFixed(4)}</span> GRAM</div><button class="btn btn-green" id="cOut" onclick="window._cashout()" style="margin-top:14px">💰 CASH OUT</button><div id="cStatus" style="margin-top:6px;font-size:11px;color:var(--gold)">Playing...</div>`;
+            showModal(html);
+            window._bet = bet; window._mult = mult; window._crashed = false;
+            const iv = setInterval(() => {
+                mult += 0.04; window._mult = mult;
+                const mEl = document.getElementById('cMult'); if (mEl) mEl.textContent = mult.toFixed(2) + 'x';
+                const pEl = document.getElementById('cPot'); if (pEl) pEl.textContent = (bet * mult).toFixed(4);
+                if (mult >= cp) { window._crashed = true; clearInterval(iv); document.getElementById('cStatus').textContent = '💥 CRASHED!'; document.getElementById('cStatus').style.color = 'var(--red)'; document.getElementById('cOut').disabled = true; setTimeout(closeModal, 1400); }
+            }, 180);
+            window._cashout = () => { if (window._crashed) return; clearInterval(iv); const w = (window._bet * window._mult).toFixed(4); state.balance += parseFloat(w); closeModal(); toast('💰 Won ' + w + ' GRAM!', 'success'); save(); updateUI(); };
+        }
+
+        function playWheel() {
+            const cost = 0.001; if (state.balance < cost) { toast('Need 0.001 GRAM', 'error'); return; }
+            state.balance -= cost; const prizes = [0.0005, 0.001, 0.002, 0.005, 0.01, 0.02, 0.05]; const p = prizes[Math.floor(Math.random() * prizes.length)]; state.balance += p;
+            showModal(`<h3 style="font-weight:700;color:var(--gold)">🎰 Lucky Spin</h3><div style="font-size:70px;margin:12px 0" class="anim-float">🎡</div><p style="font-size:22px;font-weight:800;color:var(--green)">Won ${p} GRAM!</p><button class="btn btn-gold" onclick="closeModal();playWheel()">🎰 Spin Again</button><button class="btn btn-ghost btn-sm" style="width:100%;margin-top:6px" onclick="closeModal()">Close</button>`);
+            save(); updateUI();
+        }
+
+        function playMemory() {
+            const em = ['💎', '🪙', '⛏️', '⚡', '🔥', '💫', '🎯', '🌟']; const cd = [...em, ...em].sort(() => Math.random() - 0.5);
+            let fl = [], mt = 0; let h = '<h3 style="font-weight:700;color:var(--gold);margin-bottom:10px">🧠 Memory</h3><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px">';
+            cd.forEach((e, i) => { h += `<div id="mc${i}" onclick="window._fm(${i})" style="background:var(--surface);border-radius:10px;min-height:50px;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;border:1px solid var(--border)">❓</div>`; });
+            h += '</div>'; showModal(h);
+            window._cd = cd; window._fl = fl; window._mt = mt;
+            window._fm = (i) => {
+                if (window._fl.length >= 2 || window._fl.includes(i)) return;
+                document.getElementById('mc' + i).textContent = window._cd[i]; window._fl.push(i);
+                if (window._fl.length === 2) {
+                    const [a, b] = window._fl;
+                    if (window._cd[a] === window._cd[b]) { window._mt++; document.getElementById('mc' + a).style.background = 'rgba(0,212,170,0.15)'; document.getElementById('mc' + b).style.background = 'rgba(0,212,170,0.15)'; window._fl = []; if (window._mt === 8) { state.balance += 0.002; closeModal(); toast('🧠 +0.002 GRAM!', 'success'); save(); } }
+                    else setTimeout(() => { document.getElementById('mc' + a).textContent = '❓'; document.getElementById('mc' + b).textContent = '❓'; window._fl = []; }, 700);
                 }
-            }
-            
-            async function finishGame() {
-                btn.disabled = false;
-                btn.textContent = '🎯 ROLL DICE';
-                userData.gamesPlayed++;
-                userData.ludoPlays++;
-                userData.ludoCooldown = Date.now() + adminConfig.ludo.cooldown;
-                const cd = document.getElementById('ludoCooldown');
-                cd.style.display = 'block';
-                setTimeout(() => cd.style.display = 'none', adminConfig.ludo.cooldown);
-                await syncWithFirebase();
-                updateUI();
-            }
-            
-            animate();
+            };
         }
 
-        // Color Game
-        function initColorGame() {
-            const r = Math.floor(Math.random()*256);
-            const g = Math.floor(Math.random()*256);
-            const b = Math.floor(Math.random()*256);
-            userData.colorTarget = `rgb(${r},${g},${b})`;
-            
-            document.getElementById('targetColor').style.backgroundColor = userData.colorTarget;
-            document.getElementById('targetRgb').textContent = userData.colorTarget;
-            
-            const options = [userData.colorTarget];
-            while (options.length < 9) {
-                const dr = 40 + Math.floor(Math.random()*60);
-                const dg = 40 + Math.floor(Math.random()*60);
-                const db = 40 + Math.floor(Math.random()*60);
-                const c = `rgb(${
-                    Math.min(255,Math.max(0,r+(Math.random()>0.5?dr:-dr)))
-                },${
-                    Math.min(255,Math.max(0,g+(Math.random()>0.5?dg:-dg)))
-                },${
-                    Math.min(255,Math.max(0,b+(Math.random()>0.5?db:-db)))
-                })`;
-                if (!options.includes(c)) options.push(c);
-            }
-            options.sort(() => Math.random() - 0.5);
-            
-            const container = document.getElementById('colorOptions');
-            container.innerHTML = '';
-            options.forEach(c => {
-                const div = document.createElement('div');
-                div.className = 'color-box';
-                div.style.backgroundColor = c;
-                div.onclick = () => checkColor(c);
-                container.appendChild(div);
-            });
-        }
+        // ============ UI ============
+        function updateUI() {
+            document.getElementById('hBalance').textContent = state.balance.toFixed(4);
+            document.getElementById('todayMined').textContent = state.todayMined.toFixed(4);
+            document.getElementById('totalMined').textContent = state.totalMined.toFixed(4);
+            document.getElementById('hashRate').textContent = getHashRate().toFixed(1) + ' H/s';
+            document.getElementById('wBalance').textContent = state.balance.toFixed(4);
+            document.getElementById('hLevel').textContent = state.level;
+            document.getElementById('hPlan').textContent = PLANS.find(p => p.id === state.planId)?.name || 'Free';
+            const plan = PLANS.find(p => p.id === state.planId) || PLANS[0];
+            document.getElementById('dailyProgress').style.width = Math.min(100, (state.todayMined / plan.dailyGram) * 100) + '%';
+            document.getElementById('refCode').textContent = state.referralCode || '------';
 
-        async function checkColor(selected) {
-            const remaining = adminConfig.color.maxPlays - userData.colorPlays;
-            if (remaining <= 0) {
-                showToast('❌ No plays left for today!', 'error');
-                return;
-            }
-            
-            if (selected === userData.colorTarget) {
-                showRewardModal(adminConfig.color.reward,
-                    async () => {
-                        await addCoins(adminConfig.color.reward);
-                        showToast('✅ Correct! Won ' + adminConfig.color.reward + ' coins!', 'success');
-                        finishGame();
-                    },
-                    async () => {
-                        const adOk = await showAd();
-                        if (adOk) {
-                            await addCoins(adminConfig.color.reward * 2);
-                            showToast('🎉 2x! Won ' + (adminConfig.color.reward * 2) + ' coins!', 'success');
-                        } else {
-                            await addCoins(adminConfig.color.reward);
-                            showToast('⚠️ Ad skipped. Won ' + adminConfig.color.reward + ' coins.');
-                        }
-                        finishGame();
-                    }
-                );
+            if (state.boostActive && Date.now() < state.boostEnd) {
+                document.getElementById('boostBtn').style.display = 'none';
+                document.getElementById('boostActiveBar').style.display = 'block';
+                const r = Math.ceil((state.boostEnd - Date.now()) / 1000);
+                document.getElementById('boostTimer').textContent = Math.floor(r / 60) + ':' + (r % 60).toString().padStart(2, '0');
             } else {
-                showToast('❌ Wrong color! Try again.', 'error');
-                initColorGame();
+                if (state.boostActive) state.boostActive = false;
+                document.getElementById('boostBtn').style.display = 'block';
+                document.getElementById('boostActiveBar').style.display = 'none';
             }
-            
-            async function finishGame() {
-                userData.gamesPlayed++;
-                userData.colorPlays++;
-                await syncWithFirebase();
-                updateUI();
-                initColorGame();
+
+            if (state.isMining) {
+                document.getElementById('mineText').textContent = 'MINING ACTIVE';
+                document.getElementById('mineIcon').textContent = '⛏️';
+                document.getElementById('startMineBtn').classList.add('btn-green');
+                document.getElementById('minerCore').classList.add('active');
             }
         }
 
-        // Try Luck
-        async function startLuck() {
-            const remaining = adminConfig.luck.maxPlays - userData.luckPlays;
-            if (remaining <= 0) {
-                showToast('❌ No plays left for today!', 'error');
-                return;
-            }
-            
-            const winAmount = Math.floor(Math.random() * adminConfig.luck.maxWin) + 10;
-            
-            showRewardModal(winAmount,
-                async () => {
-                    await addCoins(winAmount);
-                    showToast('🍀 Won ' + winAmount + ' coins!', 'success');
-                    finishGame();
-                },
-                async () => {
-                    const adOk = await showAd();
-                    if (adOk) {
-                        await addCoins(winAmount * 2);
-                        showToast('🎉 2x! Won ' + (winAmount * 2) + ' coins!', 'success');
-                    } else {
-                        await addCoins(winAmount);
-                        showToast('⚠️ Ad skipped. Won ' + winAmount + ' coins.');
-                    }
-                    finishGame();
-                }
-            );
-            
-            async function finishGame() {
-                userData.gamesPlayed++;
-                userData.luckPlays++;
-                await syncWithFirebase();
-                updateUI();
-            }
+        function updateWHistory() {
+            const c = document.getElementById('wHistory');
+            if (!state.withdrawals.length) { c.innerHTML = '<div style="text-align:center;color:var(--muted);padding:16px;font-size:13px">No withdrawals</div>'; return; }
+            c.innerHTML = state.withdrawals.slice().reverse().map(w => `<div style="background:var(--surface);padding:12px;border-radius:10px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center"><div><div style="font-weight:600">${w.amount} GRAM</div><div style="font-size:10px;color:var(--muted);font-family:monospace">${w.address?.substring(0, 8)}...</div></div><span style="font-size:11px;color:var(--gold)">⏳ Pending</span></div>`).join('');
         }
 
-        // ============ REFERRAL ============
-        async function copyReferralCode() {
-            const code = userData.referralCode || generateReferralCode();
-            userData.referralCode = code;
-            await navigator.clipboard.writeText(code);
-            showToast('✅ Code copied: ' + code, 'success');
-            updateUI();
-        }
-
-        async function shareReferral() {
-            const code = userData.referralCode || generateReferralCode();
-            userData.referralCode = code;
-            const text = `🎮 Join CashReward and earn coins!\nUse my referral code: ${code}`;
-            
-            if (navigator.share) {
-                await navigator.share({ title: 'CashReward', text: text });
-            } else {
-                await navigator.clipboard.writeText(text);
-                showToast('✅ Share text copied!', 'success');
-            }
-            updateUI();
-        }
-
-        // ============ WALLET ============
-        async function withdraw() {
-            const amount = parseInt(document.getElementById('withdrawAmount').value);
-            const upi = document.getElementById('upiId').value.trim();
-            
-            if (!amount || amount < adminConfig.minWithdraw) {
-                showToast('❌ Minimum ' + adminConfig.minWithdraw + ' coins', 'error');
-                return;
-            }
-            if (!upi) {
-                showToast('❌ Enter UPI ID', 'error');
-                return;
-            }
-            if (userData.balance < amount) {
-                showToast('❌ Insufficient balance', 'error');
-                return;
-            }
-            
-            await spendCoins(amount);
-            
-            const withdrawal = { amount, upiId: upi, date: new Date().toISOString() };
-            userData.withdrawals.push(withdrawal);
-            
-            await saveWithdrawalToFirebase(withdrawal);
-            await syncWithFirebase();
-            
-            showToast('✅ Withdrawal of ' + amount + ' coins requested!', 'success');
-            
-            document.getElementById('withdrawAmount').value = '';
-            document.getElementById('upiId').value = '';
-            
-            updateWithdrawHistory();
-            updateUI();
-        }
-
-        function updateWithdrawHistory() {
-            const container = document.getElementById('withdrawHistory');
-            if (!userData.withdrawals || userData.withdrawals.length === 0) {
-                container.innerHTML = '<div style="text-align:center;color:#888;padding:20px">No withdrawals yet</div>';
-                return;
-            }
-            
-            container.innerHTML = userData.withdrawals.slice().reverse().map(w => `
-                <div style="background:rgba(0,0,0,0.3);padding:12px;border-radius:10px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
-                    <div>
-                        <div style="font-weight:700">${w.amount} Coins</div>
-                        <div style="font-size:11px;color:#888">${w.upiId}</div>
+        function renderPlans() {
+            document.getElementById('plansList').innerHTML = PLANS.filter(p => p.id !== 'free' || state.planId === 'free').map(p => `
+                <div class="plan-card ${state.planId === p.id ? 'active' : ''}" onclick="${p.id === 'free' ? '' : `selectPlan('${p.id}')`}">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+                        <span style="font-weight:700;font-size:14px;color:${p.color}">${p.name}</span>
+                        ${state.planId === p.id ? '<span style="font-size:10px;background:rgba(0,212,170,0.2);color:var(--green);padding:2px 8px;border-radius:10px">Active</span>' : ''}
                     </div>
-                    <div style="font-size:12px;color:#f0a500">Pending</div>
+                    <div style="font-size:11px;color:var(--muted)">Hash: ${p.hashRate} H/s</div>
+                    <div style="font-size:11px;color:var(--muted)">Daily: ~${p.dailyGram.toFixed(4)} GRAM</div>
+                    ${p.id !== 'free' ? `<div style="font-weight:700;font-size:16px;color:var(--gold);margin-top:4px">$${p.deposit}</div>` : '<div style="font-weight:600;font-size:13px;color:var(--muted);margin-top:4px">Free</div>'}
                 </div>
             `).join('');
+
+            const sel = document.getElementById('depositPlan');
+            sel.innerHTML = '<option value="">Select plan...</option>' + PLANS.filter(p => p.id !== 'free').map(p => `<option value="${p.id}">${p.name} - $${p.deposit} (${p.hashRate} H/s)</option>`).join('');
+        }
+
+        function selectPlan(id) {
+            document.getElementById('depositPlan').value = id;
+            document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('active'));
+            const cards = document.querySelectorAll('.plan-card');
+            const idx = PLANS.findIndex(p => p.id === id);
+            if (cards[idx]) cards[idx].classList.add('active');
+            showPage('plansPage');
+            setTimeout(() => document.getElementById('txId')?.scrollIntoView({ behavior: 'smooth' }), 300);
         }
 
         // ============ NAVIGATION ============
-        function showPage(pageId) {
+        function showPage(id) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            const page = document.getElementById(pageId);
-            if (page) page.classList.add('active');
-            
+            const pg = document.getElementById(id); if (pg) pg.classList.add('active');
             document.querySelectorAll('.nav-item').forEach(n => {
-                n.classList.toggle('active', n.getAttribute('data-page') === pageId);
+                n.classList.toggle('active', n.getAttribute('data-page') === id);
             });
-            
-            if (pageId === 'colorGamePage') initColorGame();
-            if (pageId === 'walletPage') updateWithdrawHistory();
-            if (pageId === 'referPage') {
-                document.getElementById('referralCode').textContent = userData.referralCode || '------';
+            if (id === 'walletPage') updateWHistory();
+            if (id === 'plansPage') renderPlans();
+        }
+
+        // ============ SAVE ============
+        function save() {
+            try { localStorage.setItem('gramminer', JSON.stringify(state)); } catch (e) { }
+            if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
+                const uid = 'tg_' + window.Telegram.WebApp.initDataUnsafe.user.id;
+                db.collection('gramminer').doc(uid).set({ ...state, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true }).catch(() => { });
             }
         }
 
-        // ============ BUILD GAMES GRID ============
-        function buildGamesGrid() {
-            const games = [
-                { id: 'ludoPage', icon: 'fa-dice-d6', name: '🎲 Ludo Dice', desc: 'Roll & Win!', color: '#ff6b6b' },
-                { id: 'colorGamePage', icon: 'fa-palette', name: '🎨 Color Match', desc: 'Find Colors', color: '#a855f7' },
-                { id: 'tryLuckPage', icon: 'fa-star', name: '🍀 Try Luck', desc: 'Spin & Win', color: '#f59e0b' },
-                { id: 'referPage', icon: 'fa-users', name: '👥 Refer', desc: 'Earn More', color: '#3b82f6' }
-            ];
-            
-            document.getElementById('gamesGrid').innerHTML = games.map(g => `
-                <div onclick="showPage('${g.id}')" class="game-card">
-                    <div style="width:50px;height:50px;border-radius:15px;background:${g.color};display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:22px">
-                        <i class="fas ${g.icon}" style="color:#fff"></i>
-                    </div>
-                    <div style="font-weight:700;font-size:15px;margin-bottom:4px">${g.name}</div>
-                    <div style="font-size:11px;color:#888">${g.desc}</div>
-                </div>
-            `).join('');
+        function load() {
+            try { const d = localStorage.getItem('gramminer'); if (d) Object.assign(state, JSON.parse(d)); } catch (e) { }
+            if (state.todayReset !== new Date().toDateString()) { state.todayMined = 0; state.todayReset = new Date().toDateString(); }
+            if (state.boostActive && Date.now() >= state.boostEnd) state.boostActive = false;
+        }
+
+        // ============ MINING LOOP ============
+        function mineLoop() {
+            if (state.isMining && state.miningStart) {
+                const plan = PLANS.find(p => p.id === state.planId) || PLANS[0];
+                const dailyRate = plan.dailyGram / 86400;
+                let rate = dailyRate;
+                if (state.boostActive && Date.now() < state.boostEnd) rate *= 2;
+                state.balance += rate; state.totalMined += rate; state.todayMined += rate;
+                const nl = Math.floor(state.totalMined / 10) + 1; if (nl > state.level) state.level = nl;
+                updateUI(); save();
+            }
+            if (state.boostActive && Date.now() >= state.boostEnd) { state.boostActive = false; updateUI(); save(); }
         }
 
         // ============ INIT ============
         async function init() {
-            console.log('🚀 Starting CashReward...');
-            
-            // Show loading
-            document.getElementById('adLoadingOverlay').style.display = 'flex';
-            document.querySelector('.ad-loading-text').textContent = 'Loading...';
-            
-            // Telegram
+            load();
             if (window.Telegram?.WebApp) {
-                window.Telegram.WebApp.ready();
-                window.Telegram.WebApp.expand();
-                const tgUser = window.Telegram.WebApp.initDataUnsafe?.user;
-                if (tgUser) {
-                    currentUser = {
-                        uid: 'tg_' + tgUser.id,
-                        name: tgUser.first_name || 'Player'
-                    };
-                    document.getElementById('userName').textContent = 'Hi, ' + currentUser.name;
-                    document.getElementById('profileAvatar').textContent = currentUser.name.charAt(0).toUpperCase();
+                window.Telegram.WebApp.ready(); window.Telegram.WebApp.expand();
+                const u = window.Telegram.WebApp.initDataUnsafe?.user;
+                if (u) {
+                    state.referralCode = state.referralCode || Math.random().toString(36).substring(2, 8).toUpperCase();
+                    try {
+                        const d = await db.collection('gramminer').doc('tg_' + u.id).get();
+                        if (d.exists) { const data = d.data(); if (data.deviceId && data.deviceId !== DEVICE_ID) console.warn('Device mismatch'); Object.assign(state, data); }
+                    } catch (e) { }
                 }
             }
-            
-            // Fallback user
-            if (!currentUser) {
-                currentUser = {
-                    uid: 'web_' + Date.now(),
-                    name: 'Player'
-                };
-            }
-            
-            // Load admin config from Firebase
-            await loadAdminConfig();
-            
-            // Load user data
-            const loaded = await loadFromFirebase();
-            if (!loaded) loadLocalState();
-            
-            // Hide loading
-            document.getElementById('adLoadingOverlay').style.display = 'none';
-            
-            // Build UI
-            buildGamesGrid();
-            updateUI();
-            updateWithdrawHistory();
-            
-            // Event listeners
-            document.getElementById('rollDiceBtn').addEventListener('click', rollDice);
-            document.getElementById('luckBtn').addEventListener('click', startLuck);
-            document.getElementById('withdrawBtn').addEventListener('click', withdraw);
-            document.getElementById('copyRefBtn').addEventListener('click', copyReferralCode);
-            document.getElementById('shareRefBtn').addEventListener('click', shareReferral);
-            
+            if (!state.referralCode) state.referralCode = 'GM' + Math.random().toString(36).substring(2, 6).toUpperCase();
+
+            updateUI(); updateWHistory(); renderPlans();
+
+            // Navigation
             document.querySelectorAll('.nav-item').forEach(item => {
-                item.addEventListener('click', () => showPage(item.getAttribute('data-page')));
+                item.addEventListener('click', (e) => {
+                    e.preventDefault(); e.stopPropagation();
+                    const page = item.getAttribute('data-page');
+                    if (page) showPage(page);
+                });
             });
-            
-            // Check daily bonus availability
-            const today = new Date().toDateString();
-            if (userData.lastDailyBonus === today) {
-                document.getElementById('dailyBonusCard').style.opacity = '0.5';
-            }
-            
-            console.log('✅ CashReward Ready!');
-            console.log('👤 User:', currentUser.name);
-            console.log('🎮 Config:', adminConfig);
-            console.log('📺 Adsgram:', window.Adsgram ? 'Active' : 'Demo');
-            console.log('🔥 Firebase:', 'Connected');
+
+            document.getElementById('copyRefBtn')?.addEventListener('click', () => { navigator.clipboard.writeText('https://t.me/GramMinerBot?start=' + state.referralCode); toast('✅ Link copied!'); });
+            document.getElementById('shareRefBtn')?.addEventListener('click', () => { const t = '⛏️ Gram Miner - Mine GRAM\nUse code: ' + state.referralCode; if (navigator.share) navigator.share({ title: 'Gram Miner', text: t }); else { navigator.clipboard.writeText(t); toast('✅ Copied!'); } });
+
+            setInterval(mineLoop, 1000);
+
+            window.watchWAd = watchWAd;
+            window.playDice = playDice; window.playCrash = playCrash; window.playWheel = playWheel; window.playMemory = playMemory;
+            window.copyAddress = copyAddress; window.selectPlan = selectPlan; window.submitDeposit = submitDeposit;
+
+            console.log('⛏️ Gram Miner Ready | Device:', DEVICE_ID);
         }
 
-        // Start
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
