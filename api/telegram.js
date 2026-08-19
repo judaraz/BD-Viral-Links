@@ -16,7 +16,7 @@ export default async function handler(req, res) {
                     const parts = text.split(' ');
                     const referralCode = parts[1] || '';
                     
-                    console.log('Start command received:', {chatId, referralCode});
+                    console.log('Start command:', { chatId, referralCode });
                     
                     const miniAppUrl = referralCode 
                         ? `${MINIAPP_URL}?startapp=${referralCode}`
@@ -31,12 +31,14 @@ export default async function handler(req, res) {
                         ]]
                     };
                     
+                    const welcomeMessage = `👋 Welcome ${firstName}!\n\nTap below to start mining GRAM!\n\n⏭️ Minimum Payment 0.05 gram\n⏭️ No Referral Need`;
+                    
                     const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             chat_id: chatId,
-                            text: `👋 Welcome ${firstName}!\n\nTap below to start mining GRAM!`,
+                            text: welcomeMessage,
                             reply_markup: keyboard
                         })
                     });
@@ -51,7 +53,6 @@ export default async function handler(req, res) {
             res.status(500).json({ error: e.message });
         }
     } else {
-        // For GET requests (webhook verification)
-        res.status(200).json({ ok: true });
+        res.status(200).json({ ok: true, message: 'Webhook is active' });
     }
 }
